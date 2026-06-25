@@ -860,35 +860,6 @@ def inverse_edit_points_modulation(
     return edit_points, source_anchor_name, target_anchor_name
 
 
-def make_cd_element(
-    tag: str,
-    ns: str | None = None,
-    attributes: dict[str, str] | None = None,
-    text: str | None = None,
-) -> lxml.etree._Element:
-    """Create an lxml Element with optional namespace, attributes, and text.
-
-    Args:
-        tag: Element tag name.
-        ns: Optional namespace URI. If given, tag becomes {ns}tag.
-        attributes: Optional dict of attribute name/value pairs.
-        text: Optional text content.
-
-    Returns:
-        lxml.etree.Element instance.
-    """
-    if ns is not None:
-        full_tag = f"{{{ns}}}{tag}"
-    else:
-        full_tag = tag
-    if attributes is None:
-        attributes = {}
-    element = lxml.etree.Element(full_tag, **attributes)
-    if text is not None:
-        element.text = text
-    return element
-
-
 # ---------------------------------------------------------------------------
 # RDF annotation helpers
 # ---------------------------------------------------------------------------
@@ -1093,38 +1064,42 @@ class DegradedEntry:
 
 def make_lxml_element(
     tag: str,
-    ns: str | None = None,
-    attrs: dict[str, str] | None = None,
+    namespace: str | None = None,
+    attributes: dict[str, str] | None = None,
     text: typing.Any = None,
     nsmap: dict[str | None, str] | None = None,
 ) -> lxml.etree._Element:
     """Create an lxml element."""
-    lxml_tag = f"{{{ns}}}{tag}" if ns is not None else tag
+    lxml_tag = f"{{{namespace}}}{tag}" if namespace is not None else tag
     if nsmap is None:
         nsmap = {}
-    if attrs is None:
-        attrs = {}
-    elem = lxml.etree.Element(lxml_tag, nsmap=nsmap, **attrs)
+    if attributes is None:
+        attributes = {}
+    elem = lxml.etree.Element(lxml_tag, nsmap=nsmap, **attributes)
     if text is not None:
         elem.text = str(text)
     return elem
 
 
 def make_celldesigner_element(
-    tag: str, attrs: dict[str, str] | None = None, text: typing.Any = None
+    tag: str, attributes: dict[str, str] | None = None, text: typing.Any = None
 ) -> lxml.etree._Element:
     """Shortcut for CellDesigner-namespaced element."""
-    return make_lxml_element(tag, ns=CD_NAMESPACE, attrs=attrs, text=text)
+    return make_lxml_element(
+        tag, namespace=CD_NAMESPACE, attributes=attributes, text=text
+    )
 
 
 def make_sbml_element(
     tag: str,
-    attrs: dict[str, str] | None = None,
+    attributes: dict[str, str] | None = None,
     text: typing.Any = None,
     nsmap: dict[str | None, str] | None = None,
 ) -> lxml.etree._Element:
     """Shortcut for SBML-namespaced element."""
-    return make_lxml_element(tag, ns=SBML_NS, attrs=attrs, text=text, nsmap=nsmap)
+    return make_lxml_element(
+        tag, namespace=SBML_NS, attributes=attributes, text=text, nsmap=nsmap
+    )
 
 
 def strip_active(species: typing.Any) -> str:
@@ -1847,7 +1822,7 @@ def infer_anchor_position(
 def build_make_sbml_element(writing_context: typing.Any) -> lxml.etree._Element:
     sbml = make_lxml_element(
         "sbml",
-        attrs={"level": "2", "version": "4"},
+        attributes={"level": "2", "version": "4"},
         nsmap=NSMAP,
     )
     sbml.append(make_celldesigner_model(writing_context))
@@ -1860,7 +1835,7 @@ def make_celldesigner_model(writing_context: typing.Any) -> lxml.etree._Element:
         writing_context.map_,
         candidate=writing_context.map_.id_ or "untitled",
     )
-    model = make_lxml_element("model", attrs={"metaid": model_id, "id": model_id})
+    model = make_lxml_element("model", attributes={"metaid": model_id, "id": model_id})
     # notes
     notes_element = build_sbml_notes(writing_context, writing_context.map_)
     if notes_element is not None:
@@ -1935,7 +1910,9 @@ def make_celldesigner_extension(writing_context: typing.Any) -> lxml.etree._Elem
         "sizeX": str(int(writing_context.map_.layout.width)),
         "sizeY": str(int(writing_context.map_.layout.height)),
     }
-    extension.append(make_celldesigner_element("modelDisplay", attrs=display_attrs))
+    extension.append(
+        make_celldesigner_element("modelDisplay", attributes=display_attrs)
+    )
     extension.append(make_celldesigner_list_of_included_species(writing_context))
     extension.append(make_celldesigner_list_of_compartment_aliases(writing_context))
     extension.append(make_celldesigner_list_of_complex_species_aliases(writing_context))
@@ -2009,7 +1986,7 @@ def make_celldesigner_list_of_compartment_aliases(
             if isinstance(layout_key, COMPARTMENT_LAYOUT_CLASSES):
                 alias = make_celldesigner_element(
                     "compartmentAlias",
-                    attrs={
+                    attributes={
                         "id": get_xml_id(writing_context, layout_key),
                         "compartment": get_xml_id(writing_context, comp),
                     },
@@ -2027,13 +2004,13 @@ def make_celldesigner_list_of_compartment_aliases(
                     alias.append(
                         make_celldesigner_element(
                             "point",
-                            attrs={"x": str(px), "y": str(py)},
+                            attributes={"x": str(px), "y": str(py)},
                         )
                     )
                 else:
                     alias.append(
                         make_celldesigner_element(
-                            "bounds", attrs=node_to_bounds_attrs(layout_key)
+                            "bounds", attributes=node_to_bounds_attrs(layout_key)
                         )
                     )
                 # namePoint (label position)
@@ -2042,7 +2019,7 @@ def make_celldesigner_list_of_compartment_aliases(
                     alias.append(
                         make_celldesigner_element(
                             "namePoint",
-                            attrs={
+                            attributes={
                                 "x": str(label.position.x),
                                 "y": str(label.position.y),
                             },
@@ -2055,7 +2032,7 @@ def make_celldesigner_list_of_compartment_aliases(
                 alias.append(
                     make_celldesigner_element(
                         "doubleLine",
-                        attrs={
+                        attributes={
                             "thickness": str(sep) if sep else "12.0",
                             "outerWidth": str(stroke_width) if stroke_width else "2.0",
                             "innerWidth": str(inner_stroke_width)
@@ -2074,12 +2051,13 @@ def make_celldesigner_list_of_compartment_aliases(
                     paint_color = "ffcccccc"
                 alias.append(
                     make_celldesigner_element(
-                        "paint", attrs={"color": paint_color, "scheme": "Color"}
+                        "paint", attributes={"color": paint_color, "scheme": "Color"}
                     )
                 )
                 alias.append(
                     make_celldesigner_element(
-                        "info", attrs={"state": "empty", "angle": "-1.5707963267948966"}
+                        "info",
+                        attributes={"state": "empty", "angle": "-1.5707963267948966"},
                     )
                 )
                 list_elem.append(alias)
@@ -2131,7 +2109,7 @@ def make_celldesigner_included_species(
     species_id = get_species_id(species, writing_context)
     species_element = make_celldesigner_element(
         "species",
-        attrs={
+        attributes={
             "id": species_id,
             "name": encode_name(species.name) or "",
         },
@@ -2225,7 +2203,7 @@ def make_celldesigner_species_state(
                 ss_list.append(
                     make_celldesigner_element(
                         "structuralState",
-                        attrs={"structuralState": ss.value},
+                        attributes={"structuralState": ss.value},
                         text=ss.value,
                     )
                 )
@@ -2242,7 +2220,9 @@ def make_celldesigner_species_state(
                     modification.residue, species
                 )
             mod_attrs["state"] = modification_state_string(modification.state)
-            mod_list.append(make_celldesigner_element("modification", attrs=mod_attrs))
+            mod_list.append(
+                make_celldesigner_element("modification", attributes=mod_attrs)
+            )
         state.append(mod_list)
     return state
 
@@ -2415,60 +2395,62 @@ def make_celldesigner_degraded_alias(
         "id": get_xml_id(writing_context, degraded_layout),
         "species": species_id,
     }
-    alias = make_celldesigner_element("speciesAlias", attrs=attrs)
+    alias = make_celldesigner_element("speciesAlias", attributes=attrs)
     activity_text = (
         "active" if isinstance(degraded_layout, DegradedActiveLayout) else "inactive"
     )
     alias.append(make_celldesigner_element("activity", text=activity_text))
     alias.append(
-        make_celldesigner_element("bounds", attrs=node_to_bounds_attrs(degraded_layout))
+        make_celldesigner_element(
+            "bounds", attributes=node_to_bounds_attrs(degraded_layout)
+        )
     )
-    alias.append(make_celldesigner_element("font", attrs={"size": "12"}))
-    alias.append(make_celldesigner_element("view", attrs={"state": "usual"}))
+    alias.append(make_celldesigner_element("font", attributes={"size": "12"}))
+    alias.append(make_celldesigner_element("view", attributes={"state": "usual"}))
     usual = make_celldesigner_element("usualView")
     usual.append(
-        make_celldesigner_element("innerPosition", attrs={"x": "0.0", "y": "0.0"})
+        make_celldesigner_element("innerPosition", attributes={"x": "0.0", "y": "0.0"})
     )
     usual.append(
         make_celldesigner_element(
             "boxSize",
-            attrs={
+            attributes={
                 "width": str(degraded_layout.width),
                 "height": str(degraded_layout.height),
             },
         )
     )
-    usual.append(make_celldesigner_element("singleLine", attrs={"width": "1.0"}))
+    usual.append(make_celldesigner_element("singleLine", attributes={"width": "1.0"}))
     usual.append(
         make_celldesigner_element(
-            "paint", attrs={"color": "ffccffcc", "scheme": "Color"}
+            "paint", attributes={"color": "ffccffcc", "scheme": "Color"}
         )
     )
     alias.append(usual)
     brief = make_celldesigner_element("briefView")
     brief.append(
-        make_celldesigner_element("innerPosition", attrs={"x": "0.0", "y": "0.0"})
+        make_celldesigner_element("innerPosition", attributes={"x": "0.0", "y": "0.0"})
     )
     brief.append(
         make_celldesigner_element(
             "boxSize",
-            attrs={
+            attributes={
                 "width": str(degraded_layout.width),
                 "height": str(degraded_layout.height),
             },
         )
     )
-    brief.append(make_celldesigner_element("singleLine", attrs={"width": "1.0"}))
+    brief.append(make_celldesigner_element("singleLine", attributes={"width": "1.0"}))
     brief.append(
         make_celldesigner_element(
-            "paint", attrs={"color": "ffccffcc", "scheme": "Color"}
+            "paint", attributes={"color": "ffccffcc", "scheme": "Color"}
         )
     )
     alias.append(brief)
     alias.append(
         make_celldesigner_element(
             "info",
-            attrs={
+            attributes={
                 "state": "empty",
                 "angle": "-1.5707963267948966",
             },
@@ -2522,38 +2504,42 @@ def make_celldesigner_alias(
         comp_alias = find_compartment_alias_id(writing_context, layout)
         if comp_alias is not None:
             attrs["compartmentAlias"] = comp_alias
-    alias = make_celldesigner_element(tag, attrs=attrs)
+    alias = make_celldesigner_element(tag, attributes=attrs)
     activity_text = "active" if model.active else "inactive"
     alias.append(make_celldesigner_element("activity", text=activity_text))
     alias.append(
-        make_celldesigner_element("bounds", attrs=node_to_bounds_attrs(layout))
+        make_celldesigner_element("bounds", attributes=node_to_bounds_attrs(layout))
     )
     font_size = "12"
     if layout.label is not None and layout.label.font_size is not None:
         font_size = str(int(layout.label.font_size))
-    alias.append(make_celldesigner_element("font", attrs={"size": font_size}))
-    alias.append(make_celldesigner_element("view", attrs={"state": "usual"}))
+    alias.append(make_celldesigner_element("font", attributes={"size": font_size}))
+    alias.append(make_celldesigner_element("view", attributes={"state": "usual"}))
     if tag == "complexSpeciesAlias":
         alias.append(
-            make_celldesigner_element("backupSize", attrs={"w": "0.0", "h": "0.0"})
+            make_celldesigner_element("backupSize", attributes={"w": "0.0", "h": "0.0"})
         )
-        alias.append(make_celldesigner_element("backupView", attrs={"state": "none"}))
+        alias.append(
+            make_celldesigner_element("backupView", attributes={"state": "none"})
+        )
     # usualView
     usual = make_celldesigner_element("usualView")
     usual.append(
-        make_celldesigner_element("innerPosition", attrs={"x": "0.0", "y": "0.0"})
+        make_celldesigner_element("innerPosition", attributes={"x": "0.0", "y": "0.0"})
     )
     usual.append(
         make_celldesigner_element(
             "boxSize",
-            attrs={
+            attributes={
                 "width": str(layout.width),
                 "height": str(layout.height),
             },
         )
     )
     line_width = "2.0" if tag == "complexSpeciesAlias" else "1.0"
-    usual.append(make_celldesigner_element("singleLine", attrs={"width": line_width}))
+    usual.append(
+        make_celldesigner_element("singleLine", attributes={"width": line_width})
+    )
     fill = getattr(layout, "fill", None)
     if fill is not None and fill is not NoneValue:
         paint_color = color_to_cd_hex(fill)
@@ -2561,35 +2547,37 @@ def make_celldesigner_alias(
         paint_color = "fff7f7f7" if tag == "complexSpeciesAlias" else "ffccffcc"
     usual.append(
         make_celldesigner_element(
-            "paint", attrs={"color": paint_color, "scheme": "Color"}
+            "paint", attributes={"color": paint_color, "scheme": "Color"}
         )
     )
     alias.append(usual)
     # briefView (same as usualView)
     brief = make_celldesigner_element("briefView")
     brief.append(
-        make_celldesigner_element("innerPosition", attrs={"x": "0.0", "y": "0.0"})
+        make_celldesigner_element("innerPosition", attributes={"x": "0.0", "y": "0.0"})
     )
     brief.append(
         make_celldesigner_element(
             "boxSize",
-            attrs={
+            attributes={
                 "width": str(layout.width),
                 "height": str(layout.height),
             },
         )
     )
-    brief.append(make_celldesigner_element("singleLine", attrs={"width": line_width}))
+    brief.append(
+        make_celldesigner_element("singleLine", attributes={"width": line_width})
+    )
     brief.append(
         make_celldesigner_element(
-            "paint", attrs={"color": paint_color, "scheme": "Color"}
+            "paint", attributes={"color": paint_color, "scheme": "Color"}
         )
     )
     alias.append(brief)
     alias.append(
         make_celldesigner_element(
             "info",
-            attrs={
+            attributes={
                 "state": "empty",
                 "angle": "-1.5707963267948966",
             },
@@ -2622,7 +2610,7 @@ def make_celldesigner_list_of_proteins(
             "name": encode_name(tmpl.name) or "",
             "type": protein_type,
         }
-        protein = make_celldesigner_element("protein", attrs=attrs)
+        protein = make_celldesigner_element("protein", attributes=attrs)
         if tmpl.modification_residues:
             mr_list = make_celldesigner_element("listOfModificationResidues")
             for residue in sorted(tmpl.modification_residues, key=lambda r: r.id_):
@@ -2632,7 +2620,9 @@ def make_celldesigner_list_of_proteins(
                 # Compute angle from layout if available
                 mr_attrs["angle"] = find_residue_angle(writing_context, tmpl, residue)
                 mr_list.append(
-                    make_celldesigner_element("modificationResidue", attrs=mr_attrs)
+                    make_celldesigner_element(
+                        "modificationResidue", attributes=mr_attrs
+                    )
                 )
             protein.append(mr_list)
         list_elem.append(protein)
@@ -2720,7 +2710,7 @@ def make_celldesigner_list_of_genes(writing_context: typing.Any) -> lxml.etree._
             continue
         gene_elem = make_celldesigner_element(
             "gene",
-            attrs={
+            attributes={
                 "type": "GENE",
                 "id": get_xml_id(writing_context, tmpl, share=True),
                 "name": encode_name(tmpl.name) or "",
@@ -2741,7 +2731,7 @@ def make_celldesigner_list_of_rnas(writing_context: typing.Any) -> lxml.etree._E
             continue
         rna_elem = make_celldesigner_element(
             "RNA",
-            attrs={
+            attributes={
                 "type": "RNA",
                 "id": get_xml_id(writing_context, tmpl, share=True),
                 "name": encode_name(tmpl.name) or "",
@@ -2764,7 +2754,7 @@ def make_celldesigner_list_of_antisense_rnas(
             continue
         arna_elem = make_celldesigner_element(
             "antisenseRNA",
-            attrs={
+            attributes={
                 "type": "ANTISENSE_RNA",
                 "id": get_xml_id(writing_context, tmpl, share=True),
                 "name": encode_name(tmpl.name) or "",
@@ -2800,7 +2790,7 @@ def append_template_regions(elem: lxml.etree._Element, tmpl: typing.Any) -> None
             "pos": "0.5",
             "type": region_type,
         }
-        region_list.append(make_celldesigner_element("region", attrs=region_attrs))
+        region_list.append(make_celldesigner_element("region", attributes=region_attrs))
     elem.append(region_list)
 
 
@@ -2842,7 +2832,7 @@ def make_celldesigner_list_of_compartments(
         outside = getattr(comp, "outside", None)
         if outside is not None:
             attrs["outside"] = get_xml_id(writing_context, outside)
-        compartment_element = make_lxml_element("compartment", attrs=attrs)
+        compartment_element = make_lxml_element("compartment", attributes=attrs)
         notes_element = build_sbml_notes(writing_context, comp)
         if notes_element is not None:
             compartment_element.append(notes_element)
@@ -2929,7 +2919,7 @@ def make_sbml_document_degraded_species(
         "constant": "false",
         "boundaryCondition": "false",
     }
-    species_element = make_lxml_element("species", attrs=attrs)
+    species_element = make_lxml_element("species", attributes=attrs)
     annotation = make_lxml_element("annotation")
     extension = make_celldesigner_element("extension")
     extension.append(make_celldesigner_element("positionToCompartment", text="inside"))
@@ -2958,7 +2948,7 @@ def make_sbml_document_species(
         "constant": "false",
         "boundaryCondition": "false",
     }
-    species_element = make_lxml_element("species", attrs=attrs)
+    species_element = make_lxml_element("species", attributes=attrs)
     # notes
     notes_element = build_sbml_notes(writing_context, species)
     if notes_element is not None:
@@ -2974,7 +2964,7 @@ def make_sbml_document_species(
         cat_list = make_celldesigner_element("listOfCatalyzedReactions")
         for rxn_id in catalyzed:
             cat_list.append(
-                make_celldesigner_element("catalyzed", attrs={"reaction": rxn_id})
+                make_celldesigner_element("catalyzed", attributes={"reaction": rxn_id})
             )
         extension.append(cat_list)
     annotation.append(extension)
@@ -3082,7 +3072,7 @@ def make_celldesigner_reaction(
         "id": xml_id,
         "reversible": "true" if reaction.reversible else "false",
     }
-    reaction_element = make_lxml_element("reaction", attrs=attrs)
+    reaction_element = make_lxml_element("reaction", attributes=attrs)
 
     # notes
     notes_element = build_sbml_notes(writing_context, reaction)
@@ -3441,7 +3431,7 @@ def make_celldesigner_reaction(
     # line
     extension.append(
         make_celldesigner_element(
-            "line", attrs=get_line_attributes(reaction_layout, include_type=True)
+            "line", attributes=get_line_attributes(reaction_layout, include_type=True)
         )
     )
 
@@ -3471,7 +3461,9 @@ def make_celldesigner_reaction(
                 alias_id = get_alias_id(writing_context, layout_element_item.target)
                 species_reference = make_lxml_element(
                     "speciesReference",
-                    attrs={"species": get_species_id(sbml_species, writing_context)},
+                    attributes={
+                        "species": get_species_id(sbml_species, writing_context)
+                    },
                 )
                 species_reference_annotation = make_lxml_element("annotation")
                 species_reference_extension = make_celldesigner_element("extension")
@@ -3568,7 +3560,9 @@ def make_celldesigner_reaction(
                 alias_id = get_alias_id(writing_context, layout_element_item.target)
                 species_reference = make_lxml_element(
                     "speciesReference",
-                    attrs={"species": get_species_id(sbml_species, writing_context)},
+                    attributes={
+                        "species": get_species_id(sbml_species, writing_context)
+                    },
                 )
                 species_reference_annotation = make_lxml_element("annotation")
                 species_reference_extension = make_celldesigner_element("extension")
@@ -3673,7 +3667,9 @@ def make_celldesigner_reaction(
                     alias_id = get_alias_id(writing_context, alias_layout)
                     modifier_species_reference = make_lxml_element(
                         "modifierSpeciesReference",
-                        attrs={"species": get_species_id(sbml_inp, writing_context)},
+                        attributes={
+                            "species": get_species_id(sbml_inp, writing_context)
+                        },
                     )
                     modifier_reference_annotation = make_lxml_element("annotation")
                     modifier_reference_extension = make_celldesigner_element(
@@ -3707,7 +3703,7 @@ def make_celldesigner_reaction(
                     memoize=False,
                 )
             modifier_species_reference = make_lxml_element(
-                "modifierSpeciesReference", attrs=modifier_reference_attributes
+                "modifierSpeciesReference", attributes=modifier_reference_attributes
             )
             modifier_reference_annotation = make_lxml_element("annotation")
             modifier_reference_extension = make_celldesigner_element("extension")
@@ -3774,7 +3770,7 @@ def make_sbml_document_species_reference(
         )
     if participant.stoichiometry is not None:
         sr_attrs["stoichiometry"] = str(participant.stoichiometry)
-    species_reference = make_lxml_element("speciesReference", attrs=sr_attrs)
+    species_reference = make_lxml_element("speciesReference", attributes=sr_attrs)
     species_reference_annotation = make_lxml_element("annotation")
     species_reference_extension = make_celldesigner_element("extension")
     species_reference_extension.append(
@@ -3816,7 +3812,7 @@ def make_sbml_document_species_reference_from_layout(
                 share=False,
                 memoize=False,
             )
-    species_reference = make_lxml_element("speciesReference", attrs=sr_attrs)
+    species_reference = make_lxml_element("speciesReference", attributes=sr_attrs)
     species_reference_annotation = make_lxml_element("annotation")
     species_reference_extension = make_celldesigner_element("extension")
     species_reference_extension.append(
@@ -3839,7 +3835,7 @@ def make_celldesigner_base_participant_from_layout(
     alias_id = get_alias_id(writing_context, alias_layout)
     elem = make_celldesigner_element(
         tag,
-        attrs={
+        attributes={
             "species": get_species_id(species, writing_context),
             "alias": alias_id,
         },
@@ -3852,7 +3848,9 @@ def make_celldesigner_base_participant_from_layout(
             anchor = infer_anchor_position(alias_layout, ref_point)
             if anchor is not None:
                 elem.append(
-                    make_celldesigner_element("linkAnchor", attrs={"position": anchor})
+                    make_celldesigner_element(
+                        "linkAnchor", attributes={"position": anchor}
+                    )
                 )
     return elem
 
@@ -3888,7 +3886,7 @@ def make_celldesigner_base_participant(
     alias_id = get_alias_id(writing_context, alias_layout)
     elem = make_celldesigner_element(
         tag,
-        attrs={
+        attributes={
             "species": get_species_id(species, writing_context),
             "alias": alias_id,
         },
@@ -3901,7 +3899,9 @@ def make_celldesigner_base_participant(
             anchor = infer_anchor_position(alias_layout, ref_point)
             if anchor is not None:
                 elem.append(
-                    make_celldesigner_element("linkAnchor", attrs={"position": anchor})
+                    make_celldesigner_element(
+                        "linkAnchor", attributes={"position": anchor}
+                    )
                 )
     return elem
 
@@ -3918,7 +3918,7 @@ def make_celldesigner_degraded_participant_link(
     species_id = degraded_species_id(writing_context, degraded_layout)
     link = make_celldesigner_element(
         tag,
-        attrs={
+        attributes={
             attr_name: species_id,
             "alias": get_xml_id(writing_context, degraded_layout),
         },
@@ -3936,16 +3936,18 @@ def make_celldesigner_degraded_participant_link(
         anchor_pos = anchor_name_to_position(anchor_name)
         if anchor_pos is not None:
             link.append(
-                make_celldesigner_element("linkAnchor", attrs={"position": anchor_pos})
+                make_celldesigner_element(
+                    "linkAnchor", attributes={"position": anchor_pos}
+                )
             )
     connect_scheme = make_celldesigner_element(
-        "connectScheme", attrs={"connectPolicy": "direct"}
+        "connectScheme", attributes={"connectPolicy": "direct"}
     )
     line_direction_list = make_celldesigner_element("listOfLineDirection")
     for i in range(len(edit_points) + 1):
         line_direction_list.append(
             make_celldesigner_element(
-                "lineDirection", attrs={"index": str(i), "value": "unknown"}
+                "lineDirection", attributes={"index": str(i), "value": "unknown"}
             )
         )
     connect_scheme.append(line_direction_list)
@@ -3959,7 +3961,7 @@ def make_celldesigner_degraded_participant_link(
         )
     link.append(
         make_celldesigner_element(
-            "line", attrs=get_line_attributes(arc_layout, include_type=True)
+            "line", attributes=get_line_attributes(arc_layout, include_type=True)
         )
     )
     return link
@@ -3971,7 +3973,7 @@ def make_sbml_document_degraded_species_reference(
     """Build a speciesReference for a degraded layout (no model peer)."""
     species_id = degraded_species_id(writing_context, degraded_layout)
     species_reference = make_lxml_element(
-        "speciesReference", attrs={"species": species_id}
+        "speciesReference", attributes={"species": species_id}
     )
     species_reference_annotation = make_lxml_element("annotation")
     species_reference_extension = make_celldesigner_element("extension")
@@ -3995,7 +3997,7 @@ def make_celldesigner_degraded_base_participant(
     """Build a baseReactant/baseProduct for a degraded layout glyph."""
     elem = make_celldesigner_element(
         tag,
-        attrs={
+        attributes={
             "species": degraded_species_id(writing_context, degraded_layout),
             "alias": get_xml_id(writing_context, degraded_layout),
         },
@@ -4008,7 +4010,9 @@ def make_celldesigner_degraded_base_participant(
             anchor = infer_anchor_position(degraded_layout, ref_point)
             if anchor is not None:
                 elem.append(
-                    make_celldesigner_element("linkAnchor", attrs={"position": anchor})
+                    make_celldesigner_element(
+                        "linkAnchor", attributes={"position": anchor}
+                    )
                 )
     return elem
 
@@ -4059,7 +4063,7 @@ def make_celldesigner_connect_scheme(
         # No layout — write minimal fallback
         connect_scheme = make_celldesigner_element(
             "connectScheme",
-            attrs={
+            attributes={
                 "connectPolicy": "direct",
                 "rectangleIndex": "0",
             },
@@ -4068,7 +4072,7 @@ def make_celldesigner_connect_scheme(
         line_direction_list.append(
             make_celldesigner_element(
                 "lineDirection",
-                attrs={
+                attributes={
                     "index": "0",
                     "value": "unknown",
                 },
@@ -4161,7 +4165,7 @@ def make_celldesigner_connect_scheme(
                 reactant_anchor_names,
             ) = best_result
             connect_scheme = make_celldesigner_element(
-                "connectScheme", attrs={"connectPolicy": "direct"}
+                "connectScheme", attributes={"connectPolicy": "direct"}
             )
             line_direction_list = make_celldesigner_element("listOfLineDirection")
             for arm_idx, arm_count in enumerate([num0, num1, num2]):
@@ -4169,7 +4173,7 @@ def make_celldesigner_connect_scheme(
                     line_direction_list.append(
                         make_celldesigner_element(
                             "lineDirection",
-                            attrs={
+                            attributes={
                                 "arm": str(arm_idx),
                                 "index": str(i),
                                 "value": "unknown",
@@ -4187,7 +4191,7 @@ def make_celldesigner_connect_scheme(
             extension.append(
                 make_celldesigner_element(
                     "editPoints",
-                    attrs=edit_points_attributes,
+                    attributes=edit_points_attributes,
                     text=points_to_edit_points_text(all_edit_points),
                 )
             )
@@ -4195,14 +4199,14 @@ def make_celldesigner_connect_scheme(
         if not computed:
             # Fallback
             connect_scheme = make_celldesigner_element(
-                "connectScheme", attrs={"connectPolicy": "direct"}
+                "connectScheme", attributes={"connectPolicy": "direct"}
             )
             line_direction_list = make_celldesigner_element("listOfLineDirection")
             for arm in range(3):
                 line_direction_list.append(
                     make_celldesigner_element(
                         "lineDirection",
-                        attrs={
+                        attributes={
                             "arm": str(arm),
                             "index": "0",
                             "value": "unknown",
@@ -4214,7 +4218,7 @@ def make_celldesigner_connect_scheme(
             extension.append(
                 make_celldesigner_element(
                     "editPoints",
-                    attrs={
+                    attributes={
                         "num0": "0",
                         "num1": "0",
                         "num2": "0",
@@ -4309,7 +4313,7 @@ def make_celldesigner_connect_scheme(
                 product_anchor_names,
             ) = best_result
             connect_scheme = make_celldesigner_element(
-                "connectScheme", attrs={"connectPolicy": "direct"}
+                "connectScheme", attributes={"connectPolicy": "direct"}
             )
             line_direction_list = make_celldesigner_element("listOfLineDirection")
             for arm_idx, arm_count in enumerate([num0, num1, num2]):
@@ -4317,7 +4321,7 @@ def make_celldesigner_connect_scheme(
                     line_direction_list.append(
                         make_celldesigner_element(
                             "lineDirection",
-                            attrs={
+                            attributes={
                                 "arm": str(arm_idx),
                                 "index": str(i),
                                 "value": "unknown",
@@ -4335,21 +4339,21 @@ def make_celldesigner_connect_scheme(
             extension.append(
                 make_celldesigner_element(
                     "editPoints",
-                    attrs=edit_points_attributes,
+                    attributes=edit_points_attributes,
                     text=points_to_edit_points_text(all_edit_points),
                 )
             )
             computed = True
         if not computed:
             connect_scheme = make_celldesigner_element(
-                "connectScheme", attrs={"connectPolicy": "direct"}
+                "connectScheme", attributes={"connectPolicy": "direct"}
             )
             line_direction_list = make_celldesigner_element("listOfLineDirection")
             for arm in range(3):
                 line_direction_list.append(
                     make_celldesigner_element(
                         "lineDirection",
-                        attrs={
+                        attributes={
                             "arm": str(arm),
                             "index": "0",
                             "value": "unknown",
@@ -4361,7 +4365,7 @@ def make_celldesigner_connect_scheme(
             extension.append(
                 make_celldesigner_element(
                     "editPoints",
-                    attrs={
+                    attributes={
                         "num0": "0",
                         "num1": "0",
                         "num2": "0",
@@ -4433,7 +4437,7 @@ def make_celldesigner_connect_scheme(
                 n_line_dirs = len(edit_points) + 3
                 connect_scheme = make_celldesigner_element(
                     "connectScheme",
-                    attrs={
+                    attributes={
                         "connectPolicy": "direct",
                         "rectangleIndex": str(rectangle_index),
                     },
@@ -4443,7 +4447,7 @@ def make_celldesigner_connect_scheme(
                     line_direction_list.append(
                         make_celldesigner_element(
                             "lineDirection",
-                            attrs={
+                            attributes={
                                 "index": str(i),
                                 "value": "unknown",
                             },
@@ -4462,7 +4466,7 @@ def make_celldesigner_connect_scheme(
         if not computed:
             connect_scheme = make_celldesigner_element(
                 "connectScheme",
-                attrs={
+                attributes={
                     "connectPolicy": "direct",
                     "rectangleIndex": "0",
                 },
@@ -4471,7 +4475,7 @@ def make_celldesigner_connect_scheme(
             line_direction_list.append(
                 make_celldesigner_element(
                     "lineDirection",
-                    attrs={
+                    attributes={
                         "index": "0",
                         "value": "unknown",
                     },
@@ -4513,7 +4517,7 @@ def make_celldesigner_participant_link(
     alias_id = get_alias_id(writing_context, alias_layout)
     link = make_celldesigner_element(
         tag,
-        attrs={
+        attributes={
             attr_name: get_species_id(species, writing_context),
             "alias": alias_id,
         },
@@ -4551,19 +4555,19 @@ def make_celldesigner_participant_link(
             link.append(
                 make_celldesigner_element(
                     "linkAnchor",
-                    attrs={
+                    attributes={
                         "position": anchor_pos,
                     },
                 )
             )
     connect_scheme = make_celldesigner_element(
-        "connectScheme", attrs={"connectPolicy": "direct"}
+        "connectScheme", attributes={"connectPolicy": "direct"}
     )
     line_direction_list = make_celldesigner_element("listOfLineDirection")
     for i in range(len(edit_points) + 1):
         line_direction_list.append(
             make_celldesigner_element(
-                "lineDirection", attrs={"index": str(i), "value": "unknown"}
+                "lineDirection", attributes={"index": str(i), "value": "unknown"}
             )
         )
     connect_scheme.append(line_direction_list)
@@ -4577,7 +4581,7 @@ def make_celldesigner_participant_link(
         )
     link.append(
         make_celldesigner_element(
-            "line", attrs=get_line_attributes(arc_layout, include_type=True)
+            "line", attributes=get_line_attributes(arc_layout, include_type=True)
         )
     )
     return link
@@ -4610,7 +4614,7 @@ def make_celldesigner_participant_link_from_layout(
     species = get_layout_model_mapping(writing_context).get_mapping(alias_layout)
     link = make_celldesigner_element(
         tag,
-        attrs={
+        attributes={
             attr_name: get_species_id(species, writing_context),
             "alias": alias_id,
         },
@@ -4636,19 +4640,19 @@ def make_celldesigner_participant_link_from_layout(
             link.append(
                 make_celldesigner_element(
                     "linkAnchor",
-                    attrs={
+                    attributes={
                         "position": anchor_pos,
                     },
                 )
             )
     connect_scheme = make_celldesigner_element(
-        "connectScheme", attrs={"connectPolicy": "direct"}
+        "connectScheme", attributes={"connectPolicy": "direct"}
     )
     line_direction_list = make_celldesigner_element("listOfLineDirection")
     for i in range(len(edit_points) + 1):
         line_direction_list.append(
             make_celldesigner_element(
-                "lineDirection", attrs={"index": str(i), "value": "unknown"}
+                "lineDirection", attributes={"index": str(i), "value": "unknown"}
             )
         )
     connect_scheme.append(line_direction_list)
@@ -4662,7 +4666,7 @@ def make_celldesigner_participant_link_from_layout(
         )
     link.append(
         make_celldesigner_element(
-            "line", attrs=get_line_attributes(arc_layout, include_type=True)
+            "line", attributes=get_line_attributes(arc_layout, include_type=True)
         )
     )
     return link
@@ -4718,16 +4722,16 @@ def make_celldesigner_modification(
     }
     if edit_points:
         attrs["editPoints"] = points_to_edit_points_text(edit_points)
-    modification_element = make_celldesigner_element("modification", attrs=attrs)
+    modification_element = make_celldesigner_element("modification", attributes=attrs)
     # connectScheme
     connect_scheme = make_celldesigner_element(
-        "connectScheme", attrs={"connectPolicy": "direct"}
+        "connectScheme", attributes={"connectPolicy": "direct"}
     )
     line_direction_list = make_celldesigner_element("listOfLineDirection")
     for i in range(len(edit_points) + 1):
         line_direction_list.append(
             make_celldesigner_element(
-                "lineDirection", attrs={"index": str(i), "value": "unknown"}
+                "lineDirection", attributes={"index": str(i), "value": "unknown"}
             )
         )
     connect_scheme.append(line_direction_list)
@@ -4737,18 +4741,22 @@ def make_celldesigner_modification(
         "species": get_species_id(species, writing_context),
         "alias": alias_id,
     }
-    link_target = make_celldesigner_element("linkTarget", attrs=link_target_attributes)
+    link_target = make_celldesigner_element(
+        "linkTarget", attributes=link_target_attributes
+    )
     if source_anchor_name is not None:
         anchor_pos = anchor_name_to_position(source_anchor_name)
         if anchor_pos is not None:
             link_target.append(
-                make_celldesigner_element("linkAnchor", attrs={"position": anchor_pos})
+                make_celldesigner_element(
+                    "linkAnchor", attributes={"position": anchor_pos}
+                )
             )
     modification_element.append(link_target)
     # line
     modification_element.append(
         make_celldesigner_element(
-            "line", attrs=get_line_attributes(modifier_arc, include_type=True)
+            "line", attributes=get_line_attributes(modifier_arc, include_type=True)
         )
     )
     return modification_element
@@ -4855,14 +4863,14 @@ def make_celldesigner_gate_modifications(
     }
     if gate_edit_points:
         gate_attrs["editPoints"] = gate_edit_points
-    gate_mod = make_celldesigner_element("modification", attrs=gate_attrs)
+    gate_mod = make_celldesigner_element("modification", attributes=gate_attrs)
     gate_cs = make_celldesigner_element(
-        "connectScheme", attrs={"connectPolicy": "direct"}
+        "connectScheme", attributes={"connectPolicy": "direct"}
     )
     gate_lld = make_celldesigner_element("listOfLineDirection")
     gate_lld.append(
         make_celldesigner_element(
-            "lineDirection", attrs={"index": "0", "value": "unknown"}
+            "lineDirection", attributes={"index": "0", "value": "unknown"}
         )
     )
     gate_cs.append(gate_lld)
@@ -4881,7 +4889,8 @@ def make_celldesigner_gate_modifications(
                 break
     gate_mod.append(
         make_celldesigner_element(
-            "line", attrs=get_line_attributes(gate_to_reaction_arc, include_type=True)
+            "line",
+            attributes=get_line_attributes(gate_to_reaction_arc, include_type=True),
         )
     )
     result.append(gate_mod)
@@ -4898,14 +4907,14 @@ def make_celldesigner_gate_modifications(
             "aliases": input_alias_ids[i],
             "targetLineIndex": "-1,2",
         }
-        inp_mod = make_celldesigner_element("modification", attrs=inp_attrs)
+        inp_mod = make_celldesigner_element("modification", attributes=inp_attrs)
         connect_scheme = make_celldesigner_element(
-            "connectScheme", attrs={"connectPolicy": "direct"}
+            "connectScheme", attributes={"connectPolicy": "direct"}
         )
         line_direction_list = make_celldesigner_element("listOfLineDirection")
         line_direction_list.append(
             make_celldesigner_element(
-                "lineDirection", attrs={"index": "0", "value": "unknown"}
+                "lineDirection", attributes={"index": "0", "value": "unknown"}
             )
         )
         connect_scheme.append(line_direction_list)
@@ -4925,7 +4934,7 @@ def make_celldesigner_gate_modifications(
                     break
         link_target = make_celldesigner_element(
             "linkTarget",
-            attrs={
+            attributes={
                 "species": get_species_id(sbml_inp, writing_context),
                 "alias": input_alias_ids[i],
             },
@@ -4933,7 +4942,8 @@ def make_celldesigner_gate_modifications(
         inp_mod.append(link_target)
         inp_mod.append(
             make_celldesigner_element(
-                "line", attrs=get_line_attributes(input_to_gate_arc, include_type=True)
+                "line",
+                attributes=get_line_attributes(input_to_gate_arc, include_type=True),
             )
         )
         result.append(inp_mod)
@@ -4985,7 +4995,7 @@ def make_celldesigner_modulation_reaction(
         "id": xml_id,
         "reversible": "false",
     }
-    reaction_element = make_lxml_element("reaction", attrs=attrs)
+    reaction_element = make_lxml_element("reaction", attributes=attrs)
 
     # notes
     notes_element = build_sbml_notes(writing_context, modulation)
@@ -5040,13 +5050,15 @@ def make_celldesigner_modulation_reaction(
     # baseReactants (source)
     base_reactants_element = make_celldesigner_element("baseReactants")
     base_reactant = make_celldesigner_element(
-        "baseReactant", attrs={"species": source_id, "alias": source_alias}
+        "baseReactant", attributes={"species": source_id, "alias": source_alias}
     )
     if source_anchor_name is not None:
         anchor_pos = anchor_name_to_position(source_anchor_name)
         if anchor_pos is not None:
             base_reactant.append(
-                make_celldesigner_element("linkAnchor", attrs={"position": anchor_pos})
+                make_celldesigner_element(
+                    "linkAnchor", attributes={"position": anchor_pos}
+                )
             )
     base_reactants_element.append(base_reactant)
     extension.append(base_reactants_element)
@@ -5054,13 +5066,15 @@ def make_celldesigner_modulation_reaction(
     # baseProducts (target)
     base_products_element = make_celldesigner_element("baseProducts")
     base_product = make_celldesigner_element(
-        "baseProduct", attrs={"species": target_id, "alias": target_alias}
+        "baseProduct", attributes={"species": target_id, "alias": target_alias}
     )
     if target_anchor_name is not None:
         anchor_pos = anchor_name_to_position(target_anchor_name)
         if anchor_pos is not None:
             base_product.append(
-                make_celldesigner_element("linkAnchor", attrs={"position": anchor_pos})
+                make_celldesigner_element(
+                    "linkAnchor", attributes={"position": anchor_pos}
+                )
             )
     base_products_element.append(base_product)
     extension.append(base_products_element)
@@ -5073,7 +5087,7 @@ def make_celldesigner_modulation_reaction(
     num_edit_points = len(edit_points)
     connect_scheme = make_celldesigner_element(
         "connectScheme",
-        attrs={
+        attributes={
             "connectPolicy": "direct",
             "rectangleIndex": str(num_edit_points),
         },
@@ -5083,7 +5097,7 @@ def make_celldesigner_modulation_reaction(
         line_direction_list.append(
             make_celldesigner_element(
                 "lineDirection",
-                attrs={
+                attributes={
                     "index": str(i),
                     "value": "unknown",
                 },
@@ -5103,7 +5117,7 @@ def make_celldesigner_modulation_reaction(
     extension.append(make_celldesigner_element("listOfModification"))
     extension.append(
         make_celldesigner_element(
-            "line", attrs=get_line_attributes(modulation_layout, include_type=True)
+            "line", attributes=get_line_attributes(modulation_layout, include_type=True)
         )
     )
 
@@ -5118,7 +5132,7 @@ def make_celldesigner_modulation_reaction(
     list_of_reactants = make_lxml_element("listOfReactants")
     species_reference = make_lxml_element(
         "speciesReference",
-        attrs={
+        attributes={
             "species": get_species_id(sbml_source, writing_context)
             if sbml_source
             else ""
@@ -5141,7 +5155,7 @@ def make_celldesigner_modulation_reaction(
     list_of_products = make_lxml_element("listOfProducts")
     pr = make_lxml_element(
         "speciesReference",
-        attrs={
+        attributes={
             "species": get_species_id(sbml_target, writing_context)
             if sbml_target
             else ""
@@ -5188,7 +5202,7 @@ def make_celldesigner_gate_modulation_reaction(
         "id": modulation_id,
         "reversible": "false",
     }
-    reaction_element = make_lxml_element("reaction", attrs=attrs)
+    reaction_element = make_lxml_element("reaction", attributes=attrs)
 
     # notes
     notes_element = build_sbml_notes(writing_context, modulation)
@@ -5274,7 +5288,7 @@ def make_celldesigner_gate_modulation_reaction(
         alias_id = get_alias_id(writing_context, inp_layout)
         base_reactant = make_celldesigner_element(
             "baseReactant",
-            attrs={
+            attributes={
                 "species": get_species_id(sbml_inp, writing_context),
                 "alias": alias_id,
             },
@@ -5293,7 +5307,7 @@ def make_celldesigner_gate_modulation_reaction(
                     if anchor is not None:
                         base_reactant.append(
                             make_celldesigner_element(
-                                "linkAnchor", attrs={"position": anchor}
+                                "linkAnchor", attributes={"position": anchor}
                             )
                         )
                     break
@@ -5307,7 +5321,7 @@ def make_celldesigner_gate_modulation_reaction(
     )
     base_product = make_celldesigner_element(
         "baseProduct",
-        attrs={
+        attributes={
             "species": get_species_id(sbml_target, writing_context)
             if sbml_target
             else "",
@@ -5354,7 +5368,7 @@ def make_celldesigner_gate_modulation_reaction(
     num_line_directions = len(input_layouts) + 3
     connect_scheme = make_celldesigner_element(
         "connectScheme",
-        attrs={
+        attributes={
             "connectPolicy": "direct",
             "rectangleIndex": "1",
         },
@@ -5364,7 +5378,7 @@ def make_celldesigner_gate_modulation_reaction(
         line_direction_list.append(
             make_celldesigner_element(
                 "lineDirection",
-                attrs={
+                attributes={
                     "index": str(i),
                     "value": "unknown",
                 },
@@ -5390,15 +5404,15 @@ def make_celldesigner_gate_modulation_reaction(
         "modificationType": modifier_type,
     }
     gate_attrs["editPoints"] = gate_edit_points or "0.0,0.0"
-    gate_member = make_celldesigner_element("GateMember", attrs=gate_attrs)
+    gate_member = make_celldesigner_element("GateMember", attributes=gate_attrs)
     gate_member_connect_scheme = make_celldesigner_element(
-        "connectScheme", attrs={"connectPolicy": "direct"}
+        "connectScheme", attributes={"connectPolicy": "direct"}
     )
     gate_member_line_direction_list = make_celldesigner_element("listOfLineDirection")
     gate_member_line_direction_list.append(
         make_celldesigner_element(
             "lineDirection",
-            attrs={
+            attributes={
                 "index": "0",
                 "value": "unknown",
             },
@@ -5408,7 +5422,7 @@ def make_celldesigner_gate_modulation_reaction(
     gate_member.append(gate_member_connect_scheme)
     gate_member.append(
         make_celldesigner_element(
-            "line", attrs=get_line_attributes(modulation_layout, include_type=True)
+            "line", attributes=get_line_attributes(modulation_layout, include_type=True)
         )
     )
     gate_member_list.append(gate_member)
@@ -5419,19 +5433,19 @@ def make_celldesigner_gate_modulation_reaction(
         alias_id = get_alias_id(writing_context, inp_layout)
         inp_member = make_celldesigner_element(
             "GateMember",
-            attrs={
+            attributes={
                 "type": modifier_type,
                 "aliases": alias_id,
             },
         )
         inp_cs = make_celldesigner_element(
-            "connectScheme", attrs={"connectPolicy": "direct"}
+            "connectScheme", attributes={"connectPolicy": "direct"}
         )
         inp_lld = make_celldesigner_element("listOfLineDirection")
         inp_lld.append(
             make_celldesigner_element(
                 "lineDirection",
-                attrs={
+                attributes={
                     "index": "0",
                     "value": "unknown",
                 },
@@ -5441,7 +5455,7 @@ def make_celldesigner_gate_modulation_reaction(
         inp_member.append(inp_cs)
         link_target = make_celldesigner_element(
             "linkTarget",
-            attrs={
+            attributes={
                 "species": get_species_id(sbml_inp, writing_context),
                 "alias": alias_id,
             },
@@ -5461,14 +5475,15 @@ def make_celldesigner_gate_modulation_reaction(
                     if anchor is not None:
                         link_target.append(
                             make_celldesigner_element(
-                                "linkAnchor", attrs={"position": anchor}
+                                "linkAnchor", attributes={"position": anchor}
                             )
                         )
                     break
         inp_member.append(link_target)
         inp_member.append(
             make_celldesigner_element(
-                "line", attrs=get_line_attributes(input_arc_layout, include_type=True)
+                "line",
+                attributes=get_line_attributes(input_arc_layout, include_type=True),
             )
         )
         gate_member_list.append(inp_member)
@@ -5476,7 +5491,7 @@ def make_celldesigner_gate_modulation_reaction(
     extension.append(gate_member_list)
     extension.append(
         make_celldesigner_element(
-            "line", attrs=get_line_attributes(modulation_layout, include_type=True)
+            "line", attributes=get_line_attributes(modulation_layout, include_type=True)
         )
     )
 
@@ -5496,7 +5511,7 @@ def make_celldesigner_gate_modulation_reaction(
         alias_id = get_alias_id(writing_context, inp_layout)
         species_reference = make_lxml_element(
             "speciesReference",
-            attrs={
+            attributes={
                 "species": get_species_id(sbml_inp, writing_context),
             },
         )
@@ -5514,7 +5529,7 @@ def make_celldesigner_gate_modulation_reaction(
     list_of_products = make_lxml_element("listOfProducts")
     pr = make_lxml_element(
         "speciesReference",
-        attrs={
+        attributes={
             "species": get_species_id(sbml_target, writing_context)
             if sbml_target
             else "",
