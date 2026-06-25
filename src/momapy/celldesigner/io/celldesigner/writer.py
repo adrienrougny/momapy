@@ -19,8 +19,8 @@ from momapy.celldesigner.io.celldesigner._writing_context import (
     CellDesignerWritingContext,
 )
 from momapy.celldesigner.io.celldesigner._writing import (
-    build_make_sbml_element,
     collect_degraded_entries,
+    make_sbml_document,
     reserve_source_xml_ids,
 )
 
@@ -116,7 +116,7 @@ class CellDesignerWriter(Writer):
         if obj.model is not None and obj.layout is not None:
             writing_context.degraded_entries = collect_degraded_entries(writing_context)
 
-        sbml = build_make_sbml_element(writing_context)
+        sbml = make_sbml_document(writing_context)
         tree = lxml.etree.ElementTree(sbml)
         tree.write(
             file_path,

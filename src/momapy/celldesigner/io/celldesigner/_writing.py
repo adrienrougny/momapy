@@ -1819,7 +1819,7 @@ def infer_anchor_position(
 # ---------------------------------------------------------------------------
 
 
-def build_make_sbml_element(writing_context: typing.Any) -> lxml.etree._Element:
+def make_sbml_document(writing_context: typing.Any) -> lxml.etree._Element:
     sbml = make_lxml_element(
         "sbml",
         attributes={"level": "2", "version": "4"},
