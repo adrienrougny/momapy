@@ -676,6 +676,11 @@ class CellDesignerReader(Reader):
         with_annotations: bool = True,
         with_notes: bool = True,
     ) -> tuple[typing.Any, ...]:
+        if return_type not in ("map", "model", "layout"):
+            raise ValueError(
+                f"invalid return_type {return_type!r}: expected 'map', "
+                "'model' or 'layout'"
+            )
         if return_type == "model" or return_type == "map" and with_model:
             model = _reading_model.make_empty_model(cd_model)
         else:

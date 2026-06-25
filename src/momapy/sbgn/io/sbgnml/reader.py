@@ -349,6 +349,11 @@ class _SBGNMLReader(Reader):
         xsep: float = 0,
         ysep: float = 0,
     ) -> tuple[typing.Any, ...]:
+        if return_type not in ("map", "model", "layout"):
+            raise ValueError(
+                f"invalid return_type {return_type!r}: expected 'map', "
+                "'model' or 'layout'"
+            )
         if return_type == "model" or return_type == "map" and with_model:
             model = cls._make_empty_model(sbgnml_map)
         else:

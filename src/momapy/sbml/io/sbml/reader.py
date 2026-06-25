@@ -137,6 +137,11 @@ class SBMLReader(Reader):
         with_annotations: bool = True,
         with_notes: bool = True,
     ) -> tuple[typing.Any, typing.Any, typing.Any]:
+        if return_type not in ("map", "model", "layout"):
+            raise ValueError(
+                f"invalid return_type {return_type!r}: expected 'map', "
+                "'model' or 'layout'"
+            )
         if return_type == "layout":
             raise NotImplementedError(
                 "SBML has no layout; return_type='layout' is not supported"
