@@ -139,7 +139,9 @@ def register_model_element(
     If an equal element already exists in the collection, the one with the
     smallest ``id_`` is kept. The surviving element is recorded in
     ``reading_context.sbml_id_to_model_element`` under ``id_`` for cross-ref
-    resolution and returned.
+    resolution, and in ``reading_context.xml_id_to_model_element`` so the
+    reader can build the ``ReaderResult`` source-id mappings via
+    ``build_id_mappings``. The surviving element is returned.
 
     Args:
         reading_context: The reading context.
@@ -156,6 +158,7 @@ def register_model_element(
         func=lambda element, existing_element: element.id_ < existing_element.id_,
     )
     reading_context.sbml_id_to_model_element[id_] = model_element
+    reading_context.xml_id_to_model_element.add(id_, model_element)
     return model_element
 
 

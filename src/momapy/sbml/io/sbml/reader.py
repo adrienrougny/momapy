@@ -15,6 +15,7 @@ import lxml.objectify
 
 from momapy.builder import new_builder_object
 from momapy.builder import object_from_builder
+from momapy.io._utils import build_id_mappings
 from momapy.io.core import Reader
 from momapy.io.core import ReaderResult
 from momapy.utils import check_file_exists
@@ -100,7 +101,13 @@ class SBMLReader(Reader):
         check_file_exists(file_path)
         sbml_document = lxml.objectify.parse(file_path)
         sbml = sbml_document.getroot()
-        obj, annotations, notes = cls._make_main_obj(
+        (
+            obj,
+            annotations,
+            notes,
+            id_to_element,
+            source_id_to_model_element,
+        ) = cls._make_main_obj(
             sbml_model=sbml.model,
             return_type=return_type,
             with_model=with_model,
@@ -112,8 +119,8 @@ class SBMLReader(Reader):
             obj=obj,
             element_to_annotations=annotations,
             element_to_notes=notes,
-            id_to_element=frozendict.frozendict(),
-            source_id_to_model_element=None,
+            id_to_element=id_to_element,
+            source_id_to_model_element=source_id_to_model_element,
             source_id_to_layout_element=None,
             source_id_to_annotations=None,
             source_id_to_notes=None,
@@ -138,7 +145,7 @@ class SBMLReader(Reader):
         with_layout: bool = True,
         with_annotations: bool = True,
         with_notes: bool = True,
-    ) -> tuple[typing.Any, typing.Any, typing.Any]:
+    ) -> tuple[typing.Any, typing.Any, typing.Any, typing.Any, typing.Any]:
         if return_type not in ("map", "model", "layout"):
             raise ValueError(
                 f"invalid return_type {return_type!r}: expected 'map', "
@@ -191,10 +198,20 @@ class SBMLReader(Reader):
                 for key, value in reading_context.element_to_notes.items()
             }
         )
+        if model is not None:
+            id_to_element, source_id_to_model_element, _ = build_id_mappings(
+                reading_context=reading_context,
+                obj=obj,
+            )
+        else:
+            id_to_element = frozendict.frozendict()
+            source_id_to_model_element = None
         return (
             obj,
             element_to_annotations,
             element_to_notes,
+            id_to_element,
+            source_id_to_model_element,
         )
 
     @classmethod
