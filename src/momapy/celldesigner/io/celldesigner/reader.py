@@ -72,7 +72,7 @@ import frozendict
 import lxml.objectify
 
 from momapy.core.mapping import LayoutModelMappingBuilder
-from momapy.io.core import Reader, ReaderResult
+from momapy.io.core import Reader, ReaderResult, _check_file_exists
 from momapy.io._utils import (
     apply_remap_to_layout_model_mapping,
     build_id_mappings,
@@ -634,6 +634,7 @@ class CellDesignerReader(Reader):
             A `ReaderResult` whose `obj` is a map, model, or layout depending
             on `return_type`.
         """
+        _check_file_exists(file_path)
         cd_document = lxml.objectify.parse(file_path)
         cd_sbml = cd_document.getroot()
         (

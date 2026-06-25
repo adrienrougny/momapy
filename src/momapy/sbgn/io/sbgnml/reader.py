@@ -37,6 +37,7 @@ from momapy.core.elements import Orientation
 from momapy.core.layout import TextLayout
 from momapy.io.core import Reader
 from momapy.io.core import ReaderResult
+from momapy.io.core import _check_file_exists
 from momapy.io._utils import apply_remap_to_layout_model_mapping
 from momapy.io._utils import build_id_mappings
 from momapy.io._utils import register_model_element
@@ -192,6 +193,7 @@ class _SBGNMLReader(Reader):
             A `ReaderResult` whose `obj` is a map, model, or layout depending
             on `return_type`.
         """
+        _check_file_exists(file_path)
         sbgnml_document = lxml.objectify.parse(file_path)
         sbgnml_sbgn = sbgnml_document.getroot()
         (

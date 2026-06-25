@@ -265,6 +265,23 @@ class WriterResult(IOResult):
     )
 
 
+def _check_file_exists(file_path: str | os.PathLike) -> None:
+    """Raise a clear `FileNotFoundError` if `file_path` does not exist.
+
+    Centralizes the existence check so every read path reports a missing file
+    the same way, naming the path, instead of the format-specific `OSError` /
+    `ValueError` each parser would otherwise raise.
+
+    Args:
+        file_path: Path of the file to check.
+
+    Raises:
+        FileNotFoundError: If no file exists at `file_path`.
+    """
+    if not os.path.isfile(file_path):
+        raise FileNotFoundError(f"no such file: '{file_path}'")
+
+
 def read(
     file_path: str | os.PathLike,
     reader: str | None = None,
@@ -308,6 +325,7 @@ def read(
         ReaderResult containing the read object and metadata.
 
     Raises:
+        FileNotFoundError: If no file exists at `file_path`.
         ValueError: If no suitable reader is found.
 
     Examples:
@@ -317,6 +335,7 @@ def read(
         map_obj = result.obj
         ```
     """
+    _check_file_exists(file_path)
     if reader is not None:
         reader_cls = get_reader(reader)
     else:
