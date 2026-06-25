@@ -10,86 +10,12 @@ import typing
 
 import lxml.objectify
 
+from momapy.celldesigner.io.celldesigner._constants import (
+    CD_NAMESPACE,
+    LINK_ANCHOR_POSITION_TO_ANCHOR_NAME,
+    TEXT_TO_CHARACTER,
+)
 from momapy.sbml.io.sbml._reading_parsing import _RDF_NAMESPACE, get_prefix_and_name
-
-_CD_NAMESPACE = "http://www.sbml.org/2001/ns/celldesigner"
-
-_LINK_ANCHOR_POSITION_TO_ANCHOR_NAME = {
-    "NW": "north_west",
-    "NNW": "north_north_west",
-    "N": "north",
-    "NNE": "north_north_east",
-    "NE": "north_east",
-    "ENE": "east_north_east",
-    "E": "east",
-    "ESE": "east_south_east",
-    "SE": "south_east",
-    "SSE": "south_south_east",
-    "S": "south",
-    "SSW": "south_south_west",
-    "SW": "south_west",
-    "WSW": "west_south_west",
-    "W": "west",
-    "WNW": "west_north_west",
-}
-
-_TEXT_TO_CHARACTER = {
-    "_underscore_": "_",
-    "_br_": "\n",
-    "_BR_": "\n",
-    "_plus_": "+",
-    "_minus_": "-",
-    "_slash_": "/",
-    "_space_": " ",
-    "_Alpha_": "Α",
-    "_alpha_": "α",
-    "_Beta_": "Β",
-    "_beta_": "β",
-    "_Gamma_": "Γ",
-    "_gamma_": "γ",
-    "_Delta_": "Δ",
-    "_delta_": "δ",
-    "_Epsilon_": "Ε",
-    "_epsilon_": "ε",
-    "_Zeta_": "Ζ",
-    "_zeta_": "ζ",
-    "_Eta_": "Η",
-    "_eta_": "η",
-    "_Theta_": "Θ",
-    "_theta_": "θ",
-    "_Iota_": "Ι",
-    "_iota_": "ι",
-    "_Kappa_": "Κ",
-    "_kappa_": "κ",
-    "_Lambda_": "Λ",
-    "_lambda_": "λ",
-    "_Mu_": "Μ",
-    "_mu_": "μ",
-    "_Nu_": "Ν",
-    "_nu_": "ν",
-    "_Xi_": "Ξ",
-    "_xi_": "ξ",
-    "_Omicron_": "Ο",
-    "_omicron_": "ο",
-    "_Pi_": "Π",
-    "_pi_": "π",
-    "_Rho_": "Ρ",
-    "_rho_": "ρ",
-    "_Sigma_": "Σ",
-    "_sigma_": "σ",
-    "_Tau_": "Τ",
-    "_tau_": "τ",
-    "_Upsilon_": "Υ",
-    "_upsilon_": "υ",
-    "_Phi_": "Φ",
-    "_phi_": "φ",
-    "_Chi_": "Χ",
-    "_chi_": "χ",
-    "_Psi_": "Ψ",
-    "_psi_": "ψ",
-    "_Omega_": "Ω",
-    "_omega_": "ω",
-}
 
 
 def get_annotation(
@@ -104,7 +30,7 @@ def get_extension(
     cd_annotation = get_annotation(cd_element)
     if cd_annotation is None:
         return None
-    cd_extension = getattr(cd_element.annotation, f"{{{_CD_NAMESPACE}}}extension", None)
+    cd_extension = getattr(cd_element.annotation, f"{{{CD_NAMESPACE}}}extension", None)
     return cd_extension
 
 
@@ -488,7 +414,7 @@ def get_bounds(
 def get_anchor_name_for_frame(cd_element: lxml.objectify.ObjectifiedElement) -> str:
     if getattr(cd_element, "linkAnchor", None) is not None:
         cd_element_anchor = cd_element.linkAnchor.get("position")
-        anchor_name = _LINK_ANCHOR_POSITION_TO_ANCHOR_NAME.get(
+        anchor_name = LINK_ANCHOR_POSITION_TO_ANCHOR_NAME.get(
             cd_element_anchor, "center"
         )
     else:
@@ -635,7 +561,7 @@ def get_height(cd_model: lxml.objectify.ObjectifiedElement) -> str | None:
 def make_name(name: str | None) -> str | None:
     if name is None:
         return name
-    for s, char in _TEXT_TO_CHARACTER.items():
+    for s, char in TEXT_TO_CHARACTER.items():
         name = name.replace(s, char)
     return name
 

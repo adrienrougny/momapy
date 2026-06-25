@@ -54,7 +54,7 @@ Key `Point` methods: `__add__/sub/mul/truediv`, `to_matrix() -> ndarray`, `to_tu
 
 Key `Bbox` members: constructed as `Bbox(position: Point, width, height)`; `center()`, `size() -> tuple[float, float]`, `anchor_point(anchor_name)`, `isnan()`, and the compass anchors (`north/south/east/west`, `north_east`, …). Classmethods: `around_points(points: Iterable[Point]) -> Bbox`, `union(bboxes: list[Bbox]) -> Bbox`. (There is no `bbox()`, `contains_point()`, `intersects_bbox()`, or `from_points()`.)
 
-Constants: `ROUNDING: int = 4` (in `__all__`; imported by `drawing`). Internal-only (underscored, not exported): `_ROUNDING_TOLERANCE`, `_ZERO_TOLERANCE`, `_PARAMETER_TOLERANCE`, `_CONVERGENCE_TOLERANCE`.
+Constants: `ROUNDING: int = 4` (in `__all__`; imported by `drawing`), `COMPASS_ANCHOR_NAMES: tuple[str, ...]` (in `__all__`; the 16 compass anchor names supported by `Bbox`/`Node`, excluding `center`). Internal-only (underscored, not exported): `_ROUNDING_TOLERANCE`, `_ZERO_TOLERANCE`, `_PARAMETER_TOLERANCE`, `_CONVERGENCE_TOLERANCE`.
 
 ### `src/momapy/drawing.py`
 Classes: `NoneValueType`, `FilterEffect(ABC)` + (`DropShadowEffect`, `CompositeEffect`, `FloodEffect`, `GaussianBlurEffect`, `OffsetEffect`), `FilterEffectInput(Enum)`, `CompositionOperator(Enum)`, `EdgeMode(Enum)`, `FilterUnits(Enum)`, `Filter`, `FontStyle(Enum)`, `FontWeight(Enum)`, `TextAnchor(Enum)`, `FillRule(Enum)`, `DrawingElement(ABC)`, `Text(DrawingElement)`, `Group(DrawingElement)`, `PathAction(ABC)` + (`MoveTo`, `LineTo`, `EllipticalArc`, `CurveTo`, `QuadraticCurveTo`, `ClosePath`), `Path(DrawingElement)`, `Ellipse(DrawingElement)`, `Rectangle(DrawingElement)`.
@@ -430,7 +430,7 @@ Functions (accept `CellDesignerMap | Builder`, return same):
 - `CellDesignerWritingContext(WritingContext)` — adds `subunit_to_complex`, `degraded_entries`.
 
 ### `src/momapy/celldesigner/io/celldesigner/writer.py`
-- `CellDesignerWriter(Writer)` — `write(obj, file_path, element_to_annotations=None, element_to_notes=None, source_id_to_model_element=None, source_id_to_layout_element=None, source_id_to_annotations=None, source_id_to_notes=None, with_annotations=True, with_notes=True, **options)`. **Round-trip caveat:** CellDesigner's link-geometry encoding (anchors, edit points, angles, line directions) is recomputed from momapy's resolved coordinates, so a read/write round-trip yields equivalent (not byte-identical) link geometry (see class docstring). All serialization helpers (the `make_celldesigner_*` / `make_sbml_document_*` builders, id helpers `reserve_source_xml_ids` / `get_xml_id` / `get_species_id`, the `DegradedEntry` dataclass, and the `CD_NS` / `NSMAP` / class→type-map constants) live in `_writing.py`, public-named.
+- `CellDesignerWriter(Writer)` — `write(obj, file_path, element_to_annotations=None, element_to_notes=None, source_id_to_model_element=None, source_id_to_layout_element=None, source_id_to_annotations=None, source_id_to_notes=None, with_annotations=True, with_notes=True, **options)`. **Round-trip caveat:** CellDesigner's link-geometry encoding (anchors, edit points, angles, line directions) is recomputed from momapy's resolved coordinates, so a read/write round-trip yields equivalent (not byte-identical) link geometry (see class docstring). All serialization helpers (the `make_celldesigner_*` / `make_sbml_document_*` builders, id helpers `reserve_source_xml_ids` / `get_xml_id` / `get_species_id`, the `DegradedEntry` dataclass, and the `NSMAP` / class→type-map constants) live in `_writing.py`, public-named (the CD namespace comes from `_constants.CD_NAMESPACE`).
 
 ### `src/momapy/celldesigner/io/celldesigner/_reading_model.py` (`make_*`)
 - `make_annotations_from_element(cd_element)`, `make_annotations_from_notes(cd_notes)`, `make_notes_from_element(cd_element)`, `make_and_add_annotations(reading_context, cd_element, model_element)`
@@ -462,18 +462,21 @@ Functions (accept `CellDesignerMap | Builder`, return same):
 - `make_modulation(reading_context, ...)`
 - Internal constants: `_LAYOUT_TO_ACTIVE_LAYOUT`, `_DEFAULT_FONT_FAMILY`, `_DEFAULT_FONT_SIZE`, `_DEFAULT_MODIFICATION_FONT_SIZE`, `_DEFAULT_FONT_FILL`.
 
+### `src/momapy/celldesigner/io/celldesigner/_constants.py`
+- Shared CellDesigner format constants (internal module, public-named content), imported by the reader and writer: `CD_NAMESPACE: str`, `TEXT_TO_CHARACTER: dict[str, str]` (special-character decoding table), `LINK_ANCHOR_POSITION_TO_ANCHOR_NAME: dict[str, str]` (link-anchor position codes -> momapy anchor names). `celldesigner.utils` no longer imports any of these — it uses `momapy.geometry.COMPASS_ANCHOR_NAMES` for its anchor list.
+
 ### `src/momapy/celldesigner/io/celldesigner/_reading_parsing.py`
 - `make_name(name: str|None) -> str|None` — handles CellDesigner name encoding.
 - `make_id_to_element_mapping(cd_model) -> dict`
 - `make_complex_alias_to_included_ids_mapping(cd_model) -> dict`
 - XML traversal helpers: `get_annotation`, `get_extension`, `get_species`, `get_reactions`, `get_species_aliases`, `get_included_species_aliases`, `get_complex_species_aliases`, `get_compartments`, `get_compartment_aliases`, `get_protein_templates`, `get_gene_templates`, `get_rna_templates`, `get_antisense_rna_templates`, `get_notes`, `get_rdf`, `get_rdf_from_notes`, `get_width`, `get_height`, `get_bounds`, `get_edit_points_from_participant_link`, `get_edit_points_from_reaction`, etc.
 - Participant-id helpers: `get_reactant_id(cd_base_reactant_or_link, cd_reaction) -> str`, `get_product_id(cd_base_product_or_link, cd_reaction) -> str`, `get_modifier_metaid(cd_reaction_modification, cd_reaction) -> str|None`.
-- Constants: `_LINK_ANCHOR_POSITION_TO_ANCHOR_NAME`, `_TEXT_TO_CHARACTER` (special-character decoding table).
+- Constants: `CD_NAMESPACE`, `TEXT_TO_CHARACTER`, and `LINK_ANCHOR_POSITION_TO_ANCHOR_NAME` are imported from the shared `_constants` module (above), not defined here.
 
 ### `src/momapy/celldesigner/io/celldesigner/_writing.py`
 - Geometry helpers: `are_collinear(p1, p2, p3, epsilon=1e-6) -> bool`, `is_degenerate_frame(origin, unit_x, unit_y, epsilon=1e-6) -> bool`, `make_non_degenerate_frame(origin, unit_x, unit_y, epsilon=1e-6, scale=1.0) -> (Point, Point, Point)`.
 - Encoding helpers: `color_to_cd_hex(color) -> str`, `encode_name(name) -> str`, `compute_cd_angle(...)`, `node_to_bounds_attrs(node) -> dict`.
-- Reverse mapping constants: `_CD_NAMESPACE`, `_ANCHOR_NAME_TO_LINK_ANCHOR_POSITION`, `_CHARACTER_TO_TEXT`, `_CLASS_TO_CD_STRING`, `_CLASS_TO_REACTION_TYPE`, `_CLASS_TO_MODIFIER_TYPE`, `_MODIFICATION_STATE_TO_CD`.
+- Reverse mapping constants: `_ANCHOR_NAME_TO_LINK_ANCHOR_POSITION`, `_CHARACTER_TO_TEXT`, `_CLASS_TO_CD_STRING`, `_CLASS_TO_REACTION_TYPE`, `_CLASS_TO_MODIFIER_TYPE`, `_MODIFICATION_STATE_TO_CD` (the CD namespace is imported as `CD_NAMESPACE` from `_constants`; `NSMAP` uses it).
 
 ---
 

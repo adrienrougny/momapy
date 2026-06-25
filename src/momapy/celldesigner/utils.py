@@ -16,12 +16,9 @@ from momapy.builder import (
     isinstance_or_builder,
     object_from_builder,
 )
-from momapy.celldesigner.io.celldesigner._reading_parsing import (
-    _LINK_ANCHOR_POSITION_TO_ANCHOR_NAME,
-)
 from momapy.core.elements import LayoutElement
 from momapy.core.layout import Arc, Node
-from momapy.geometry import Point
+from momapy.geometry import COMPASS_ANCHOR_NAMES, Point
 from momapy.positioning import fit, set_fit, set_position
 from momapy.styling import (
     ClassSelector,
@@ -85,9 +82,6 @@ __all__ = [
 ]
 
 
-_ALL_ANCHOR_NAMES = list(_LINK_ANCHOR_POSITION_TO_ANCHOR_NAME.values())
-
-
 def _closest_anchor_point(
     node: LayoutElement | Builder,
     point: Point,
@@ -110,7 +104,7 @@ def _closest_anchor_point(
         frozen_node = node
     best_point = None
     best_distance_squared = float("inf")
-    for anchor_name in _ALL_ANCHOR_NAMES:
+    for anchor_name in COMPASS_ANCHOR_NAMES:
         anchor_point = frozen_node.anchor_point(anchor_name)
         distance_squared = (anchor_point.x - point.x) ** 2 + (
             anchor_point.y - point.y

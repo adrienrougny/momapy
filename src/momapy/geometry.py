@@ -50,6 +50,7 @@ __all__ = [
     "Scaling",
     "Segment",
     "Transformation",
+    "COMPASS_ANCHOR_NAMES",
     "ROUNDING",
     "Translation",
     "get_normalized_angle",
@@ -65,6 +66,27 @@ _ROUNDING_TOLERANCE = 10**-ROUNDING
 _ZERO_TOLERANCE = 1e-12
 _PARAMETER_TOLERANCE = 1e-10
 _CONVERGENCE_TOLERANCE = 1e-8
+
+COMPASS_ANCHOR_NAMES: tuple[str, ...] = (
+    "north_west",
+    "north_north_west",
+    "north",
+    "north_north_east",
+    "north_east",
+    "east_north_east",
+    "east",
+    "east_south_east",
+    "south_east",
+    "south_south_east",
+    "south",
+    "south_south_west",
+    "south_west",
+    "west_south_west",
+    "west",
+    "west_north_west",
+)
+"""The 16 compass anchor-point names supported by ``Bbox``/``Node`` (excluding
+``center``), in clockwise order from north-west."""
 
 
 @dataclasses.dataclass(frozen=True)

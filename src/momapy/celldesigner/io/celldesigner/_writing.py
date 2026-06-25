@@ -16,10 +16,10 @@ from momapy.geometry import Point, Rotation, get_transformation_for_frame
 from momapy.io._utils import make_unique_xml_id
 from momapy.sbml.io.sbml._qualifiers import QUALIFIER_MEMBER_TO_QUALIFIER_ATTRIBUTE
 from momapy.celldesigner.elements import CellDesignerNode
-from momapy.celldesigner.io.celldesigner._reading_parsing import (
-    _CD_NAMESPACE,
-    _LINK_ANCHOR_POSITION_TO_ANCHOR_NAME,
-    _TEXT_TO_CHARACTER,
+from momapy.celldesigner.io.celldesigner._constants import (
+    CD_NAMESPACE,
+    LINK_ANCHOR_POSITION_TO_ANCHOR_NAME,
+    TEXT_TO_CHARACTER,
 )
 from momapy.celldesigner.model import (
     AndGate,
@@ -223,19 +223,17 @@ def make_non_degenerate_frame(
 
 _SBML_SID_INVALID_CHAR_RE = re.compile(r"[^a-zA-Z0-9_]")
 
-_CD_NAMESPACE = _CD_NAMESPACE
-
-# Reverse of _parsing._LINK_ANCHOR_POSITION_TO_ANCHOR_NAME
+# Reverse of _constants.LINK_ANCHOR_POSITION_TO_ANCHOR_NAME
 _ANCHOR_NAME_TO_LINK_ANCHOR_POSITION = {
-    v: k for k, v in _LINK_ANCHOR_POSITION_TO_ANCHOR_NAME.items()
+    v: k for k, v in LINK_ANCHOR_POSITION_TO_ANCHOR_NAME.items()
 }
 
-# Reverse of _parsing._TEXT_TO_CHARACTER (pick first occurrence as canonical)
+# Reverse of _constants.TEXT_TO_CHARACTER (pick first occurrence as canonical)
 _CHARACTER_TO_TEXT = {}
 for (
     _text,
     _char,
-) in _TEXT_TO_CHARACTER.items():
+) in TEXT_TO_CHARACTER.items():
     if _char not in _CHARACTER_TO_TEXT:
         _CHARACTER_TO_TEXT[_char] = _text
 
@@ -376,7 +374,7 @@ def points_to_edit_points_text(points: typing.Any) -> str:
     return " ".join(f"{p.x},{p.y}" for p in points)
 
 
-_ALL_ANCHOR_NAMES = list(_LINK_ANCHOR_POSITION_TO_ANCHOR_NAME.values())
+_ALL_ANCHOR_NAMES = list(LINK_ANCHOR_POSITION_TO_ANCHOR_NAME.values())
 
 
 def infer_anchor_name(
@@ -992,13 +990,12 @@ ACTIVE_OVERLAY_LAYOUT_CLASSES = (
     UnknownActiveLayout,
 )
 
-CD_NS = "http://www.sbml.org/2001/ns/celldesigner"
 SBML_NS = "http://www.sbml.org/sbml/level2/version4"
 XHTML_NS = "http://www.w3.org/1999/xhtml"
 
 NSMAP = {
     None: SBML_NS,
-    "celldesigner": CD_NS,
+    "celldesigner": CD_NAMESPACE,
 }
 
 
@@ -1117,7 +1114,7 @@ def make_celldesigner_element(
     tag: str, attrs: dict[str, str] | None = None, text: typing.Any = None
 ) -> lxml.etree._Element:
     """Shortcut for CellDesigner-namespaced element."""
-    return make_lxml_element(tag, ns=CD_NS, attrs=attrs, text=text)
+    return make_lxml_element(tag, ns=CD_NAMESPACE, attrs=attrs, text=text)
 
 
 def make_sbml_element(
@@ -1831,7 +1828,7 @@ def infer_anchor_position(
     for (
         cd_position,
         anchor_name,
-    ) in _LINK_ANCHOR_POSITION_TO_ANCHOR_NAME.items():
+    ) in LINK_ANCHOR_POSITION_TO_ANCHOR_NAME.items():
         anchor_point = species_layout.anchor_point(anchor_name)
         if anchor_point is None:
             continue
