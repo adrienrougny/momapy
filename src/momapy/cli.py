@@ -28,7 +28,7 @@ Example:
 
     # List stylable attributes of a layout element class
     $ momapy list attributes momapy.sbgn.pd:MacromoleculeLayout
-    $ momapy list attributes momapy.sbgn.pd.MacromoleculeLayout -p
+    $ momapy list attributes momapy.sbgn.pd.MacromoleculeLayout -P
 
     # Inspect a map file
     $ momapy info map.sbgn
@@ -1701,7 +1701,7 @@ def main() -> None:
         help="layout element class (e.g. momapy.sbgn.pd:MacromoleculeLayout)",
     )
     list_attributes_parser.add_argument(
-        "-p",
+        "-P",
         "--presentation-only",
         action="store_true",
         default=False,
