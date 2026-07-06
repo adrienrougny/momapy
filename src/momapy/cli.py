@@ -403,25 +403,25 @@ def _run_tidy_operation(map_: typing.Any, args: argparse.Namespace) -> typing.An
     elif operation == "fit-complexes":
         if is_celldesigner:
             return set_complexes_to_fit_content_celldesigner(
-                map_, xsep=xsep, ysep=ysep, snap_arcs=True
+                map_, xsep=xsep, ysep=ysep, snap_arcs=snap_arcs
             )
         else:
             return set_complexes_to_fit_content_sbgn(
-                map_, xsep=xsep, ysep=ysep, snap_arcs=True
+                map_, xsep=xsep, ysep=ysep, snap_arcs=snap_arcs
             )
     elif operation == "fit-compartments":
         if is_celldesigner:
             return set_compartments_to_fit_content_celldesigner(
-                map_, xsep=xsep, ysep=ysep, snap_arcs=True
+                map_, xsep=xsep, ysep=ysep, snap_arcs=snap_arcs
             )
         else:
             return set_compartments_to_fit_content_sbgn(
-                map_, xsep=xsep, ysep=ysep, snap_arcs=True
+                map_, xsep=xsep, ysep=ysep, snap_arcs=snap_arcs
             )
     elif operation == "fit-submaps":
         if is_sbgn:
             return set_submaps_to_fit_content_sbgn(
-                map_, xsep=xsep, ysep=ysep, snap_arcs=True
+                map_, xsep=xsep, ysep=ysep, snap_arcs=snap_arcs
             )
         else:
             raise ValueError("fit-submaps is only supported for SBGN maps")
