@@ -162,7 +162,10 @@ class CairoRenderer(
         if format_ is None:
             format_ = cls.default_format
         if format_ not in cls.supported_formats:
-            raise ValueError(f"Unsupported format: {format_}")
+            raise ValueError(
+                f"unsupported format {format_!r}: expected one of "
+                f"{', '.join(cls.supported_formats)}"
+            )
         check_parent_dir_exists(file_path)
         if config is None:
             config = {}
