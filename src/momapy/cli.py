@@ -187,6 +187,49 @@ class _AppendStyleSource(argparse.Action):
         namespace.style_sources.append((self.const, values))
 
 
+def _resolve_style_sheet(args: argparse.Namespace) -> typing.Any:
+    """Resolve interleaved ``-s``/``-p`` style sources into one style sheet.
+
+    Reads the ``style_sources`` list populated by ``_AppendStyleSource``
+    (``(source_type, value)`` tuples, in CLI order), loading each file
+    (``-s``) or looking up each preset (``-p``) and merging them
+    left-to-right. Shared by the ``render``, ``export``, ``style`` and
+    ``visualize`` commands so presets and custom CSS work identically
+    everywhere.
+
+    Args:
+        args: The parsed CLI namespace.
+
+    Returns:
+        The combined `StyleSheet`, or `None` when no ``-s``/``-p`` was
+        given.
+    """
+    from momapy.styling import StyleSheet
+    from momapy.styling import combine_style_sheets
+
+    style_sources = getattr(args, "style_sources", None) or []
+    if not style_sources:
+        return None
+    style_sheets = []
+    for source_type, value in style_sources:
+        if source_type == "preset":
+            if value not in _BUILTIN_PRESETS:
+                print(
+                    f"error: unknown preset '{value}'; "
+                    f"use 'momapy list styles' to see available presets",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
+            _, module_name, attribute_name = _BUILTIN_PRESETS[value]
+            module = importlib.import_module(module_name)
+            style_sheets.append(getattr(module, attribute_name))
+        else:
+            style_sheets.append(StyleSheet.from_file(value))
+    if len(style_sheets) > 1:
+        return combine_style_sheets(style_sheets)
+    return style_sheets[0]
+
+
 def _translate_layout_element(
     layout_element: typing.Any,
     translation_x: float,
@@ -1283,23 +1326,11 @@ def _run(args: argparse.Namespace) -> None:
         from momapy.builder import builder_from_object
         from momapy.builder import object_from_builder
         from momapy.rendering.core import render_layout_elements
-        from momapy.styling import StyleSheet
         from momapy.styling import apply_style_sheet
-        from momapy.styling import combine_style_sheets
 
         format_ = args.format
         renderer = args.renderer
-        if args.style_sheet_file_path:
-            style_sheets = [
-                StyleSheet.from_file(style_sheet_file_path)
-                for style_sheet_file_path in args.style_sheet_file_path
-            ]
-            if len(style_sheets) > 1:
-                style_sheet = combine_style_sheets(style_sheets)
-            else:
-                style_sheet = style_sheets[0]
-        else:
-            style_sheet = None
+        style_sheet = _resolve_style_sheet(args)
         layouts = []
         input_file_paths = args.input_file_path if args.input_file_path else [None]
         for input_file_path in input_file_paths:
@@ -1325,21 +1356,12 @@ def _run(args: argparse.Namespace) -> None:
         )
     elif args.subcommand == "export":
         from momapy.builder import builder_from_object
-        from momapy.styling import StyleSheet
         from momapy.styling import apply_style_sheet
-        from momapy.styling import combine_style_sheets
 
         reader_result = _read_input(args.input_file_path)
         map_ = reader_result.obj
-        if args.style_sheet_file_path:
-            style_sheets = [
-                StyleSheet.from_file(style_sheet_file_path)
-                for style_sheet_file_path in args.style_sheet_file_path
-            ]
-            if len(style_sheets) > 1:
-                style_sheet = combine_style_sheets(style_sheets)
-            else:
-                style_sheet = style_sheets[0]
+        style_sheet = _resolve_style_sheet(args)
+        if style_sheet is not None:
             map_builder = builder_from_object(map_)
             apply_style_sheet(map_builder, style_sheet)
             map_ = map_builder.build()
@@ -1442,36 +1464,15 @@ def _run(args: argparse.Namespace) -> None:
         _write_output(map_, reader_result, args.output_file_path)
     elif args.subcommand == "style":
         from momapy.builder import builder_from_object
-        from momapy.styling import StyleSheet
         from momapy.styling import apply_style_sheet
-        from momapy.styling import combine_style_sheets
 
-        style_sources = getattr(args, "style_sources", None) or []
-        if not style_sources:
+        style_sheet = _resolve_style_sheet(args)
+        if style_sheet is None:
             print(
                 "error: at least one of -s or -p is required",
                 file=sys.stderr,
             )
             sys.exit(1)
-        style_sheets = []
-        for source_type, value in style_sources:
-            if source_type == "preset":
-                if value not in _BUILTIN_PRESETS:
-                    print(
-                        f"error: unknown preset '{value}'; "
-                        f"use 'momapy list styles' to see available presets",
-                        file=sys.stderr,
-                    )
-                    sys.exit(1)
-                _, module_name, attribute_name = _BUILTIN_PRESETS[value]
-                module = importlib.import_module(module_name)
-                style_sheets.append(getattr(module, attribute_name))
-            else:
-                style_sheets.append(StyleSheet.from_file(value))
-        if len(style_sheets) > 1:
-            style_sheet = combine_style_sheets(style_sheets)
-        else:
-            style_sheet = style_sheets[0]
         reader_result = _read_input(args.input_file_path)
         map_ = reader_result.obj
         map_builder = builder_from_object(map_)
@@ -1481,22 +1482,12 @@ def _run(args: argparse.Namespace) -> None:
     elif args.subcommand == "visualize":
         from momapy.builder import builder_from_object
         from momapy.builder import object_from_builder
-        from momapy.styling import StyleSheet
         from momapy.styling import apply_style_sheet
-        from momapy.styling import combine_style_sheets
 
         reader_result = _read_input(args.input_file_path)
         map_ = reader_result.obj
-        style_sheet = None
-        if args.style_sheet_file_path:
-            style_sheets = [
-                StyleSheet.from_file(style_sheet_file_path)
-                for style_sheet_file_path in args.style_sheet_file_path
-            ]
-            if len(style_sheets) > 1:
-                style_sheet = combine_style_sheets(style_sheets)
-            else:
-                style_sheet = style_sheets[0]
+        style_sheet = _resolve_style_sheet(args)
+        if style_sheet is not None:
             map_builder = builder_from_object(map_)
             apply_style_sheet(map_builder, style_sheet)
             map_ = object_from_builder(map_builder)
@@ -1588,9 +1579,19 @@ def main() -> None:
     render_parser.add_argument(
         "-s",
         "--style-sheet-file-path",
-        action="append",
-        default=[],
-        help="style sheet file path",
+        action=_AppendStyleSource,
+        const="file",
+        help="custom CSS style sheet file path (repeatable)",
+    )
+    render_parser.add_argument(
+        "-p",
+        "--preset",
+        action=_AppendStyleSource,
+        const="preset",
+        help=(
+            "built-in preset name (repeatable); "
+            "use 'momapy list styles' to see available presets"
+        ),
     )
     export_parser = subparsers.add_parser(
         "export",
@@ -1625,9 +1626,19 @@ def main() -> None:
     export_parser.add_argument(
         "-s",
         "--style-sheet-file-path",
-        action="append",
-        default=[],
-        help="style sheet file path",
+        action=_AppendStyleSource,
+        const="file",
+        help="custom CSS style sheet file path (repeatable)",
+    )
+    export_parser.add_argument(
+        "-p",
+        "--preset",
+        action=_AppendStyleSource,
+        const="preset",
+        help=(
+            "built-in preset name (repeatable); "
+            "use 'momapy list styles' to see available presets"
+        ),
     )
     info_parser = subparsers.add_parser(
         "info",
@@ -1846,9 +1857,19 @@ def main() -> None:
     visualize_parser.add_argument(
         "-s",
         "--style-sheet-file-path",
-        action="append",
-        default=[],
-        help="style sheet file path",
+        action=_AppendStyleSource,
+        const="file",
+        help="custom CSS style sheet file path (repeatable)",
+    )
+    visualize_parser.add_argument(
+        "-p",
+        "--preset",
+        action=_AppendStyleSource,
+        const="preset",
+        help=(
+            "built-in preset name (repeatable); "
+            "use 'momapy list styles' to see available presets"
+        ),
     )
     args = parser.parse_args()
     try:
