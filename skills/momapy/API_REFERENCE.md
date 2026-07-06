@@ -425,7 +425,9 @@ Functions (accept `CellDesignerMap | Builder`, return same):
 
 ### `src/momapy/celldesigner/io/celldesigner/reader.py`
 - `CellDesignerReader(Reader)` — `read(file_path, return_type="map", with_model=True, with_layout=True, with_annotations=True, with_notes=True, **options)`. Also `_make_empty_map`/`_make_empty_model`/`_make_empty_layout` and `_make_and_add_*` orchestration classmethods (mirroring SBGN-ML/SBML).
-- Internal: `_KEY_TO_CLASS` (tuple keys → model/layout class pairs).
+
+### `src/momapy/celldesigner/io/celldesigner/_reading_classification.py`
+- `KEY_TO_CLASS: dict[tuple[str, str], type | tuple[type, type | None]]` — ~90 entries keyed by `(category, type)` (e.g. `("SPECIES", "GENERIC") -> (GenericProtein, GenericProteinLayout)`, `("TEMPLATE", "GENE") -> GeneTemplate`). Template/region keys map to a bare model class; species/reaction/modifier/gate keys map to a `(model, layout)` pair (layout `None` for `DEGRADED`). Mirrors the SBGN-ML reader's classification module.
 
 ### `src/momapy/celldesigner/io/celldesigner/_writing_context.py`
 - `CellDesignerWritingContext(WritingContext)` — adds `subunit_to_complex`, `degraded_entries`.

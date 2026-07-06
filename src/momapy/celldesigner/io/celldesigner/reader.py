@@ -134,381 +134,22 @@ from momapy.celldesigner.io.celldesigner._reading_parsing import (
 )
 from momapy.celldesigner.io.celldesigner import _reading_model
 from momapy.celldesigner.io.celldesigner import _reading_layout
+from momapy.celldesigner.io.celldesigner._reading_classification import KEY_TO_CLASS
 from momapy.celldesigner.io.celldesigner._reading_context import (
     CellDesignerReadingContext,
 )
 from momapy.celldesigner.model import (
-    AndGate,
-    AntisenseRNA,
-    AntisenseRNATemplate,
-    Catalysis,
-    Catalyzer,
     CellDesignerModel,
-    CodingRegion,
-    Complex,
-    Dissociation,
-    Drug,
-    Gene,
-    GeneTemplate,
-    GenericProtein,
-    GenericProteinTemplate,
-    HeterodimerAssociation,
-    Inhibition,
-    Inhibitor,
-    Ion,
-    IonChannel,
-    IonChannelTemplate,
-    KnownTransitionOmitted,
-    ModificationSite,
     ModificationState,
-    Modulation,
-    Modulator,
-    NegativeInfluence,
-    NotGate,
-    OrGate,
-    Phenotype,
-    PhysicalStimulation,
-    PhysicalStimulator,
-    PositiveInfluence,
-    ProteinBindingDomain,
-    RNA,
-    RNATemplate,
     Reaction,
-    Receptor,
-    ReceptorTemplate,
-    RegulatoryRegion,
-    SimpleMolecule,
-    StateTransition,
-    Transcription,
-    TranscriptionStartingSiteL,
-    TranscriptionStartingSiteR,
-    Translation,
-    Transport,
-    Trigger,
-    Triggering,
-    TruncatedProtein,
-    TruncatedProteinTemplate,
-    Truncation,
-    Unknown,
-    UnknownCatalysis,
-    UnknownCatalyzer,
-    UnknownGate,
-    UnknownInhibition,
-    UnknownInhibitor,
-    UnknownModulation,
-    UnknownNegativeInfluence,
-    UnknownPhysicalStimulation,
-    UnknownPositiveInfluence,
-    UnknownTransition,
-    UnknownTriggering,
 )
 from momapy.celldesigner.layout import (
-    AndGateLayout,
-    AntisenseRNALayout,
-    CatalysisLayout,
     CellDesignerLayout,
-    ComplexLayout,
-    DegradedLayout,
-    DissociationLayout,
-    DrugLayout,
-    GeneLayout,
-    GenericProteinLayout,
-    HeterodimerAssociationLayout,
-    InhibitionLayout,
-    IonChannelLayout,
-    IonLayout,
-    KnownTransitionOmittedLayout,
-    ModulationLayout,
-    NotGateLayout,
-    OrGateLayout,
-    PhenotypeLayout,
-    PhysicalStimulationLayout,
-    PositiveInfluenceLayout,
-    RNALayout,
-    ReceptorLayout,
-    SimpleMoleculeLayout,
-    StateTransitionLayout,
-    TranscriptionLayout,
-    TranslationLayout,
-    TransportLayout,
-    TriggeringLayout,
-    TruncatedProteinLayout,
-    TruncationLayout,
-    UnknownCatalysisLayout,
-    UnknownGateLayout,
-    UnknownInhibitionLayout,
-    UnknownLayout,
-    UnknownModulationLayout,
-    UnknownPhysicalStimulationLayout,
-    UnknownPositiveInfluenceLayout,
-    UnknownTransitionLayout,
-    UnknownTriggeringLayout,
 )
 
 
 class CellDesignerReader(Reader):
     """Class for CellDesigner reader objects."""
-
-    _KEY_TO_CLASS = {
-        (
-            "TEMPLATE",
-            "GENERIC",
-        ): GenericProteinTemplate,
-        (
-            "TEMPLATE",
-            "ION_CHANNEL",
-        ): IonChannelTemplate,
-        ("TEMPLATE", "RECEPTOR"): ReceptorTemplate,
-        (
-            "TEMPLATE",
-            "TRUNCATED",
-        ): TruncatedProteinTemplate,
-        ("TEMPLATE", "GENE"): GeneTemplate,
-        ("TEMPLATE", "RNA"): RNATemplate,
-        (
-            "TEMPLATE",
-            "ANTISENSE_RNA",
-        ): AntisenseRNATemplate,
-        ("SPECIES", "GENERIC"): (
-            GenericProtein,
-            GenericProteinLayout,
-        ),
-        ("SPECIES", "ION_CHANNEL"): (
-            IonChannel,
-            IonChannelLayout,
-        ),
-        ("SPECIES", "RECEPTOR"): (
-            Receptor,
-            ReceptorLayout,
-        ),
-        ("SPECIES", "TRUNCATED"): (
-            TruncatedProtein,
-            TruncatedProteinLayout,
-        ),
-        ("SPECIES", "GENE"): (
-            Gene,
-            GeneLayout,
-        ),
-        ("SPECIES", "RNA"): (
-            RNA,
-            RNALayout,
-        ),
-        ("SPECIES", "ANTISENSE_RNA"): (
-            AntisenseRNA,
-            AntisenseRNALayout,
-        ),
-        ("SPECIES", "PHENOTYPE"): (
-            Phenotype,
-            PhenotypeLayout,
-        ),
-        ("SPECIES", "ION"): (
-            Ion,
-            IonLayout,
-        ),
-        ("SPECIES", "SIMPLE_MOLECULE"): (
-            SimpleMolecule,
-            SimpleMoleculeLayout,
-        ),
-        ("SPECIES", "DRUG"): (
-            Drug,
-            DrugLayout,
-        ),
-        ("SPECIES", "COMPLEX"): (
-            Complex,
-            ComplexLayout,
-        ),
-        ("SPECIES", "UNKNOWN"): (
-            Unknown,
-            UnknownLayout,
-        ),
-        ("SPECIES", "DEGRADED"): (
-            None,
-            DegradedLayout,
-        ),
-        ("REACTION", "STATE_TRANSITION"): (
-            StateTransition,
-            StateTransitionLayout,
-        ),
-        ("REACTION", "KNOWN_TRANSITION_OMITTED"): (
-            KnownTransitionOmitted,
-            KnownTransitionOmittedLayout,
-        ),
-        ("REACTION", "UNKNOWN_TRANSITION"): (
-            UnknownTransition,
-            UnknownTransitionLayout,
-        ),
-        ("REACTION", "TRANSCRIPTION"): (
-            Transcription,
-            TranscriptionLayout,
-        ),
-        ("REACTION", "TRANSLATION"): (
-            Translation,
-            TranslationLayout,
-        ),
-        ("REACTION", "TRANSPORT"): (
-            Transport,
-            TransportLayout,
-        ),
-        ("REACTION", "HETERODIMER_ASSOCIATION"): (
-            HeterodimerAssociation,
-            HeterodimerAssociationLayout,
-        ),
-        ("REACTION", "DISSOCIATION"): (
-            Dissociation,
-            DissociationLayout,
-        ),
-        ("REACTION", "TRUNCATION"): (
-            Truncation,
-            TruncationLayout,
-        ),
-        ("REACTION", "CATALYSIS"): (
-            Catalysis,
-            CatalysisLayout,
-        ),
-        ("REACTION", "UNKNOWN_CATALYSIS"): (
-            UnknownCatalysis,
-            UnknownCatalysisLayout,
-        ),
-        ("REACTION", "INHIBITION"): (
-            Inhibition,
-            InhibitionLayout,
-        ),
-        ("REACTION", "UNKNOWN_INHIBITION"): (
-            UnknownInhibition,
-            UnknownInhibitionLayout,
-        ),
-        ("REACTION", "PHYSICAL_STIMULATION"): (
-            PhysicalStimulation,
-            PhysicalStimulationLayout,
-        ),
-        ("REACTION", "MODULATION"): (
-            Modulation,
-            ModulationLayout,
-        ),
-        ("REACTION", "TRIGGER"): (
-            Triggering,
-            TriggeringLayout,
-        ),
-        ("REACTION", "POSITIVE_INFLUENCE"): (
-            PositiveInfluence,
-            PositiveInfluenceLayout,
-        ),
-        ("REACTION", "UNKNOWN_POSITIVE_INFLUENCE"): (
-            UnknownPositiveInfluence,
-            UnknownPositiveInfluenceLayout,
-        ),
-        ("REACTION", "NEGATIVE_INFLUENCE"): (
-            NegativeInfluence,
-            InhibitionLayout,
-        ),
-        ("REACTION", "UNKNOWN_NEGATIVE_INFLUENCE"): (
-            UnknownNegativeInfluence,
-            UnknownInhibitionLayout,
-        ),
-        ("REACTION", "REDUCED_PHYSICAL_STIMULATION"): (
-            PhysicalStimulation,
-            PhysicalStimulationLayout,
-        ),
-        ("REACTION", "UNKNOWN_REDUCED_PHYSICAL_STIMULATION"): (
-            UnknownPhysicalStimulation,
-            UnknownPhysicalStimulationLayout,
-        ),
-        ("REACTION", "REDUCED_MODULATION"): (
-            Modulation,
-            ModulationLayout,
-        ),
-        ("REACTION", "UNKNOWN_REDUCED_MODULATION"): (
-            UnknownModulation,
-            UnknownModulationLayout,
-        ),
-        ("REACTION", "REDUCED_TRIGGER"): (
-            Triggering,
-            TriggeringLayout,
-        ),
-        ("REACTION", "UNKNOWN_REDUCED_TRIGGER"): (
-            UnknownTriggering,
-            UnknownTriggeringLayout,
-        ),
-        ("MODIFIER", "CATALYSIS"): (
-            Catalyzer,
-            CatalysisLayout,
-        ),
-        ("MODIFIER", "UNKNOWN_CATALYSIS"): (
-            UnknownCatalyzer,
-            UnknownCatalysisLayout,
-        ),
-        ("MODIFIER", "INHIBITION"): (
-            Inhibitor,
-            InhibitionLayout,
-        ),
-        ("MODIFIER", "UNKNOWN_INHIBITION"): (
-            UnknownInhibitor,
-            UnknownInhibitionLayout,
-        ),
-        ("MODIFIER", "PHYSICAL_STIMULATION"): (
-            PhysicalStimulator,
-            PhysicalStimulationLayout,
-        ),
-        ("MODIFIER", "MODULATION"): (
-            Modulator,
-            ModulationLayout,
-        ),
-        ("MODIFIER", "TRIGGER"): (
-            Trigger,
-            TriggeringLayout,
-        ),
-        ("MODIFIER", "POSITIVE_INFLUENCE"): (  # pre-4.0 CellDesigner
-            PhysicalStimulator,
-            PhysicalStimulationLayout,
-        ),
-        ("MODIFIER", "NEGATIVE_INFLUENCE"): (  # pre-4.0 CellDesigner
-            Inhibitor,
-            InhibitionLayout,
-        ),
-        ("GATE", "BOOLEAN_LOGIC_GATE_AND"): (
-            AndGate,
-            AndGateLayout,
-        ),
-        ("GATE", "BOOLEAN_LOGIC_GATE_OR"): (
-            OrGate,
-            OrGateLayout,
-        ),
-        ("GATE", "BOOLEAN_LOGIC_GATE_NOT"): (
-            NotGate,
-            NotGateLayout,
-        ),
-        (
-            "GATE",
-            "BOOLEAN_LOGIC_GATE_UNKNOWN",
-        ): (
-            UnknownGate,
-            UnknownGateLayout,
-        ),
-        (
-            "REGION",
-            "Modification Site",
-        ): ModificationSite,
-        (
-            "REGION",
-            "RegulatoryRegion",
-        ): RegulatoryRegion,
-        (
-            "REGION",
-            "transcriptionStartingSiteL",
-        ): TranscriptionStartingSiteL,
-        (
-            "REGION",
-            "transcriptionStartingSiteR",
-        ): TranscriptionStartingSiteR,
-        (
-            "REGION",
-            "CodingRegion",
-        ): CodingRegion,
-        (
-            "REGION",
-            "proteinBindingDomain",
-        ): ProteinBindingDomain,
-    }
 
     @classmethod
     def _parse_cd_model(cls, reading_context: CellDesignerReadingContext) -> None:
@@ -539,7 +180,7 @@ class CellDesignerReader(Reader):
         reading_context.cd_modulations = []
         for cd_reaction in get_reactions(cd_model):
             key = get_key_from_reaction(cd_reaction)
-            model_element_cls, layout_element_cls = cls._KEY_TO_CLASS[key]
+            model_element_cls, layout_element_cls = KEY_TO_CLASS[key]
             if issubclass(model_element_cls, Reaction):
                 reading_context.cd_reactions.append(cd_reaction)
             else:
@@ -951,7 +592,7 @@ class CellDesignerReader(Reader):
     ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None:
             key = get_key_from_species_template(cd_species_template)
-            model_element_cls = cls._KEY_TO_CLASS[key]
+            model_element_cls = KEY_TO_CLASS[key]
             model_element = _reading_model.make_species_template(
                 reading_context, cd_species_template, model_element_cls
             )
@@ -1042,7 +683,7 @@ class CellDesignerReader(Reader):
     ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None:
             key = get_key_from_region(cd_region)
-            model_element_cls = cls._KEY_TO_CLASS[key]
+            model_element_cls = KEY_TO_CLASS[key]
             model_element = _reading_model.make_region(
                 reading_context,
                 cd_region,
@@ -1078,7 +719,7 @@ class CellDesignerReader(Reader):
             key = get_key_from_species(
                 cd_species, reading_context.xml_id_to_xml_element
             )
-            model_element_cls, layout_element_cls = cls._KEY_TO_CLASS[key]
+            model_element_cls, layout_element_cls = KEY_TO_CLASS[key]
             name = make_name(cd_species.get("name"))
             cd_species_homodimer = get_homodimer(cd_species)
             if cd_species_homodimer is not None:
@@ -1393,7 +1034,7 @@ class CellDesignerReader(Reader):
     ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None or reading_context.layout is not None:
             key = get_key_from_reaction(cd_reaction)
-            model_element_cls, layout_element_cls = cls._KEY_TO_CLASS[key]
+            model_element_cls, layout_element_cls = KEY_TO_CLASS[key]
             cd_base_reactants = get_base_reactants(cd_reaction)
             cd_base_products = get_base_products(cd_reaction)
             if reading_context.model is not None:
@@ -1799,7 +1440,7 @@ class CellDesignerReader(Reader):
     ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None or reading_context.layout is not None:
             key = get_key_from_reaction_modification(cd_reaction_modification)
-            model_element_cls, layout_element_cls = cls._KEY_TO_CLASS[key]
+            model_element_cls, layout_element_cls = KEY_TO_CLASS[key]
             has_boolean_input = has_boolean_input_from_modification(
                 cd_reaction_modification
             )
@@ -1877,7 +1518,7 @@ class CellDesignerReader(Reader):
             cd_input_ids = cd_modifiers.split(",")
             sorted_aliases = "_".join(sorted(cd_input_ids))
             cd_gate_id = f"{cd_reaction_id}_gate_{sorted_aliases}"
-            model_element_cls, layout_element_cls = cls._KEY_TO_CLASS[key]
+            model_element_cls, layout_element_cls = KEY_TO_CLASS[key]
             if reading_context.model is not None:
                 model_element = _reading_model.make_logic_gate(
                     reading_context,
@@ -1952,7 +1593,7 @@ class CellDesignerReader(Reader):
     ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None or reading_context.layout is not None:
             key = get_key_from_reaction(cd_reaction)
-            model_element_cls, layout_element_cls = cls._KEY_TO_CLASS[key]
+            model_element_cls, layout_element_cls = KEY_TO_CLASS[key]
             has_boolean_input = has_boolean_input_from_reaction(cd_reaction)
             cd_base_reactant = get_base_reactants(cd_reaction)[0]
             cd_base_product = get_base_products(cd_reaction)[0]
