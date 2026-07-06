@@ -1386,7 +1386,11 @@ def _run(args: argparse.Namespace) -> None:
                 map_ = tidy_sbgn(map_)
         if args.to_top_left:
             map_ = _move_map_to_top_left(map_)
-        _write_output(map_, reader_result, args.output_file_path, text=args.text)
+        try:
+            _write_output(map_, reader_result, args.output_file_path, text=args.text)
+        except ValueError as error:
+            print(f"error: {error}", file=sys.stderr)
+            sys.exit(1)
     elif args.subcommand == "info":
         reader_result = _read_input(args.input_file_path)
         map_ = reader_result.obj
@@ -1496,7 +1500,11 @@ def _run(args: argparse.Namespace) -> None:
         map_builder = builder_from_object(map_)
         apply_style_sheet(map_builder, style_sheet)
         map_ = map_builder.build()
-        _write_output(map_, reader_result, args.output_file_path, text=args.text)
+        try:
+            _write_output(map_, reader_result, args.output_file_path, text=args.text)
+        except ValueError as error:
+            print(f"error: {error}", file=sys.stderr)
+            sys.exit(1)
     elif args.subcommand == "visualize":
         from momapy.builder import builder_from_object
         from momapy.builder import object_from_builder
