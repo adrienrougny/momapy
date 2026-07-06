@@ -114,6 +114,7 @@ from momapy.sbgn.af import CompartmentLayout as CompartmentLayoutAf
 from momapy.sbgn.af import UnitOfInformationLayout as UnitOfInformationLayoutAf
 from momapy.sbgn.pd import CompartmentLayout as CompartmentLayoutPd
 from momapy.sbgn.pd import ComplexLayout as ComplexLayoutPd
+from momapy.sbgn.pd import SBGNPDMap
 from momapy.sbgn.pd import StateVariableLayout as StateVariableLayoutPd
 from momapy.sbgn.pd import UnitOfInformationLayout as UnitOfInformationLayoutPd
 from momapy.sbgn.utils import get_info as get_info_sbgn
@@ -448,9 +449,14 @@ def _run_tidy_operation(map_: typing.Any, args: argparse.Namespace) -> typing.An
             return set_complexes_to_fit_content_celldesigner(
                 map_, xsep=xsep, ysep=ysep, snap_arcs=snap_arcs
             )
-        else:
+        elif isinstance(map_, SBGNPDMap):
             return set_complexes_to_fit_content_sbgn(
                 map_, xsep=xsep, ysep=ysep, snap_arcs=snap_arcs
+            )
+        else:
+            raise ValueError(
+                "fit-complexes is only supported for SBGN-PD and CellDesigner "
+                "maps (SBGN-AF has no complexes)"
             )
     elif operation == "fit-compartments":
         if is_celldesigner:
@@ -1460,7 +1466,11 @@ def _run(args: argparse.Namespace) -> None:
     elif args.subcommand == "tidy":
         reader_result = _read_input(args.input_file_path)
         map_ = reader_result.obj
-        map_ = _run_tidy_operation(map_, args)
+        try:
+            map_ = _run_tidy_operation(map_, args)
+        except ValueError as error:
+            print(f"error: {error}", file=sys.stderr)
+            sys.exit(1)
         _write_output(map_, reader_result, args.output_file_path)
     elif args.subcommand == "style":
         from momapy.builder import builder_from_object
