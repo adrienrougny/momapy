@@ -18,6 +18,9 @@ Example:
     # Export a CellDesigner map (roundtrip)
     $ momapy export map.xml -o output.xml
 
+    # Export XML to stdout instead of the default pickle (piping)
+    $ momapy export map.sbgn -T > output.sbgn
+
     # Export with tidy and style sheet
     $ momapy export map.sbgn -o output.sbgn -t -s style.css
 
@@ -559,12 +562,14 @@ def _write_output(
     map_: typing.Any,
     reader_result: typing.Any,
     output_file_path: str | os.PathLike | None,
+    text: bool = False,
 ) -> None:
     """Write a map to a file or to stdout.
 
     When ``output_file_path`` is given, writes to that file. Otherwise,
-    if stdout is a pipe, pickles the ``ReaderResult`` (for downstream
-    momapy commands). If stdout is a TTY, writes human-readable XML.
+    writes to stdout: as human-readable XML when ``text`` is ``True`` or
+    stdout is a TTY, and as a pickled ``ReaderResult`` when stdout is a
+    pipe (so downstream momapy commands can chain without re-parsing).
 
     Args:
         map_: The (possibly modified) map object to write.
@@ -573,6 +578,9 @@ def _write_output(
             pickled output.
         output_file_path: Path to the output file, or ``None`` for
             stdout.
+        text: Force human-readable XML on stdout even when it is a pipe
+            (the ``-T``/``--text`` flag). No effect when writing to a
+            file. Defaults to ``False``.
     """
     from momapy.io import write
 
@@ -588,7 +596,7 @@ def _write_output(
             source_id_to_layout_element=reader_result.source_id_to_layout_element,
         )
         return
-    if not sys.stdout.isatty():
+    if not text and not sys.stdout.isatty():
         updated_result = dataclasses.replace(reader_result, obj=map_)
         pickle.dump(updated_result, sys.stdout.buffer)
         return
@@ -1378,7 +1386,7 @@ def _run(args: argparse.Namespace) -> None:
                 map_ = tidy_sbgn(map_)
         if args.to_top_left:
             map_ = _move_map_to_top_left(map_)
-        _write_output(map_, reader_result, args.output_file_path)
+        _write_output(map_, reader_result, args.output_file_path, text=args.text)
     elif args.subcommand == "info":
         reader_result = _read_input(args.input_file_path)
         map_ = reader_result.obj
@@ -1471,7 +1479,7 @@ def _run(args: argparse.Namespace) -> None:
         except ValueError as error:
             print(f"error: {error}", file=sys.stderr)
             sys.exit(1)
-        _write_output(map_, reader_result, args.output_file_path)
+        _write_output(map_, reader_result, args.output_file_path, text=args.text)
     elif args.subcommand == "style":
         from momapy.builder import builder_from_object
         from momapy.styling import apply_style_sheet
@@ -1488,7 +1496,7 @@ def _run(args: argparse.Namespace) -> None:
         map_builder = builder_from_object(map_)
         apply_style_sheet(map_builder, style_sheet)
         map_ = map_builder.build()
-        _write_output(map_, reader_result, args.output_file_path)
+        _write_output(map_, reader_result, args.output_file_path, text=args.text)
     elif args.subcommand == "visualize":
         from momapy.builder import builder_from_object
         from momapy.builder import object_from_builder
@@ -1618,6 +1626,16 @@ def main() -> None:
         "--output-file-path",
         default=None,
         help="output file path (default: stdout)",
+    )
+    export_parser.add_argument(
+        "-T",
+        "--text",
+        action="store_true",
+        default=False,
+        help=(
+            "write human-readable XML to stdout instead of a pickled "
+            "ReaderResult (the default when piping); no effect with -o"
+        ),
     )
     export_parser.add_argument(
         "-t",
@@ -1754,6 +1772,16 @@ def main() -> None:
             default=None,
             help="output file path (default: stdout)",
         )
+        operation_parser.add_argument(
+            "-T",
+            "--text",
+            action="store_true",
+            default=False,
+            help=(
+                "write human-readable XML to stdout instead of a pickled "
+                "ReaderResult (the default when piping); no effect with -o"
+            ),
+        )
         if operation_name in (
             "all",
             "fit-species",
@@ -1822,6 +1850,16 @@ def main() -> None:
         "--output-file-path",
         default=None,
         help="output file path (default: stdout)",
+    )
+    style_parser.add_argument(
+        "-T",
+        "--text",
+        action="store_true",
+        default=False,
+        help=(
+            "write human-readable XML to stdout instead of a pickled "
+            "ReaderResult (the default when piping); no effect with -o"
+        ),
     )
     style_parser.add_argument(
         "-s",
