@@ -192,9 +192,9 @@ Shape classes (extend `Shape`, override `drawing_elements()`): `Rectangle`, `Ell
 ### `src/momapy/rendering/__init__.py`
 - `get_renderer(name) -> type[Renderer]`, `list_renderers() -> list[str]`, `register_renderer(name, renderer_cls)`, `register_lazy_renderer(name, import_path)`. Registry: `renderer_registry: PluginRegistry[type[Renderer]]`.
 - `render_layout_element(layout_element, file_path, format_=None, renderer=None, style_sheet=None, to_top_left=False)`
-- `render_layout_elements(layout_elements, file_path, format_=None, renderer=None, style_sheet=None, to_top_left=False, multi_pages=True)`
+- `render_layout_elements(layout_elements, file_path, format_=None, renderer=None, style_sheet=None, to_top_left=False, multi_pages=False)`
 - `render_map(map_, file_path, format_=None, renderer=None, style_sheet=None, to_top_left=False)`
-- `render_maps(maps, file_path, format_=None, renderer=None, style_sheet=None, to_top_left=False, multi_pages=True)`
+- `render_maps(maps, file_path, format_=None, renderer=None, style_sheet=None, to_top_left=False, multi_pages=False)`
 - Re-exports the base classes `Renderer`, `StatefulRenderer`, `SupportsFileOutput`.
 
 ### `src/momapy/rendering/core.py`

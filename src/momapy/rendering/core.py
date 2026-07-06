@@ -130,7 +130,7 @@ def render_layout_elements(
     renderer: str | None = None,
     style_sheet: StyleSheet | None = None,
     to_top_left: bool = False,
-    multi_pages: bool = True,
+    multi_pages: bool = False,
 ) -> None:
     """Render a collection of layout elements to a file in the given format with the given registered renderer.
 
@@ -141,7 +141,8 @@ def render_layout_elements(
         renderer: The registered renderer to use. If None, auto-detected based on format.
         style_sheet: An optional style sheet to apply before rendering
         to_top_left: Whether to move the layout elements to the top left before rendering
-        multi_pages: Whether to render each layout element on a separate page
+        multi_pages: Whether to render each layout element on a separate page.
+            Defaults to `False` (all elements on a single page).
     """
     if format_ is None:
         file_path_obj = pathlib.Path(file_path)
@@ -281,7 +282,7 @@ def render_maps(
     renderer: str | None = None,
     style_sheet: StyleSheet | None = None,
     to_top_left: bool = False,
-    multi_pages: bool = True,
+    multi_pages: bool = False,
 ) -> None:
     """Render a collection of maps to a file in the given format with the given registered renderer.
 
@@ -292,7 +293,8 @@ def render_maps(
         renderer: The registered renderer to use. If None, auto-detected based on format.
         style_sheet: An optional style sheet to apply before rendering
         to_top_left: Whether to move the maps to the top left before rendering
-        multi_pages: Whether to render each map on a separate page
+        multi_pages: Whether to render each map on a separate page.
+            Defaults to `False` (all maps on a single page).
 
     Examples:
         ```python
