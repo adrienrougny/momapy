@@ -215,7 +215,10 @@ class Reaction(SBMLModelElement):
     """
 
     reversible: bool = dataclasses.field(
-        metadata={"description": "Whether the reaction can proceed in both directions."}
+        default=False,
+        metadata={
+            "description": "Whether the reaction can proceed in both directions."
+        },
     )
     compartment: Compartment | None = dataclasses.field(
         default=None,
