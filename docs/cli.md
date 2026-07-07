@@ -34,31 +34,33 @@ Renders one or more molecular maps to an image file.
 
 | Argument | Description |
 |----------|-------------|
-| `input_file_path` | One or more input file paths (SBGN-ML or CellDesigner format) |
+| `input_file_path` | One or more input file paths (SBGN-ML or CellDesigner format; reads from stdin if omitted) |
 
 ### Options
 
 | Option | Short | Description |
 |--------|-------|-------------|
 | `--output-file-path` | `-o` | Output file path (required) |
-| `--renderer` | `-r` | Renderer to use: `svg-native`, `skia`, `cairo` (auto-detected if omitted) |
-| `--format` | `-f` | Output format: `svg`, `pdf`, `png`, `jpeg`, `webp` (inferred from extension if omitted) |
+| `--renderer` | `-r` | Renderer to use: `svg-native`, `svg-native-compat`, `skia`, `cairo` (auto-detected if omitted) |
+| `--format` | `-f` | Output format: `svg`, `pdf`, `png`, `ps`, `jpeg`, `webp` (inferred from extension if omitted) |
 | `--multi-pages` | `-m` | Render one map per page (for multi-input PDF) |
 | `--to-top-left` | `-l` | Move elements to the top-left of the page |
 | `--tidy` | `-t` | Tidy the map (reroute arcs, fit labels, etc.) |
-| `--style-sheet-file-path` | `-s` | Style sheet file path (can be repeated for multiple style sheets) |
+| `--style-sheet-file-path` | `-s` | Custom CSS style sheet file path (repeatable) |
+| `--preset` | `-p` | Built-in preset name (repeatable); see `momapy list styles` |
 
 ### Renderer/Format Compatibility
 
-| Format | svg-native | skia | cairo |
-|--------|-----------|------|-------|
-| SVG | ✓ | ✓ | ✓ |
-| PDF | ✗ | ✓ | ✓ |
-| PNG | ✗ | ✓ | ✓ |
-| JPEG | ✗ | ✓ | ✗ |
-| WebP | ✗ | ✓ | ✗ |
+| Format | svg-native | svg-native-compat | skia | cairo |
+|--------|-----------|-------------------|------|-------|
+| SVG | ✓ | ✓ | ✓ | ✓ |
+| PDF | ✗ | ✗ | ✓ | ✓ |
+| PNG | ✗ | ✗ | ✓ | ✓ |
+| PS | ✗ | ✗ | ✗ | ✓ |
+| JPEG | ✗ | ✗ | ✓ | ✗ |
+| WebP | ✗ | ✗ | ✓ | ✗ |
 
-**Note:** The `svg-native` renderer is always available and has no external dependencies. The `skia` and `cairo` renderers require optional dependencies to be installed.
+**Note:** The `svg-native` and `svg-native-compat` renderers are always available and have no external dependencies; `svg-native-compat` converts filters (e.g. drop shadows) into a form that renders in older SVG viewers. The `skia` and `cairo` renderers require optional dependencies to be installed.
 
 ## Examples
 
@@ -135,20 +137,22 @@ Reads a map and writes it back in the same format. This is useful for roundtrip 
 
 | Argument | Description |
 |----------|-------------|
-| `input_file_path` | Input file path (SBGN-ML or CellDesigner format) |
+| `input_file_path` | Input file path (SBGN-ML or CellDesigner format; reads from stdin if omitted) |
 
 ### Options
 
 | Option | Short | Description |
 |--------|-------|-------------|
 | `--output-file-path` | `-o` | Output file path (default: stdout) |
+| `--text` | `-T` | Write human-readable XML to stdout instead of a pickled `ReaderResult` (the default when piping); no effect with `-o` |
 | `--tidy` | `-t` | Tidy the map (reroute arcs, fit labels, etc.) |
 | `--to-top-left` | `-l` | Move elements to the top-left of the page |
-| `--style-sheet-file-path` | `-s` | Style sheet file path (can be repeated for multiple style sheets) |
+| `--style-sheet-file-path` | `-s` | Custom CSS style sheet file path (repeatable) |
+| `--preset` | `-p` | Built-in preset name (repeatable); see `momapy list styles` |
 
-The writer is inferred automatically from the map type: SBGN maps are exported using the `sbgnml` writer, CellDesigner maps using the `celldesigner` writer.
+The writer is inferred automatically from the map type: SBGN maps are exported using the `sbgnml` writer, CellDesigner maps using the `celldesigner` writer. SBML is read-only and cannot be exported.
 
-If no output file is specified, the result is written to standard output.
+If no output file is specified, the result is written to standard output. When the output is a pipe, a pickled `ReaderResult` is written by default (so `momapy` commands can be chained); pass `-T` to emit XML text instead.
 
 ### Examples
 
@@ -361,7 +365,7 @@ newt                     Newt style
 sbgned                   SBGN-ED style
 ```
 
-Preset names can be passed to `momapy style -p` or `momapy render`/`momapy export` via `--preset`.
+Preset names can be passed to `momapy style -p` or to `momapy render`/`momapy export`/`momapy visualize` via `--preset`.
 
 #### List stylable attributes of a class
 
@@ -369,7 +373,7 @@ Preset names can be passed to `momapy style -p` or `momapy render`/`momapy expor
 momapy list attributes momapy.sbgn.pd:MacromoleculeLayout
 ```
 
-Lists every attribute that can be targeted in a stylesheet for the given class. Pass `-p` / `--presentation-only` to restrict the output to visual presentation attributes (fill, stroke, font, etc.).
+Lists every attribute that can be targeted in a stylesheet for the given class. Pass `-P` / `--presentation-only` to restrict the output to visual presentation attributes (fill, stroke, font, etc.).
 
 ```bash
 momapy list attributes momapy.sbgn.pd:MacromoleculeLayout --presentation-only
@@ -407,6 +411,7 @@ All operations accept:
 | Option | Short | Description |
 |--------|-------|-------------|
 | `--output-file-path` | `-o` | Output file path (default: stdout) |
+| `--text` | `-T` | Write human-readable XML to stdout instead of a pickled `ReaderResult` (the default when piping); no effect with `-o` |
 
 The `all`, `fit-species`, `fit-epns`, `fit-auxiliary`, `fit-complexes`, `fit-compartments`, `fit-submaps`, and `fit-layout` operations also accept:
 
@@ -414,6 +419,12 @@ The `all`, `fit-species`, `fit-epns`, `fit-auxiliary`, `fit-complexes`, `fit-com
 |--------|-------------|
 | `--xsep <float>` | Horizontal padding (default: depends on operation and map type) |
 | `--ysep <float>` | Vertical padding (default: depends on operation and map type) |
+
+The `fit-species`, `fit-epns`, `fit-auxiliary`, `fit-complexes`, `fit-compartments`, and `fit-submaps` operations also accept:
+
+| Option | Description |
+|--------|-------------|
+| `--no-snap-arcs` | Do not snap arc endpoints to node borders after the operation (useful when chaining tidy operations; run `tidy snap-arcs` once at the end) |
 
 The `all` and `straighten-arcs` operations also accept:
 
@@ -462,6 +473,7 @@ Applies CSS stylesheets (and/or built-in presets) to a map, baking the styles in
 | Option | Short | Description |
 |--------|-------|-------------|
 | `--output-file-path` | `-o` | Output file path (default: stdout) |
+| `--text` | `-T` | Write human-readable XML to stdout instead of a pickled `ReaderResult` (the default when piping); no effect with `-o` |
 | `--style-sheet-file-path` | `-s` | Custom CSS file path (repeatable) |
 | `--preset` | `-p` | Built-in preset name (repeatable); see `momapy list styles` |
 
@@ -513,7 +525,8 @@ Opens an interactive viewer for a molecular map in the default web browser. The 
 |--------|-------|-------------|
 | `--tidy` | `-t` | Tidy the map (reroute arcs, fit labels, etc.) |
 | `--to-top-left` | `-l` | Move elements to the top-left of the page |
-| `--style-sheet-file-path` | `-s` | Style sheet file path (can be repeated for multiple style sheets) |
+| `--style-sheet-file-path` | `-s` | Custom CSS style sheet file path (repeatable) |
+| `--preset` | `-p` | Built-in preset name (repeatable); see `momapy list styles` |
 
 ### Examples
 
