@@ -108,11 +108,11 @@ font-family: "DejaVu Sans";
 
 ### Colors
 
-Color names or hex values:
+Colors are given as names (any color defined in `momapy.coloring`). Hex values are not supported:
 
 ```css
 fill: royalblue;
-stroke: #FF5733;
+stroke: tomato;
 ```
 
 ### Special Values
@@ -149,7 +149,7 @@ Parameters: `drop-shadow(dx, dy, std_dev, opacity, color)`
 | `stroke-width` | Stroke thickness | `stroke-width: 2.0;` |
 | `stroke-dasharray` | Dash pattern | `stroke-dasharray: 5, 5;` |
 | `opacity` | Opacity (0.0-1.0) | `opacity: 0.8;` |
-| `filter` | Visual effects | `filter: drop-shadow(2, 2, 3, 0.5, gray);` |
+| `filter` | Visual effects | `filter: drop-shadow(2.0, 2.0, 3.0, 0.5, gray);` |
 
 ### Text Properties
 
@@ -158,8 +158,8 @@ Parameters: `drop-shadow(dx, dy, std_dev, opacity, color)`
 | `font-family` | Font name | `font-family: "DejaVu Sans";` |
 | `font-size` | Font size | `font-size: 14.0;` |
 | `fill` | Text color | `fill: white;` |
-| `font-style` | Font style | `font-style: italic;` |
-| `font-weight` | Font weight | `font-weight: bold;` |
+| `font-style` | Font style | `font-style: "italic";` |
+| `font-weight` | Font weight (numeric) | `font-weight: 700;` |
 
 ### Shape Properties
 
@@ -287,26 +287,23 @@ render_map(map_, "output.svg", style_sheet=style_sheet)
 
 ## Complete Example
 
-Here's a custom stylesheet for some layout elements of SBGN PD:
+Here's a custom stylesheet for some layout elements of SBGN PD (note that the
+grammar has no comment syntax, so the rules speak for themselves):
 
 ```css
-/* Import a base stylesheet */
 @import "my_base_stylesheet.css";
 
-/* Style state variables */
 StateVariableLayout {
     fill: royalblue;
     stroke: white;
     stroke-width: 1.5;
 }
 
-/* Style text inside state variables */
 StateVariableLayout > TextLayout {
     font-size: 7.0;
     fill: white;
 }
 
-/* Style macromolecules */
 MacromoleculeLayout {
     fill: royalblue;
     stroke: white;
@@ -318,7 +315,6 @@ MacromoleculeLayout > TextLayout {
     fill: white;
 }
 
-/* Style simple chemicals */
 SimpleChemicalLayout {
     fill: gold;
     stroke: white;
@@ -330,7 +326,6 @@ SimpleChemicalLayout > TextLayout {
     fill: black;
 }
 
-/* Style processes with connectors */
 GenericProcessLayout {
     fill: gray;
     stroke: white;
@@ -340,14 +335,12 @@ GenericProcessLayout {
     left-connector-length: 10.0;
 }
 
-/* Style consumption arc (polyline, no arrowhead) */
 ConsumptionLayout {
     path-stroke: gray;
     path-stroke-width: 1.5;
     end-shorten: 1.0;
 }
 
-/* Style production arc */
 ProductionLayout {
     arrowhead-fill: gray;
     arrowhead-stroke: gray;
