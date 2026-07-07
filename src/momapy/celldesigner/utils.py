@@ -66,8 +66,6 @@ from momapy.celldesigner.layout import (
 
 
 __all__ = [
-    "MapInfo",
-    "MapLayoutInfo",
     "get_info",
     "highlight_layout_elements",
     "set_arcs_to_borders",
@@ -946,23 +944,7 @@ def tidy(
     return map_builder
 
 
-class MapLayoutInfo(typing.TypedDict):
-    """Layout dimensions returned in `MapInfo`."""
-
-    width: float
-    height: float
-    elements: int
-
-
-class MapInfo(typing.TypedDict):
-    """Summary of a CellDesigner map returned by `get_info`."""
-
-    map_type: str
-    model: dict[str, int]
-    layout: MapLayoutInfo
-
-
-def get_info(map_: CellDesignerMap) -> MapInfo:
+def get_info(map_: CellDesignerMap) -> dict[str, typing.Any]:
     """Get a summary of the contents of a CellDesigner map.
 
     Returns a dictionary with the map type, model element counts,
@@ -972,7 +954,7 @@ def get_info(map_: CellDesignerMap) -> MapInfo:
         map_: A CellDesigner map.
 
     Returns:
-        A `MapInfo` with keys ``map_type``, ``model``, and ``layout``.
+        A dictionary with keys ``map_type``, ``model``, and ``layout``.
     """
     model = map_.model
     layout = map_.layout

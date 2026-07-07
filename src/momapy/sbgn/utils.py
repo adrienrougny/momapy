@@ -59,8 +59,6 @@ from momapy.sbgn.af import UnspecifiedEntityUnitOfInformationLayout
 
 
 __all__ = [
-    "MapInfo",
-    "MapLayoutInfo",
     "get_info",
     "newt_tidy",
     "sbgned_tidy",
@@ -773,23 +771,7 @@ def newt_tidy(
     )
 
 
-class MapLayoutInfo(typing.TypedDict):
-    """Layout dimensions returned in `MapInfo`."""
-
-    width: float
-    height: float
-    elements: int
-
-
-class MapInfo(typing.TypedDict):
-    """Summary of an SBGN map returned by `get_info`."""
-
-    map_type: str
-    model: dict[str, int]
-    layout: MapLayoutInfo
-
-
-def get_info(map_: SBGNMap) -> MapInfo:
+def get_info(map_: SBGNMap) -> dict[str, typing.Any]:
     """Get a summary of the contents of an SBGN map.
 
     Returns a dictionary with the map type, model element counts,
@@ -799,7 +781,7 @@ def get_info(map_: SBGNMap) -> MapInfo:
         map_: An SBGN map.
 
     Returns:
-        A `MapInfo` with keys ``map_type``, ``model``, and ``layout``.
+        A dictionary with keys ``map_type``, ``model``, and ``layout``.
 
     Raises:
         ValueError: If the model type is not recognized.
