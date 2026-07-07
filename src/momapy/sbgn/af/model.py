@@ -4,6 +4,7 @@ import dataclasses
 import typing
 
 from momapy.sbgn.elements import (
+    SBGNAuxiliaryUnit,
     SBGNModelElement,
     SBGNRole,
 )
@@ -283,7 +284,7 @@ class TagReference(SBGNRole):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Terminal(SBGNModelElement):
+class Terminal(SBGNAuxiliaryUnit):
     """Terminal element.
 
     Terminals represent connection points to submaps.

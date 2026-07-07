@@ -292,7 +292,7 @@ Purpose: SBGN-AF model classes.
 - **Activities**: `Activity(SBGNModelElement)` — `label`, `compartment`; `BiologicalActivity` (+ `units_of_information`), `Phenotype`.
 - **Logical operators**: `LogicalOperator` (`inputs`) → `OrOperator`, `AndOperator`, `NotOperator`, `DelayOperator`. `LogicalOperatorInput(SBGNRole)` — `referred_element: BiologicalActivity | LogicalOperator`.
 - **Influences**: `Influence(SBGNModelElement)` (`source`, `target: Activity`) → `UnknownInfluence`, `PositiveInfluence`, `NegativeInfluence`, `NecessaryStimulation`.
-- **Tags/terminals/submaps**: AF `Tag(SBGNModelElement)` and `Terminal(SBGNModelElement)` both use field `referred_element` (AF `Terminal` extends `SBGNModelElement`, unlike PD `Terminal` which extends `SBGNAuxiliaryUnit`); plus `Submap` and the reference roles.
+- **Tags/terminals/submaps**: AF `Tag(SBGNModelElement)` and `Terminal(SBGNAuxiliaryUnit)` both use field `referred_element` (AF `Terminal` extends `SBGNAuxiliaryUnit`, matching PD `Terminal`); plus `Submap` and the reference roles.
 - **Model**: `SBGNAFModel(SBGNModel)` — `compartments`, `activities`, `influences`, `logical_operators`, `submaps`, `tags`.
 
 ### `src/momapy/sbgn/af/layout.py`
