@@ -344,13 +344,13 @@ class SBGNAFModel(SBGNModel):
     tags: frozenset[Tag] = dataclasses.field(default_factory=frozenset)
 
     def is_submodel(self, other: "SBGNAFModel") -> bool:
-        """Check if another model is a submodel of this model.
+        """Check if this model is a submodel of another model.
 
         Args:
             other: Another SBGN-AF model to compare against.
 
         Returns:
-            True if other is a submodel of this model, False otherwise.
+            True if this model is a submodel of `other`, False otherwise.
         """
         return (
             self.activities.issubset(other.activities)

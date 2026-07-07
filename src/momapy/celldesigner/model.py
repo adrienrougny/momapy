@@ -1042,13 +1042,13 @@ class CellDesignerModel(SBMLModel):
     )
 
     def is_submodel(self, other: "CellDesignerModel") -> bool:
-        """Check if another model is a submodel of this model.
+        """Check if this model is a submodel of another model.
 
         Args:
             other: Another CellDesigner model to compare against.
 
         Returns:
-            True if other is a submodel of this model, False otherwise.
+            True if this model is a submodel of `other`, False otherwise.
         """
         return (
             self.compartments.issubset(other.compartments)

@@ -655,9 +655,9 @@ def tidy(
         nodes_xsep: Horizontal padding for node sizing. Defaults to 4.
         nodes_ysep: Vertical padding for node sizing. Defaults to 4.
         auxiliary_units_xsep: Horizontal padding for auxiliary units.
-            Defaults to 2.
+            Defaults to 1.
         auxiliary_units_ysep: Vertical padding for auxiliary units.
-            Defaults to 2.
+            Defaults to 1.
         complexes_xsep: Horizontal padding for complexes. Defaults to 10.
         complexes_ysep: Vertical padding for complexes. Defaults to 10.
         compartments_xsep: Horizontal padding for compartments.

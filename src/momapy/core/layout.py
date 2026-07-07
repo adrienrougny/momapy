@@ -133,7 +133,7 @@ class TextLayout(LayoutElement):
 
     @property
     def x(self) -> float:
-        """Return the y coordinate of the text layout."""
+        """Return the x coordinate of the text layout."""
         return self.position.x
 
     @property
@@ -1265,7 +1265,7 @@ class DoubleHeadedArc(Arc):
         return segment.get_position_at_fraction(fraction)
 
     def end_arrowhead_bbox(self) -> Bbox:
-        """Return the bounding box of the double-headed arc start arrowhead."""
+        """Return the bounding box of the double-headed arc end arrowhead."""
         return get_drawing_elements_bbox(self.end_arrowhead_drawing_elements())
 
     def end_arrowhead_border(self, point: Point) -> Point:
@@ -1464,7 +1464,7 @@ class Layout(Node):
     def is_sublayout(
         self, other: "Layout", flattened: bool = False, unordered: bool = False
     ) -> bool:
-        """Return `True` if another given layout is a sublayout of the layout, `False` otherwise."""
+        """Return `True` if the layout is a sublayout of another given layout, `False` otherwise."""
 
         def _is_sublist(
             list1: list[LayoutElement],
