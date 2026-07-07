@@ -5,7 +5,7 @@ convenience functions for reading and writing map files.
 
 Examples:
     ```python
-    from momapy.io.core import read, write
+    from momapy.io import read, write
     result = read("map.sbgn")
     write(result.obj, "output.sbgn", writer="sbgnml")
     ```
@@ -314,7 +314,7 @@ def read(
 
     Examples:
         ```python
-        from momapy.io.core import read
+        from momapy.io import read
         result = read("map.sbgn")
         map_obj = result.obj
         ```
@@ -395,7 +395,7 @@ def write(
 
     Examples:
         ```python
-        from momapy.io.core import write
+        from momapy.io import write
         write(map_obj, "output.sbgn")
         ```
     """

@@ -280,7 +280,7 @@ apply_style_sheet(map_.layout, style_sheet)
 Or apply during rendering:
 
 ```python
-from momapy.rendering.core import render_map
+from momapy.rendering import render_map
 
 render_map(map_, "output.svg", style_sheet=style_sheet)
 ```

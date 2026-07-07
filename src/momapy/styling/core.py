@@ -282,7 +282,7 @@ class TypeSelector(Selector):
     Examples:
         ```python
         selector = TypeSelector("Rectangle")
-        selector.match(some_rectangle)  # True if type is Rectangle
+        selector.select(some_rectangle, [])  # True if type is Rectangle
         ```
     """
 
@@ -318,7 +318,7 @@ class ClassSelector(Selector):
     Examples:
         ```python
         selector = ClassSelector("Shape")
-        selector.match(some_rectangle)  # True if Rectangle is a Shape subclass
+        selector.select(some_rectangle, [])  # True if Rectangle is a Shape subclass
         ```
     """
 
@@ -354,7 +354,7 @@ class IdSelector(Selector):
     Examples:
         ```python
         selector = IdSelector("main_node")
-        selector.match(element)  # True if element.id_ == "main_node"
+        selector.select(element, [])  # True if element.id_ == "main_node"
         ```
     """
 
@@ -384,7 +384,7 @@ class ChildSelector(Selector):
     Examples:
         ```python
         selector = ChildSelector(TypeSelector("Group"), TypeSelector("Rectangle"))
-        selector.match(rect, [group])  # True if rect is direct child of group
+        selector.select(rect, [group])  # True if rect is direct child of group
         ```
     """
 
@@ -424,7 +424,7 @@ class DescendantSelector(Selector):
     Examples:
         ```python
         selector = DescendantSelector(TypeSelector("Group"), TypeSelector("Text"))
-        selector.match(text, [subgroup, group])  # True if text is somewhere inside group
+        selector.select(text, [subgroup, group])  # True if text is somewhere inside group
         ```
     """
 
@@ -467,7 +467,7 @@ class OrSelector(Selector):
     Examples:
         ```python
         selector = OrSelector((TypeSelector("Rectangle"), TypeSelector("Circle")))
-        selector.match(some_shape)  # True if shape is Rectangle OR Circle
+        selector.select(some_shape, [])  # True if shape is Rectangle OR Circle
         ```
     """
 
@@ -499,7 +499,7 @@ class CompoundSelector(Selector):
     Examples:
         ```python
         selector = CompoundSelector((TypeSelector("Rectangle"), ClassSelector("Colored")))
-        selector.match(element)  # True if element is Rectangle AND Colored
+        selector.select(element, [])  # True if element is Rectangle AND Colored
         ```
     """
 
@@ -531,7 +531,7 @@ class NotSelector(Selector):
     Examples:
         ```python
         selector = NotSelector((TypeSelector("Hidden"),))
-        selector.match(element)  # True if element is NOT of type Hidden
+        selector.select(element, [])  # True if element is NOT of type Hidden
         ```
     """
 

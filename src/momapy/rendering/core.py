@@ -261,8 +261,8 @@ def render_map(
 
     Examples:
         ```python
-        from momapy.io.core import read
-        from momapy.rendering.core import render_map
+        from momapy.io import read
+        from momapy.rendering import render_map
 
         # Read a map from file
         result = read("path/to/map.sbgn")
@@ -298,8 +298,8 @@ def render_maps(
 
     Examples:
         ```python
-        from momapy.io.core import read
-        from momapy.rendering.core import render_maps
+        from momapy.io import read
+        from momapy.rendering import render_maps
 
         # Read multiple maps from files
         result1 = read("path/to/map1.sbgn")
