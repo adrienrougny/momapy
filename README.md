@@ -21,7 +21,7 @@ Features of <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span 
   * a layout object;
   * a mapping from layout element objects to model element objects.
 * map, model, layout and mapping objects comparison; fast object in set checking
-* rendering of maps to images (SVG, PDF, JPEG, PNG, WebP) and other surfaces (e.g. GLFW window)
+* rendering of maps to images (SVG, PDF, JPEG, PNG, WebP), or onto a Skia canvas for live rendering (via the `skia` renderer)
 * support for styling and CSS like stylesheets (including effects such as shadows)
 * automatic geometry and anchors (for arcs, shape borders)
 * local positioning (e.g. right of shape, fit set of shapes)
