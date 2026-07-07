@@ -59,7 +59,6 @@ src/momapy/
 │       └── writer.py, _writing.py, _writing_classification.py
 ├── celldesigner/     # CellDesigner format support (same I/O module structure)
 ├── sbml/             # SBML support
-├── transform/        # Map conversions (e.g. CellDesigner → SBGN-PD)
 ├── rendering/        # Backends: svg_native, skia, cairo
 ├── io/core.py        # Reader/Writer base classes, ReaderResult, WriterResult
 └── plugins/core.py   # Plugin registry with lazy loading

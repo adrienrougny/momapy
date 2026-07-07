@@ -330,8 +330,7 @@ def _infer_writer(map_: typing.Any) -> str:
     elif isinstance(map_, SBMLMap):
         raise ValueError(
             "SBML is read-only in momapy: there is no SBML writer, so SBML "
-            "maps cannot be exported. Convert the map to SBGN-PD first (see "
-            "momapy.transform) to export it as SBGN-ML."
+            "maps cannot be exported."
         )
     else:
         raise ValueError(f"could not infer writer for map type {type(map_).__name__}")
