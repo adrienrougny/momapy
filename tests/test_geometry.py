@@ -207,6 +207,38 @@ class TestEllipticalArc:
         # Semicircle with r=5 has length ~15.7
         assert length == pytest.approx(math.pi * 5, abs=0.5)
 
+    def test_shortened_over_length_does_not_extrapolate(self):
+        """Regression (finding 9): over-shortening clamps to a degenerate arc.
+
+        Shortening by more than the total length must not extrapolate behind the
+        start; it collapses to the start point without crashing downstream.
+        """
+        arc = momapy.geometry.EllipticalArc(
+            momapy.geometry.Point(0.0, 0.0),
+            momapy.geometry.Point(10.0, 0.0),
+            rx=5.0,
+            ry=5.0,
+            x_axis_rotation=0.0,
+            arc_flag=0,
+            sweep_flag=1,
+        )
+        shortened = arc.shortened(arc.length() + 100)
+        assert shortened.p1 == shortened.p2
+        # Downstream operations on the degenerate arc must not divide by zero.
+        assert shortened.length() == pytest.approx(0.0)
+        assert shortened.get_position_at_fraction(0.5) == shortened.p1
+        assert shortened.derivative(0.5) == (0.0, 0.0)
+
+    def test_degenerate_arc_is_well_defined(self):
+        """A coincident-endpoint arc has length 0 and stays at its point."""
+        point = momapy.geometry.Point(3.0, 4.0)
+        arc = momapy.geometry.EllipticalArc(
+            point, point, rx=5.0, ry=2.0, x_axis_rotation=0.3, arc_flag=0, sweep_flag=1
+        )
+        assert arc.length() == pytest.approx(0.0)
+        assert arc.evaluate(0.5) == point
+        assert arc.get_center() == point
+
     def test_transformed_non_uniform_scaling_measures_ry_correctly(self):
         """Regression (finding 7): the minor-axis probe must be perpendicular.
 

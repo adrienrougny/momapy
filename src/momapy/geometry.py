@@ -1402,8 +1402,14 @@ class EllipticalArc(GeometryObject):
         Returns:
             Tuple of (cx, cy, rx, ry, sigma, theta1, theta2, delta_theta).
         """
-        x1, y1 = self.p1.x, self.p1.y
         sigma = self.x_axis_rotation
+        if self.p1 == self.p2:
+            # Degenerate arc (coincident endpoints): collapse to the start
+            # point with zero radii and zero sweep. This keeps evaluate/
+            # derivative/length well-defined (position p1, derivative 0,
+            # length 0) instead of dividing by zero below.
+            return (self.p1.x, self.p1.y, 0.0, 0.0, sigma, 0.0, 0.0, 0.0)
+        x1, y1 = self.p1.x, self.p1.y
         x2, y2 = self.p2.x, self.p2.y
         rx = self.rx
         ry = self.ry
@@ -1613,11 +1619,14 @@ class EllipticalArc(GeometryObject):
         Returns:
             A new shortened EllipticalArc.
         """
-        if length == 0 or self.length() == 0:
+        total_length = self.length()
+        if length == 0 or total_length == 0:
             return copy.deepcopy(self)
         if start_or_end == "start":
             return self.reversed().shortened(length).reversed()
-        fraction = 1 - length / self.length()
+        if length > total_length:
+            length = total_length
+        fraction = 1 - length / total_length
         point = self.get_position_at_fraction(fraction)
         return dataclasses.replace(self, p2=point)
 
