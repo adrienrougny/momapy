@@ -1630,13 +1630,14 @@ class EllipticalArc(GeometryObject):
         Returns:
             A new transformed EllipticalArc.
         """
+        rotation = self.x_axis_rotation
         east = Point(
-            math.cos(self.x_axis_rotation) * self.rx,
-            math.sin(self.x_axis_rotation) * self.rx,
+            math.cos(rotation) * self.rx,
+            math.sin(rotation) * self.rx,
         )
         north = Point(
-            math.cos(self.x_axis_rotation) * self.ry,
-            math.sin(self.x_axis_rotation) * self.ry,
+            -math.sin(rotation) * self.ry,
+            math.cos(rotation) * self.ry,
         )
         new_center = Point(0, 0).transformed(transformation)
         new_east = east.transformed(transformation)
@@ -1645,9 +1646,7 @@ class EllipticalArc(GeometryObject):
         new_ry = Segment(new_center, new_north).length()
         new_start_point = self.p1.transformed(transformation)
         new_end_point = self.p2.transformed(transformation)
-        new_x_axis_rotation = math.degrees(
-            Line(new_center, new_east).get_angle_to_horizontal()
-        )
+        new_x_axis_rotation = Line(new_center, new_east).get_angle_to_horizontal()
         return EllipticalArc(
             p1=new_start_point,
             p2=new_end_point,

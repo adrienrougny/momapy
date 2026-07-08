@@ -1,5 +1,6 @@
 """Tests for momapy.drawing module."""
 
+import pytest
 import momapy.drawing
 import momapy.coloring
 
@@ -193,6 +194,42 @@ class TestPathActions:
         """Test creating a ClosePath action."""
         close = momapy.drawing.ClosePath()
         assert isinstance(close, momapy.drawing.ClosePath)
+
+    def test_elliptical_arc_transformed_non_uniform_scaling(self):
+        """Regression (finding 7): perpendicular minor-axis probe.
+
+        Scaling(2, 1) on rx=5, ry=3 must keep ry=3, not 6.
+        """
+        arc = momapy.drawing.EllipticalArc(
+            point=momapy.geometry.Point(10, 0),
+            rx=5.0,
+            ry=3.0,
+            x_axis_rotation=0.0,
+            arc_flag=0,
+            sweep_flag=1,
+        )
+        scaled = arc.transformed(
+            momapy.geometry.Scaling(2.0, 1.0), momapy.geometry.Point(0, 0)
+        )
+        assert scaled.rx == pytest.approx(10.0)
+        assert scaled.ry == pytest.approx(3.0)
+
+    def test_elliptical_arc_transformed_preserves_rotation_radians(self):
+        """Regression (finding 8): x_axis_rotation stays in radians."""
+        arc = momapy.drawing.EllipticalArc(
+            point=momapy.geometry.Point(10, 0),
+            rx=5.0,
+            ry=3.0,
+            x_axis_rotation=0.5,
+            arc_flag=0,
+            sweep_flag=1,
+        )
+        transformed = arc.transformed(
+            momapy.geometry.Translation(0.0, 0.0), momapy.geometry.Point(0, 0)
+        )
+        # abs tolerance absorbs coordinate rounding; still far from the old
+        # degrees bug (which produced ~28.6).
+        assert transformed.x_axis_rotation == pytest.approx(0.5, abs=1e-3)
 
 
 class TestRectangle:

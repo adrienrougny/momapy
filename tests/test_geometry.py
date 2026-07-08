@@ -207,6 +207,45 @@ class TestEllipticalArc:
         # Semicircle with r=5 has length ~15.7
         assert length == pytest.approx(math.pi * 5, abs=0.5)
 
+    def test_transformed_non_uniform_scaling_measures_ry_correctly(self):
+        """Regression (finding 7): the minor-axis probe must be perpendicular.
+
+        Scaling(2, 1) on rx=5, ry=3 must keep ry=3 (the old code sampled ry
+        along the rx axis and returned ry=6).
+        """
+        arc = momapy.geometry.EllipticalArc(
+            momapy.geometry.Point(0.0, 0.0),
+            momapy.geometry.Point(10.0, 0.0),
+            rx=5.0,
+            ry=3.0,
+            x_axis_rotation=0.0,
+            arc_flag=0,
+            sweep_flag=1,
+        )
+        scaled = arc.transformed(momapy.geometry.Scaling(2.0, 1.0))
+        assert scaled.rx == pytest.approx(10.0)
+        assert scaled.ry == pytest.approx(3.0)
+
+    def test_transformed_identity_preserves_rotation_in_radians(self):
+        """Regression (finding 8): x_axis_rotation stays in radians.
+
+        The old code wrapped the recovered angle in math.degrees, corrupting a
+        non-circular arc even under an identity transform.
+        """
+        arc = momapy.geometry.EllipticalArc(
+            momapy.geometry.Point(0.0, 0.0),
+            momapy.geometry.Point(10.0, 0.0),
+            rx=5.0,
+            ry=3.0,
+            x_axis_rotation=0.5,
+            arc_flag=0,
+            sweep_flag=1,
+        )
+        transformed = arc.transformed(momapy.geometry.Translation(0.0, 0.0))
+        # abs tolerance absorbs coordinate rounding; still far from the old
+        # degrees bug (which produced ~28.6).
+        assert transformed.x_axis_rotation == pytest.approx(0.5, abs=1e-3)
+
 
 class TestBbox:
     """Tests for Bbox class."""
