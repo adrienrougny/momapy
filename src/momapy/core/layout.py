@@ -928,7 +928,7 @@ class Arc(GroupLayout):
                 segment.ry,
                 segment.x_axis_rotation,
                 segment.arc_flag,
-                segment.seep_flag,
+                segment.sweep_flag,
             )
         return path_action
 

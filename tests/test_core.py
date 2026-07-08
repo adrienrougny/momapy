@@ -219,3 +219,22 @@ class TestArcFraction:
         # → segment_fraction = 1/4, x = 6 + 1 = 7
         position, _ = two_unequal_segments_arc.fraction(0.7)
         assert position.x == pytest.approx(7.0, abs=0.01)
+
+
+class TestArcPathAction:
+    """Tests for Arc._make_path_action_from_segment."""
+
+    def test_elliptical_arc_segment_reads_sweep_flag(self):
+        # Regression: an elliptical-arc segment must not raise AttributeError
+        # (the builder previously read the misspelled ``segment.seep_flag``).
+        segment = momapy.geometry.EllipticalArc(
+            momapy.geometry.Point(0.0, 0.0),
+            momapy.geometry.Point(10.0, 0.0),
+            5.0,
+            5.0,
+            0.0,
+            0,
+            1,
+        )
+        path_action = momapy.core.layout.Arc._make_path_action_from_segment(segment)
+        assert path_action.sweep_flag == 1
