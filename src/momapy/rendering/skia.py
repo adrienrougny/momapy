@@ -404,7 +404,7 @@ class SkiaRenderer(
             sigmaX=filter_effect.std_deviation,
             sigmaY=filter_effect.std_deviation,
             color=skia.Color4f(
-                *filter_effect.flood_color.to_rgb(rgb_range=(0, 1)),
+                *filter_effect.flood_color.to_rgb(rgb_range=(0.0, 1.0)),
                 filter_effect.flood_opacity,
             ),
             cropRect=crop_rect,
@@ -455,7 +455,7 @@ class SkiaRenderer(
         skia_paint = skia.Paint(
             AntiAlias=True,
             Color4f=skia.Color4f(
-                *filter_effect.flood_color.to_rgb(rgb_range=(0, 1)),
+                *filter_effect.flood_color.to_rgb(rgb_range=(0.0, 1.0)),
                 filter_effect.flood_opacity,
             ),
             Style=skia.Paint.kFill_Style,

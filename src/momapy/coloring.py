@@ -230,16 +230,23 @@ class Color(object):
 
     def to_rgba(
         self,
-        rgb_range: tuple[float, float] | tuple[int, int] = (0, 255),
+        rgb_range: tuple[float, float] = (0, 255),
         alpha_range: tuple[float, float] = (0.0, 1.0),
         rgba_range: tuple[float, float] | None = None,
-    ) -> tuple[int, int, int, float]:
+        round_to_int: bool = False,
+    ) -> tuple[int | float, int | float, int | float, float]:
         """Return the color as RGBA tuple.
+
+        The RGB components are sampled onto ``rgb_range`` and returned as floats
+        by default. Pass ``round_to_int=True`` to round them to integers (e.g.
+        for an 8-bit ``(0, 255)`` range).
 
         Args:
             rgb_range: Range for RGB components, defaults to (0, 255).
             alpha_range: Range for alpha component, defaults to (0.0, 1.0).
             rgba_range: Override range for all components.
+            round_to_int: If True, round the RGB components to integers.
+                Defaults to False.
 
         Returns:
             Tuple of (red, green, blue, alpha).
@@ -248,7 +255,8 @@ class Color(object):
             ```python
             color = Color(255, 128, 0)
             color.to_rgba()
-            color.to_rgba(rgb_range=(0, 1))
+            color.to_rgba(rgb_range=(0.0, 1.0))
+            color.to_rgba(round_to_int=True)
             ```
         """
         if rgba_range is not None:
@@ -260,19 +268,27 @@ class Color(object):
         green = rgb_range[0] + (self.green / 255) * rgb_width
         blue = rgb_range[0] + (self.blue / 255) * rgb_width
         alpha = alpha_range[0] + self.alpha * alpha_width
-        if isinstance(rgb_range[0], int):
+        if round_to_int:
             red = int(round(red))
             green = int(round(green))
             blue = int(round(blue))
         return (red, green, blue, alpha)
 
     def to_rgb(
-        self, rgb_range: tuple[float, float] | tuple[int, int] = (0, 255)
-    ) -> tuple[int, int, int]:
+        self,
+        rgb_range: tuple[float, float] = (0, 255),
+        round_to_int: bool = False,
+    ) -> tuple[int | float, int | float, int | float]:
         """Return the color as RGB tuple.
+
+        The components are sampled onto ``rgb_range`` and returned as floats by
+        default. Pass ``round_to_int=True`` to round them to integers (e.g. for
+        an 8-bit ``(0, 255)`` range).
 
         Args:
             rgb_range: Range for RGB components, defaults to (0, 255).
+            round_to_int: If True, round the components to integers. Defaults to
+                False.
 
         Returns:
             Tuple of (red, green, blue).
@@ -281,13 +297,14 @@ class Color(object):
             ```python
             color = Color(255, 128, 0)
             color.to_rgb()
+            color.to_rgb(round_to_int=True)
             ```
         """
         width = rgb_range[1] - rgb_range[0]
         red = rgb_range[0] + (self.red / 255) * width
         green = rgb_range[0] + (self.green / 255) * width
         blue = rgb_range[0] + (self.blue / 255) * width
-        if isinstance(rgb_range[0], int):
+        if round_to_int:
             red = int(round(red))
             green = int(round(green))
             blue = int(round(blue))

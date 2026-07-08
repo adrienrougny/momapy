@@ -55,6 +55,34 @@ class TestColor:
         rgb = color.to_rgb()
         assert rgb == (255, 128, 64)
 
+    def test_color_to_rgb_float_range_not_quantized(self):
+        """A mid-gray on a float range stays gray (not collapsed to 0/1).
+
+        Regression for the drop-shadow quantization bug: to_rgb no longer
+        rounds based on the range bound type.
+        """
+        gray = momapy.coloring.Color(128, 128, 128)
+        rgb = gray.to_rgb(rgb_range=(0.0, 1.0))
+        assert rgb[0] == pytest.approx(0.502, rel=0.01)
+        assert rgb[1] == pytest.approx(0.502, rel=0.01)
+        assert rgb[2] == pytest.approx(0.502, rel=0.01)
+
+    def test_color_to_rgb_default_returns_floats(self):
+        """to_rgb defaults to float output; round_to_int opts into ints."""
+        color = momapy.coloring.Color(255, 128, 64)
+        assert color.to_rgb() == (255.0, 128.0, 64.0)
+        assert all(isinstance(v, float) for v in color.to_rgb())
+        rounded = color.to_rgb(round_to_int=True)
+        assert rounded == (255, 128, 64)
+        assert all(isinstance(v, int) for v in rounded)
+
+    def test_color_to_rgba_round_to_int(self):
+        """to_rgba rounds RGB (not alpha) to ints when round_to_int is True."""
+        color = momapy.coloring.Color(255, 128, 64, 0.5)
+        rgba = color.to_rgba(round_to_int=True)
+        assert rgba == (255, 128, 64, 0.5)
+        assert all(isinstance(v, int) for v in rgba[:3])
+
     def test_color_from_rgba_custom_range_round_trips(self):
         """from_rgba inverts to_rgba for custom float ranges."""
         color = momapy.coloring.Color(255, 128, 64, 0.5)
