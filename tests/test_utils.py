@@ -168,6 +168,18 @@ def test_make_uuid4_as_str():
     assert len(uuid1) == 36  # Standard UUID string length
 
 
+def test_pretty_print_iterable_with_point():
+    """pretty_print handles an iterable containing a Point without crashing.
+
+    Regression: the iterable branch referenced ``momapy.geometry.Point`` while
+    the module only did ``import momapy``, raising AttributeError in a minimal
+    environment.
+    """
+    import momapy.geometry
+
+    momapy.utils.pretty_print([momapy.geometry.Point(1, 2), 3])
+
+
 class TestIdentityMultiDict:
     def test_empty_construction(self):
         d = momapy.utils.IdentityMultiDict()

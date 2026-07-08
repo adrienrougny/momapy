@@ -44,7 +44,7 @@ import colorama
 import frozendict
 import typing_extensions
 
-import momapy
+from momapy.geometry import Point
 
 __all__ = [
     "FrozenIdentityMultiDict",
@@ -573,7 +573,7 @@ def pretty_print(
                         _indent=_indent + 2,
                     )
     if isinstance(obj, collections.abc.Iterable) and not isinstance(
-        obj, (str, bytes, bytearray, momapy.geometry.Point)
+        obj, (str, bytes, bytearray, Point)
     ):
         for i, elem_value in enumerate(obj):
             elem_typing = type(elem_value)
