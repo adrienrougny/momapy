@@ -232,6 +232,55 @@ class TestPathActions:
         assert transformed.x_axis_rotation == pytest.approx(0.5, abs=1e-3)
 
 
+class TestFilterRegion:
+    """Tests for DrawingElement.get_filter_region across filter units."""
+
+    def _rect(self, filter_):
+        return momapy.drawing.Rectangle(
+            point=momapy.geometry.Point(0, 0),
+            width=100,
+            height=50,
+            rx=0.0,
+            ry=0.0,
+            filter=filter_,
+        )
+
+    def test_object_bounding_box_default_percentages(self):
+        filter_ = momapy.drawing.Filter(
+            filter_units=momapy.drawing.FilterUnits.OBJECT_BOUNDING_BOX
+        )
+        region = self._rect(filter_).get_filter_region()
+        # -10%/120% of a 100x50 bbox.
+        assert region.width == pytest.approx(120.0)
+        assert region.height == pytest.approx(60.0)
+
+    def test_user_space_default_percentages_do_not_crash(self):
+        """Regression (finding 12): percentage strings under USER_SPACE_ON_USE
+        are coerced bbox-relative instead of raising TypeError."""
+        filter_ = momapy.drawing.Filter(
+            filter_units=momapy.drawing.FilterUnits.USER_SPACE_ON_USE
+        )
+        region = self._rect(filter_).get_filter_region()
+        # Same as the object-bounding-box result for the default region.
+        assert region.width == pytest.approx(120.0)
+        assert region.height == pytest.approx(60.0)
+
+    def test_user_space_numeric_values_are_absolute(self):
+        filter_ = momapy.drawing.Filter(
+            filter_units=momapy.drawing.FilterUnits.USER_SPACE_ON_USE,
+            x=5.0,
+            y=6.0,
+            width=200.0,
+            height=120.0,
+        )
+        region = self._rect(filter_).get_filter_region()
+        assert region.width == pytest.approx(200.0)
+        assert region.height == pytest.approx(120.0)
+        # Center = origin + size/2 for absolute user-space coordinates.
+        assert region.position.x == pytest.approx(105.0)
+        assert region.position.y == pytest.approx(66.0)
+
+
 class TestRectangle:
     """Tests for Rectangle drawing element."""
 

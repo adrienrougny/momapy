@@ -664,50 +664,47 @@ class DrawingElement(abc.ABC):
     def get_filter_region(self) -> Bbox | None:
         """Get the filter region.
 
+        Numeric ``x``/``y``/``width``/``height`` are interpreted as fractions of
+        the element bounding box under ``OBJECT_BOUNDING_BOX``, and as absolute
+        user-space coordinates under ``USER_SPACE_ON_USE``. Percentage-string
+        values (e.g. the default ``"-10%"``/``"120%"``) are always resolved
+        relative to the element bounding box, under either unit system.
+
         Returns:
             The filter region bbox, or `None` when the element has no
             filter (`filter` is `None` or `NoneValue`).
         """
         if self.filter is None or self.filter is NoneValue:
             return None
-        if self.filter.filter_units == FilterUnits.OBJECT_BOUNDING_BOX:
-            bbox = self.bbox()
-            north_west = bbox.north_west()
-            if isinstance(self.filter.x, float):
-                sx = self.filter.x
-            else:
-                sx = float(self.filter.x.rstrip("%")) / 100
-            px = north_west.x + bbox.width * sx
-            if isinstance(self.filter.y, float):
-                sy = self.filter.y
-            else:
-                sy = float(self.filter.y.rstrip("%")) / 100
-            py = north_west.y + bbox.height * sy
-            if isinstance(self.filter.width, float):
-                swidth = self.filter.width
-            else:
-                swidth = float(self.filter.width.rstrip("%")) / 100
-            width = bbox.width * swidth
-            if isinstance(self.filter.height, float):
-                sheight = self.filter.height
-            else:
-                sheight = float(self.filter.height.rstrip("%")) / 100
-            height = bbox.height * sheight
-            filter_region = Bbox(
-                Point(px + width / 2, py + height / 2),
-                width,
-                height,
-            )
-        else:
-            filter_region = Bbox(
-                Point(
-                    self.filter.x + self.filter.width / 2,
-                    self.filter.y + self.filter.height / 2,
-                ),
-                self.filter.width,
-                self.filter.height,
-            )
-        return filter_region
+        bbox = self.bbox()
+        north_west = bbox.north_west()
+        object_bounding_box = (
+            self.filter.filter_units == FilterUnits.OBJECT_BOUNDING_BOX
+        )
+
+        def resolve_position(value: float | str, origin: float, extent: float) -> float:
+            if isinstance(value, str):
+                return origin + extent * (float(value.rstrip("%")) / 100)
+            if object_bounding_box:
+                return origin + extent * value
+            return value
+
+        def resolve_size(value: float | str, extent: float) -> float:
+            if isinstance(value, str):
+                return extent * (float(value.rstrip("%")) / 100)
+            if object_bounding_box:
+                return extent * value
+            return value
+
+        px = resolve_position(self.filter.x, north_west.x, bbox.width)
+        py = resolve_position(self.filter.y, north_west.y, bbox.height)
+        width = resolve_size(self.filter.width, bbox.width)
+        height = resolve_size(self.filter.height, bbox.height)
+        return Bbox(
+            Point(px + width / 2, py + height / 2),
+            width,
+            height,
+        )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
