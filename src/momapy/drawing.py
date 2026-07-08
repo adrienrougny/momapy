@@ -25,6 +25,8 @@ Examples:
         point=Point(5, 5),
         width=10,
         height=10,
+        rx=0.0,
+        ry=0.0,
         fill=blue,
         stroke=red
     )
