@@ -80,7 +80,7 @@ class CairoRenderer(
 
         # Create a layout element to render
         node = Rectangle(
-            position=Point(100, 100),
+            position=momapy.geometry.Point(100, 100),
             width=200,
             height=100
         )
