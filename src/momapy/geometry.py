@@ -588,11 +588,14 @@ class Segment(GeometryObject):
         Returns:
             A new shortened Segment.
         """
-        if length == 0 or self.length() == 0:
+        total_length = self.length()
+        if length == 0 or total_length == 0:
             return copy.deepcopy(self)
         if start_or_end == "start":
             return self.reversed().shortened(length).reversed()
-        fraction = 1 - length / self.length()
+        if length > total_length:
+            length = total_length
+        fraction = 1 - length / total_length
         point = self.get_position_at_fraction(fraction)
         return Segment(self.p1, point)
 

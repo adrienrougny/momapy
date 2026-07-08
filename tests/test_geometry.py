@@ -180,6 +180,21 @@ class TestSegment:
         bbox = segment.bbox()
         assert isinstance(bbox, momapy.geometry.Bbox)
 
+    def test_shortened_over_length_clamps_to_zero_length(self):
+        """Regression (finding 10): over-shortening does not extrapolate.
+
+        Shortening by more than the total length yields Segment(p1, p1) rather
+        than a backward segment pointing behind the start.
+        """
+        segment = momapy.geometry.Segment(
+            momapy.geometry.Point(0.0, 0.0),
+            momapy.geometry.Point(10.0, 0.0),
+        )
+        shortened = segment.shortened(15.0)
+        assert shortened.p1 == segment.p1
+        assert shortened.p2 == segment.p1
+        assert shortened.length() == pytest.approx(0.0)
+
 
 class TestEllipticalArc:
     """Tests for EllipticalArc class."""
