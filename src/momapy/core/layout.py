@@ -464,7 +464,7 @@ class GroupLayout(LayoutElement):
         Segment | QuadraticBezierCurve | CubicBezierCurve | GeometryEllipticalArc
     ]:
         """Return a list of geometry primitives from the self drawing elements."""
-        return drawing_elements_to_geometry(self.drawing_elements())
+        return drawing_elements_to_geometry(self.own_drawing_elements())
 
     def own_bbox(self) -> Bbox:
         """Compute and return the bounding box of the self drawing element of the group layout."""

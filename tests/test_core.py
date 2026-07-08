@@ -238,3 +238,32 @@ class TestArcPathAction:
         )
         path_action = momapy.core.layout.Arc._make_path_action_from_segment(segment)
         assert path_action.sweep_flag == 1
+
+
+class TestGroupLayoutOwnBbox:
+    """Tests for GroupLayout.own_bbox / own_to_geometry (self-only geometry)."""
+
+    def test_own_bbox_excludes_children(self):
+        # Regression: own_bbox/own_to_geometry must reflect only the group's own
+        # drawing elements, not the whole subtree (they previously called
+        # drawing_elements(), pulling in distant children).
+        import momapy.meta.nodes
+
+        child = momapy.meta.nodes.Rectangle(
+            position=momapy.geometry.Point(1000, 1000),
+            width=20,
+            height=20,
+        )
+        parent = momapy.meta.nodes.Rectangle(
+            position=momapy.geometry.Point(0, 0),
+            width=20,
+            height=20,
+            layout_elements=(child,),
+        )
+        own_bbox = parent.own_bbox()
+        assert own_bbox.width == pytest.approx(20.0)
+        assert own_bbox.height == pytest.approx(20.0)
+        # The full bbox still spans the distant child.
+        full_bbox = parent.bbox()
+        assert full_bbox.width == pytest.approx(1020.0)
+        assert full_bbox.height == pytest.approx(1020.0)
