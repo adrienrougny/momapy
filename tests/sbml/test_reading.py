@@ -62,6 +62,21 @@ class TestSBMLReading:
         assert isinstance(result.obj, momapy.sbml.map.SBMLMap)
         assert result.obj.model is None
 
+    @pytest.mark.parametrize("filename", SBML_FILES)
+    def test_return_type_map_without_model_or_layout(self, filename):
+        """with_model=False and with_layout=False yields an all-None map.
+
+        Matches the sbgnml and CellDesigner readers for the both-False case.
+        """
+        path = os.path.join(SBML_MODELS_DIR, filename)
+        result = momapy.sbml.io.sbml.reader.SBMLReader.read(
+            path, with_model=False, with_layout=False
+        )
+        assert isinstance(result.obj, momapy.sbml.map.SBMLMap)
+        assert result.obj.model is None
+        assert result.obj.layout is None
+        assert result.obj.layout_model_mapping is None
+
     def test_return_type_layout_raises(self):
         """return_type='layout' raises NotImplementedError (SBML has no layout)."""
         if not SBML_FILES:

@@ -364,26 +364,30 @@ class _SBGNMLReader(Reader):
             layout = cls._make_empty_layout(sbgnml_map)
         else:
             layout = None
+        if model is not None and layout is not None:
+            layout_model_mapping = LayoutModelMappingBuilder()
+        else:
+            layout_model_mapping = None
+        # The reading context is always created so that it is bound even when
+        # neither a model nor a layout is requested (both flags False); in that
+        # case the classification and element-making passes below are skipped and
+        # only map-level annotations/notes are attached.
+        reading_context = SBGNMLReadingContext(
+            xml_root=sbgnml_map,
+            map_key=cls._get_map_key(sbgnml_map),
+            model=model,
+            layout=layout,
+            xml_id_to_model_element=IdentityMultiDict(),
+            xml_id_to_layout_element={},
+            element_to_annotations=collections.defaultdict(set),
+            element_to_notes=collections.defaultdict(set),
+            source_id_to_annotations=collections.defaultdict(set),
+            source_id_to_notes=collections.defaultdict(set),
+            layout_model_mapping=layout_model_mapping,
+            with_annotations=with_annotations,
+            with_notes=with_notes,
+        )
         if model is not None or layout is not None:
-            if model is not None and layout is not None:
-                layout_model_mapping = LayoutModelMappingBuilder()
-            else:
-                layout_model_mapping = None
-            reading_context = SBGNMLReadingContext(
-                xml_root=sbgnml_map,
-                map_key=cls._get_map_key(sbgnml_map),
-                model=model,
-                layout=layout,
-                xml_id_to_model_element=IdentityMultiDict(),
-                xml_id_to_layout_element={},
-                element_to_annotations=collections.defaultdict(set),
-                element_to_notes=collections.defaultdict(set),
-                source_id_to_annotations=collections.defaultdict(set),
-                source_id_to_notes=collections.defaultdict(set),
-                layout_model_mapping=layout_model_mapping,
-                with_annotations=with_annotations,
-                with_notes=with_notes,
-            )
             # Classify glyphs and arcs into the reading context in one pass.
             cls._parse_sbgnml_map(reading_context)
             # We make model and layout elements from glyphs and arcs; when an arc or

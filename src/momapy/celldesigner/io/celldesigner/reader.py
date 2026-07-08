@@ -359,11 +359,13 @@ class CellDesignerReader(Reader):
         element_to_notes = collections.defaultdict(set)
         source_id_to_annotations = collections.defaultdict(set)
         source_id_to_notes = collections.defaultdict(set)
+        # Bound even when neither a model nor a layout is requested (both flags
+        # False), so the map branch below yields an all-None map instead of
+        # crashing with UnboundLocalError.
+        layout_model_mapping = None
         if model is not None or layout is not None:
             if model is not None and layout is not None:
                 layout_model_mapping = LayoutModelMappingBuilder()
-            else:
-                layout_model_mapping = None
             reading_context = CellDesignerReadingContext(
                 xml_root=cd_model,
                 model=model,

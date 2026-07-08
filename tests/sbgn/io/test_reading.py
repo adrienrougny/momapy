@@ -100,6 +100,22 @@ class TestSBGNReadOptionalParameters:
         assert hasattr(result.obj, "layout")
         assert result.obj.layout is None
 
+    def test_with_model_and_layout_false(self, test_file):
+        """Test with_model=False and with_layout=False yields an all-None map.
+
+        Regression: this combination previously raised UnboundLocalError.
+        """
+        result = momapy.io.core.read(
+            test_file,
+            return_type="map",
+            with_model=False,
+            with_layout=False,
+        )
+        assert isinstance(result.obj, momapy.sbgn.SBGNMap)
+        assert result.obj.model is None
+        assert result.obj.layout is None
+        assert result.obj.layout_model_mapping is None
+
     def test_with_annotations_true(self, test_file):
         """Test with_annotations=True includes annotations in result."""
         result = momapy.io.core.read(test_file, with_annotations=True)
