@@ -867,7 +867,12 @@ class Arc(GroupLayout):
         return []
 
     def points(self) -> list[Point]:
-        """Return the points of the arc path."""
+        """Return the points of the arc path.
+
+        An arc with no segments has no points and returns an empty list.
+        """
+        if not self.segments:
+            return []
         points = []
         for segment in self.segments:
             points.append(segment.p1)

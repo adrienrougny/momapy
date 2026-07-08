@@ -221,6 +221,20 @@ class TestArcFraction:
         assert position.x == pytest.approx(7.0, abs=0.01)
 
 
+class TestArcPoints:
+    """Tests for Arc.points() on empty and non-empty arcs."""
+
+    def test_empty_arc_returns_no_points(self):
+        # Regression: a segment-less arc previously raised UnboundLocalError.
+        arc = _ConcreteArc(segments=())
+        assert arc.points() == []
+
+    def test_empty_arc_start_point_raises_index_error(self):
+        arc = _ConcreteArc(segments=())
+        with pytest.raises(IndexError):
+            arc.start_point()
+
+
 class TestArcPathAction:
     """Tests for Arc._make_path_action_from_segment."""
 
