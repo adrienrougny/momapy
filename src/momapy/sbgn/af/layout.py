@@ -206,9 +206,7 @@ class CompartmentLayout(_SimpleMixin, SBGNNode):
     rounded_corners: float = dataclasses.field(
         default=5.0, metadata={"description": "The radius of the rounded corners."}
     )
-    border_stroke_width: float | None = dataclasses.field(
-        default=3.25, metadata={"description": "The width of the border stroke."}
-    )
+    stroke_width: float = 3.25
 
     def _make_shape(self) -> Shape:
         return PDCompartmentLayout._make_shape(self)
@@ -223,9 +221,7 @@ class SubmapLayout(_SimpleMixin, SBGNNode):
 
     width: float = 80.0
     height: float = 80.0
-    border_stroke_width: float | None = dataclasses.field(
-        default=2.25, metadata={"description": "The width of the border stroke."}
-    )
+    stroke_width: float = 2.25
 
     def _make_shape(self) -> Shape:
         return PDSubmapLayout._make_shape(self)

@@ -75,6 +75,47 @@ class TestSBGNMap:
         assert map_ is not None
 
 
+def _collect_stroke_widths(drawing_elements):
+    """Recursively collect all non-None stroke widths from drawing elements."""
+    stroke_widths = set()
+    for drawing_element in drawing_elements:
+        stroke_width = getattr(drawing_element, "stroke_width", None)
+        if stroke_width is not None:
+            stroke_widths.add(stroke_width)
+        stroke_widths |= _collect_stroke_widths(
+            getattr(drawing_element, "elements", [])
+        )
+    return stroke_widths
+
+
+class TestSBGNAFBorderStrokeWidth:
+    """AF compartment/submap thick borders actually reach the drawing."""
+
+    def test_compartment_uses_stroke_width(self):
+        """CompartmentLayout renders its border with the intended thick width."""
+        import momapy.geometry
+        import momapy.sbgn.af
+
+        layout_element = momapy.sbgn.af.CompartmentLayout(
+            position=momapy.geometry.Point(0.0, 0.0)
+        )
+        assert layout_element.stroke_width == 3.25
+        assert not hasattr(layout_element, "border_stroke_width")
+        assert 3.25 in _collect_stroke_widths(layout_element.drawing_elements())
+
+    def test_submap_uses_stroke_width(self):
+        """SubmapLayout renders its border with the intended thick width."""
+        import momapy.geometry
+        import momapy.sbgn.af
+
+        layout_element = momapy.sbgn.af.SubmapLayout(
+            position=momapy.geometry.Point(0.0, 0.0)
+        )
+        assert layout_element.stroke_width == 2.25
+        assert not hasattr(layout_element, "border_stroke_width")
+        assert 2.25 in _collect_stroke_widths(layout_element.drawing_elements())
+
+
 class TestSBGNUtils:
     """Tests for SBGN utility functions."""
 
