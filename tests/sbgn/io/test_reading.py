@@ -369,3 +369,30 @@ class TestSBGNSourceIdAnnotationsAndNotes:
             pytest.skip("dedup_annotated.sbgn not found")
         result = momapy.io.core.read(DEDUP_ANNOTATED_FILE, with_notes=False)
         assert result.source_id_to_notes == frozendict.frozendict()
+
+
+class TestIsProcessLeftToRight:
+    """Unit tests for is_process_left_to_right parsing helper."""
+
+    class _StubProcess:
+        """Minimal stand-in for a parsed sbgnml process element."""
+
+        def __init__(self, id_):
+            self._id = id_
+
+        def get(self, key):
+            if key == "id":
+                return self._id
+            return None
+
+    def test_no_arcs_defaults_to_left_to_right(self):
+        """A process with neither production nor consumption arcs returns True.
+
+        Regression: this both-empty case previously fell off the end and
+        implicitly returned None, violating the -> bool contract.
+        """
+        import momapy.sbgn.io.sbgnml._reading_parsing as parsing
+
+        process = self._StubProcess("p")
+        result = parsing.is_process_left_to_right(process, {"p": []})
+        assert result is True

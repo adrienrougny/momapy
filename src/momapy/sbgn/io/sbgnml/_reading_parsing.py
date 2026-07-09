@@ -256,8 +256,6 @@ def is_process_left_to_right(
         )
     )
     if sbgnml_production_arcs:
-        if not sbgnml_production_arcs:  # process is reversible
-            return True  # defaults to left to right
         sbgnml_production_arc = sbgnml_production_arcs[0]
         if process_orientation == Orientation.HORIZONTAL:
             if float(sbgnml_production_arc.start.get("x")) >= float(
@@ -287,6 +285,9 @@ def is_process_left_to_right(
             ):
                 return True
             return False
+    # A process with neither production nor consumption arcs has no
+    # orientation to derive: default to left to right.
+    return True
 
 
 def is_process_reversible(
