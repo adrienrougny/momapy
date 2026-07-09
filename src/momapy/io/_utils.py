@@ -246,6 +246,7 @@ def build_id_mappings(
 
     id_to_element: dict[str, MapElement] = {}
     if model is not None:
+        id_to_element[model.id_] = model
         for element in model.descendants():
             id_to_element[element.id_] = element
     if layout is not None:

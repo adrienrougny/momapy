@@ -64,6 +64,20 @@ class TestSBGNReadOptionalParameters:
         result = momapy.io.core.read(test_file, return_type=return_type)
         assert isinstance(result.obj, expected_type)
 
+    def test_id_to_element_includes_model_and_layout_containers(self, test_file):
+        """The container model and layout ids both appear in id_to_element.
+
+        Regression: the model container id was previously omitted (only its
+        descendants were inserted), despite id_to_element being documented as
+        holding all model and layout elements.
+        """
+        result = momapy.io.core.read(test_file, return_type="map")
+        map_ = result.obj
+        assert map_.model.id_ in result.id_to_element
+        assert result.id_to_element[map_.model.id_] is map_.model
+        assert map_.layout.id_ in result.id_to_element
+        assert result.id_to_element[map_.layout.id_] is map_.layout
+
     def test_with_model_true(self, test_file):
         """Test with_model=True includes model in result."""
         result = momapy.io.core.read(test_file, return_type="map", with_model=True)
