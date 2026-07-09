@@ -715,3 +715,24 @@ class TestStyleApplication:
         # Check that style was applied to the text layout within the result
         assert isinstance(result, momapy.core.layout.TextLayout)
         assert result.font_size == 24.0
+
+
+class TestStylableAttributes:
+    """Tests for get_stylable_attributes."""
+
+    def test_excludes_id_and_all_names_round_trip(self):
+        """id_ is excluded and every returned CSS name maps back to a field.
+
+        Regression (finding 16): the emitted names must round-trip through the
+        attribute-name parse action (replace('-', '_')); the old rstrip('_')
+        emitted an unusable 'id'.
+        """
+        import dataclasses
+        import momapy.meta.nodes
+
+        cls = momapy.meta.nodes.Rectangle
+        attributes = momapy.styling.get_stylable_attributes(cls)
+        assert "id" not in attributes
+        field_names = {field.name for field in dataclasses.fields(cls)}
+        for name in attributes:
+            assert name.replace("-", "_") in field_names

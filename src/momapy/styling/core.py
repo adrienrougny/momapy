@@ -865,6 +865,11 @@ def get_stylable_attributes(
     for field in dataclasses.fields(layout_element_class):
         if field.name.startswith("_"):
             continue
+        # id_ is the element's identity, not a stylable property: it is targeted
+        # with the #id selector, and the CSS name "id" would not round-trip back
+        # to id_ through the attribute-name parse action.
+        if field.name == "id_":
+            continue
         if presentation_only and not _is_presentation_attribute(field.name):
             continue
         css_name = field.name.rstrip("_").replace("_", "-")
