@@ -183,6 +183,8 @@ def highlight_layout_elements(
                             for class_name in [
                                 "StateTransitionLayout",
                                 "HeterodimerAssociationLayout",
+                                "DissociationLayout",
+                                "TruncationLayout",
                                 "KnownTransitionOmittedLayout",
                                 "UnknownTransitionLayout",
                                 "TransportLayout",
