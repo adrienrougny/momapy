@@ -53,6 +53,24 @@ def test_supports_file_output_mixin_for_svg_native():
     assert renderer_cls.supported_formats
 
 
+def test_render_map_rejects_layout_less_map(temp_dir):
+    """A map with layout=None raises a clear ValueError instead of AttributeError."""
+    import os
+
+    import momapy.builder
+    import momapy.core
+
+    builder = momapy.builder.builder_from_object(momapy.core.Map())
+    builder.layout = None
+    layout_less_map = builder.build()
+
+    output_file = os.path.join(temp_dir, "out.svg")
+    with pytest.raises(ValueError, match="no layout"):
+        momapy.rendering.core.render_map(layout_less_map, output_file)
+    with pytest.raises(ValueError, match="no layout"):
+        momapy.rendering.core.render_maps([layout_less_map], output_file)
+
+
 def test_render_layout_elements_rejects_non_file_renderer(sample_map, temp_dir):
     """A renderer without from_file raises a clear error on file output."""
     import os

@@ -311,7 +311,14 @@ def render_maps(
         render_maps([first_map, second_map], "output.pdf", multi_pages=True)
         ```
     """
-    layout_elements = [map_.layout for map_ in maps]
+    layout_elements = []
+    for map_ in maps:
+        if map_.layout is None:
+            raise ValueError(
+                "map has no layout to render (its layout is None); "
+                "a layout-less map (e.g. an SBML map) cannot be rendered"
+            )
+        layout_elements.append(map_.layout)
     render_layout_elements(
         layout_elements=layout_elements,
         file_path=file_path,
