@@ -2847,7 +2847,9 @@ class _ReactionNodeMixin(_SBGNMixin):
     Draws the small rectangular process node sitting on the reaction's arc.
     """
 
-    _font_size_func: typing.ClassVar[typing.Callable]
+    _font_size_func: typing.ClassVar[typing.Callable] = (
+        lambda obj: obj.reaction_node_width / 1.1
+    )
     left_connector_fraction: float = dataclasses.field(
         default=0.375,
         metadata={
@@ -3070,9 +3072,6 @@ class KnownTransitionOmittedLayout(ReactionLayout, _ReactionNodeMixin):
     Draws a known omitted transition as a reaction arc marked with a `//` node.
     """
 
-    _font_size_func: typing.ClassVar[typing.Callable | None] = (
-        lambda obj: obj.reaction_node_width / 1.1
-    )
     reaction_node_font_weight: FontWeight | float = dataclasses.field(
         default=FontWeight.BOLD,
         metadata={"description": "The font weight of the reaction node label."},
@@ -3125,9 +3124,6 @@ class UnknownTransitionLayout(ReactionLayout, _ReactionNodeMixin):
     Draws an unknown transition as a reaction arc marked with a `?` node.
     """
 
-    _font_size_func: typing.ClassVar[typing.Callable | None] = (
-        lambda obj: obj.reaction_node_width / 1.1
-    )
     reaction_node_font_weight: FontWeight | float = dataclasses.field(
         default=FontWeight.BOLD,
         metadata={"description": "The font weight of the reaction node label."},
@@ -3494,9 +3490,6 @@ class TruncationLayout(ReactionLayout, _ReactionNodeMixin):
     Draws a truncation as a reaction arc marked with an `N` node.
     """
 
-    _font_size_func: typing.ClassVar[typing.Callable | None] = (
-        lambda obj: obj.reaction_node_width / 1.1
-    )
     reaction_node_font_weight: FontWeight | float = dataclasses.field(
         default=FontWeight.BOLD,
         metadata={"description": "The font weight of the reaction node label."},
