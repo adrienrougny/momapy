@@ -278,7 +278,9 @@ class SBMLReader(Reader):
         sbml_species_reference: typing.Any,
         super_model_element: typing.Any,
     ) -> typing.Any:
-        model_element = make_species_reference(reading_context, sbml_species_reference)
+        model_element = make_species_reference(
+            reading_context, sbml_species_reference, super_model_element.id_
+        )
         super_model_element.reactants.add(model_element)
         reading_context.sbml_id_to_model_element[model_element.id_] = model_element
         return model_element
@@ -290,7 +292,9 @@ class SBMLReader(Reader):
         sbml_species_reference: typing.Any,
         super_model_element: typing.Any,
     ) -> typing.Any:
-        model_element = make_species_reference(reading_context, sbml_species_reference)
+        model_element = make_species_reference(
+            reading_context, sbml_species_reference, super_model_element.id_
+        )
         super_model_element.products.add(model_element)
         reading_context.sbml_id_to_model_element[model_element.id_] = model_element
         return model_element
@@ -303,7 +307,7 @@ class SBMLReader(Reader):
         super_model_element: typing.Any,
     ) -> typing.Any:
         model_element = make_modifier_species_reference(
-            reading_context, sbml_modifier_species_reference
+            reading_context, sbml_modifier_species_reference, super_model_element.id_
         )
         super_model_element.modifiers.add(model_element)
         reading_context.sbml_id_to_model_element[model_element.id_] = model_element

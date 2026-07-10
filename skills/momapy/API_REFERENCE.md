@@ -515,8 +515,8 @@ Purpose: concrete SBML model classes and BioModels qualifier enums.
 - `make_compartment(reading_context, sbml_compartment)`
 - `make_species(reading_context, sbml_species)`
 - `make_reaction(reading_context, sbml_reaction)`
-- `make_species_reference(reading_context, sbml_species_reference)`
-- `make_modifier_species_reference(reading_context, sbml_modifier_species_reference)`
+- `make_species_reference(reading_context, sbml_species_reference, reaction_id)`
+- `make_modifier_species_reference(reading_context, sbml_modifier_species_reference, reaction_id)`
 
 ### `src/momapy/sbml/io/sbml/_reading_parsing.py`
 - `_RDF_NAMESPACE` constant.

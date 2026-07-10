@@ -207,16 +207,22 @@ def make_reaction(
 
 
 def make_species_reference(
-    reading_context: "SBMLReadingContext", sbml_species_reference: typing.Any
+    reading_context: "SBMLReadingContext",
+    sbml_species_reference: typing.Any,
+    reaction_id: str,
 ) -> typing.Any:
     if reading_context.model is None:
         return None
     model_element = new_builder_object(SpeciesReference)
+    sbml_species_id = sbml_species_reference.get("species")
+    # metaid is optional in SBML; fall back to a composite id so id_ is
+    # always a str (mirrors the CellDesigner reader).
     model_element.id_ = sbml_species_reference.get("metaid")
+    if model_element.id_ is None:
+        model_element.id_ = f"{reaction_id}_{sbml_species_id}"
     sbml_stoichiometry = sbml_species_reference.get("stoichiometry")
     if sbml_stoichiometry is not None:
         model_element.stoichiometry = float(sbml_stoichiometry)
-    sbml_species_id = sbml_species_reference.get("species")
     model_element.referred_element = reading_context.sbml_id_to_model_element[
         sbml_species_id
     ]
@@ -227,12 +233,17 @@ def make_species_reference(
 def make_modifier_species_reference(
     reading_context: "SBMLReadingContext",
     sbml_modifier_species_reference: typing.Any,
+    reaction_id: str,
 ) -> typing.Any:
     if reading_context.model is None:
         return None
     model_element = new_builder_object(ModifierSpeciesReference)
-    model_element.id_ = sbml_modifier_species_reference.get("metaid")
     sbml_species_id = sbml_modifier_species_reference.get("species")
+    # metaid is optional in SBML; fall back to a composite id so id_ is
+    # always a str (mirrors the CellDesigner reader).
+    model_element.id_ = sbml_modifier_species_reference.get("metaid")
+    if model_element.id_ is None:
+        model_element.id_ = f"{reaction_id}_{sbml_species_id}"
     model_element.referred_element = reading_context.sbml_id_to_model_element[
         sbml_species_id
     ]
