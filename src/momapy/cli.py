@@ -1359,6 +1359,13 @@ def _run(args: argparse.Namespace) -> None:
                 elif isinstance(map_, SBGNMap):
                     map_ = tidy_sbgn(map_)
             layout = map_.layout
+            if layout is None:
+                print(
+                    "error: cannot render a map without a layout "
+                    "(SBML maps have no layout)",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
             layouts.append(layout)
         render_layout_elements(
             layout_elements=layouts,
@@ -1529,6 +1536,13 @@ def _run(args: argparse.Namespace) -> None:
                 map_ = tidy_celldesigner(map_)
             elif isinstance(map_, SBGNMap):
                 map_ = tidy_sbgn(map_)
+        if map_.layout is None:
+            print(
+                "error: cannot visualize a map without a layout "
+                "(SBML maps have no layout)",
+                file=sys.stderr,
+            )
+            sys.exit(1)
         _visualize_map(
             map_=map_,
             input_file_path=args.input_file_path,
