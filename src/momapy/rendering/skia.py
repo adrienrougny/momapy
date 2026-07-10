@@ -156,7 +156,6 @@ class SkiaRenderer(
         width: float,
         height: float,
         format_: str | None = None,
-        config: dict[str, typing.Any] | None = None,
     ) -> typing_extensions.Self:
         """Create a SkiaRenderer instance from a file path.
 
@@ -166,7 +165,6 @@ class SkiaRenderer(
             height: The height of the canvas
             format_: The output format (pdf, svg, png, jpeg, or webp). ``None``
                 selects the backend's :attr:`default_format` ("pdf").
-            config: Optional configuration dictionary
 
         Returns:
             A new SkiaRenderer instance
@@ -187,8 +185,7 @@ class SkiaRenderer(
                 f"{', '.join(cls.supported_formats)}"
             )
         check_parent_dir_exists(file_path)
-        if config is None:
-            config = {}
+        config = {}
         canvas = None
         if format_ == "pdf":
             stream = skia.FILEWStream(file_path)

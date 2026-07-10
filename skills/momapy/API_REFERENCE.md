@@ -199,18 +199,18 @@ Shape classes (extend `Shape`, override `drawing_elements()`): `Rectangle`, `Ell
 
 ### `src/momapy/rendering/core.py`
 - `Renderer(ABC)` — abstract backend surface: `begin_session()`, `end_session()`, `new_page(width, height)`, `render_layout_element(layout_element)`, `render_drawing_element(drawing_element)`. `render_map(map_)` is a **concrete convenience method** (default renders `map_.layout` via `render_layout_element`), not part of the abstract contract; the file pipeline does not call it. File output is **not** on this contract; non-file renderers subclass `Renderer` directly.
-- `SupportsFileOutput(ABC)` — mixin declaring the file-output *capability* (not an identity — a renderer mixing it in may also target live canvases/in-memory surfaces): `supported_formats: ClassVar[list[str]]`, `default_format: ClassVar[str | None]` (format used when `from_file` gets `format_=None`; subclasses set it) + abstract classmethod `from_file(file_path, width, height, format_=None, config=None) -> Self`. Mix into a `Renderer` subclass. The file-output entry points require it; `render_layout_elements` raises `ValueError` for a renderer that does not mix it in.
+- `SupportsFileOutput(ABC)` — mixin declaring the file-output *capability* (not an identity — a renderer mixing it in may also target live canvases/in-memory surfaces): `supported_formats: ClassVar[list[str]]`, `default_format: ClassVar[str | None]` (format used when `from_file` gets `format_=None`; subclasses set it) + abstract classmethod `from_file(file_path, width, height, format_=None) -> Self`. Mix into a `Renderer` subclass. The file-output entry points require it; `render_layout_elements` raises `ValueError` for a renderer that does not mix it in.
 - `StatefulRenderer(Renderer)` — adds state-management helpers: `save()`/`restore()`, `self_save()`/`self_restore()`, `get_current_state()`, `get_current_value(attr_name)`, `get_initial_value(attr_name)`, `set_current_value(attr_name, attr_value)`, `set_current_state(state)`, `set_current_state_from_drawing_element(drawing_element)`.
 
 ### `src/momapy/rendering/cairo.py`
-- `CairoRenderer(StatefulRenderer, SupportsFileOutput)` — formats: pdf, svg, png, ps (`default_format = "pdf"`). Requires pycairo/PyGObject. `from_file(file_path, width, height, format_=None, config=None) -> Self`.
+- `CairoRenderer(StatefulRenderer, SupportsFileOutput)` — formats: pdf, svg, png, ps (`default_format = "pdf"`). Requires pycairo/PyGObject. `from_file(file_path, width, height, format_=None) -> Self`.
 
 ### `src/momapy/rendering/skia.py`
-- `SkiaRenderer(StatefulRenderer, SupportsFileOutput)` — formats: pdf, svg, png, jpeg, webp (`default_format = "pdf"`). Requires skia-python. `from_file(file_path, width, height, format_=None, config=None) -> Self`.
+- `SkiaRenderer(StatefulRenderer, SupportsFileOutput)` — formats: pdf, svg, png, jpeg, webp (`default_format = "pdf"`). Requires skia-python. `from_file(file_path, width, height, format_=None) -> Self`.
 
 ### `src/momapy/rendering/svg_native.py`
 - `SVGElement` — manual SVG DOM; `to_string(indent=0)`, `add_element(element)`.
-- `SVGNativeRenderer(Renderer, SupportsFileOutput)` — `supported_formats = ["svg"]` (`default_format = "svg"`); `begin_session()`, `end_session()`, `new_page(width, height)`, `render_layout_element(layout_element)`, `render_drawing_element(drawing_element)` (inherits `render_map` from `Renderer`), classmethod `from_file(file_path, width, height, format_=None, config=None) -> Self`.
+- `SVGNativeRenderer(Renderer, SupportsFileOutput)` — `supported_formats = ["svg"]` (`default_format = "svg"`); `begin_session()`, `end_session()`, `new_page(width, height)`, `render_layout_element(layout_element)`, `render_drawing_element(drawing_element)` (inherits `render_map` from `Renderer`), classmethod `from_file(file_path, width, height, format_=None) -> Self`.
 - `SVGNativeCompatRenderer(SVGNativeRenderer)` — compatibility variant registered as `"svg-native-compat"`.
 
 ---

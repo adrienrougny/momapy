@@ -136,7 +136,6 @@ class CairoRenderer(
         width: float,
         height: float,
         format_: str | None = None,
-        config: dict[str, typing.Any] | None = None,
     ) -> typing_extensions.Self:
         """Create a CairoRenderer instance from a file path.
 
@@ -146,7 +145,6 @@ class CairoRenderer(
             height: The height of the canvas
             format_: The output format (pdf, svg, png, or ps). ``None`` selects
                 the backend's :attr:`default_format` ("pdf").
-            config: Optional configuration dictionary
 
         Returns:
             A new CairoRenderer instance
@@ -167,8 +165,7 @@ class CairoRenderer(
                 f"{', '.join(cls.supported_formats)}"
             )
         check_parent_dir_exists(file_path)
-        if config is None:
-            config = {}
+        config = {}
         if format_ == "pdf":
             surface = cairo.PDFSurface(file_path, width, height)
         elif format_ == "ps":

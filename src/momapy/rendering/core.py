@@ -474,7 +474,6 @@ class SupportsFileOutput(abc.ABC):
         width: float,
         height: float,
         format_: str | None = None,
-        config: dict[str, typing.Any] | None = None,
     ) -> typing_extensions.Self:
         """Build a renderer that writes its output to ``file_path``.
 
@@ -484,7 +483,6 @@ class SupportsFileOutput(abc.ABC):
             height: The height of the canvas.
             format_: The output format. ``None`` selects the backend's
                 :attr:`default_format`.
-            config: Optional backend-specific configuration dictionary.
 
         Returns:
             A new renderer instance writing to ``file_path``.

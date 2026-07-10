@@ -776,7 +776,6 @@ def _render_svg_string(
     )
     renderer = SVGNativeRenderer(
         svg=svg_element,
-        config={},
     )
     renderer.begin_session()
     renderer.render_layout_element(layout_element)

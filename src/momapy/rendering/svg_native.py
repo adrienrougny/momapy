@@ -233,7 +233,7 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
             "description": "The root SVG element that will contain all rendered content"
         }
     )
-    config: dict[str, typing.Any] = dataclasses.field(default_factory=dict)
+    _config: dict[str, typing.Any] = dataclasses.field(default_factory=dict)
     _filter_elements: list[SVGElement] = dataclasses.field(default_factory=list)
 
     @classmethod
@@ -243,7 +243,6 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
         width: float,
         height: float,
         format_: str | None = None,
-        config: dict[str, typing.Any] | None = None,
     ) -> typing_extensions.Self:
         """Create an SVGNativeRenderer instance from a file path.
 
@@ -253,7 +252,6 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
             height: The height of the SVG canvas
             format_: The output format. ``None`` selects the backend's
                 :attr:`default_format` ("svg").
-            config: Optional configuration dictionary
 
         Returns:
             A new SVGNativeRenderer instance
@@ -274,8 +272,7 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
                 f"{', '.join(cls.supported_formats)}"
             )
         check_parent_dir_exists(file_path)
-        if config is None:
-            config = {}
+        config = {}
         config["output_file"] = file_path
         config["width"] = width
         config["height"] = height
@@ -287,7 +284,7 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
                 "viewBox": f"0 0 {width} {height}",
             },
         )
-        return cls(svg=svg, config=config)
+        return cls(svg=svg, _config=config)
 
     def begin_session(self) -> None:
         """Begin a rendering session.
@@ -307,8 +304,8 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
         if self._filter_elements:
             defs = SVGElement(name="defs", elements=self._filter_elements)
             self.svg.add_element(defs)
-        if self.config.get("output_file") is not None:
-            with open(self.config["output_file"], "w", encoding="utf-8") as f:
+        if self._config.get("output_file") is not None:
+            with open(self._config["output_file"], "w", encoding="utf-8") as f:
                 f.write(str(self.svg))
 
     def new_page(self, width: float, height: float) -> None:
