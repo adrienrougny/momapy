@@ -890,16 +890,6 @@ class Modulation(KnownOrUnknownModulation):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Catalysis(Modulation):
-    """Catalysis modulation.
-
-    Represents the catalysis of the target by the source.
-    """
-
-    pass
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
 class Inhibition(Modulation):
     """Inhibition modulation.
 
@@ -914,6 +904,17 @@ class PhysicalStimulation(Modulation):
     """Physical stimulation modulation.
 
     Represents the physical stimulation of the target by the source.
+    """
+
+    pass
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class Catalysis(PhysicalStimulation):
+    """Catalysis modulation.
+
+    Subclass of ``PhysicalStimulation``, mirroring the modifier-side
+    ``Catalyzer(PhysicalStimulator)`` relationship.
     """
 
     pass
@@ -961,16 +962,6 @@ class UnknownModulation(KnownOrUnknownModulation):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class UnknownCatalysis(UnknownModulation):
-    """Catalysis modulation with an unknown effect.
-
-    Represents a presumed catalysis of the target by the source with an unknown effect.
-    """
-
-    pass
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownInhibition(UnknownModulation):
     """Inhibition modulation with an unknown effect.
 
@@ -1005,6 +996,17 @@ class UnknownPhysicalStimulation(UnknownModulation):
     """Physical stimulation modulation with an unknown effect.
 
     Represents a presumed physical stimulation of the target by the source with an unknown effect.
+    """
+
+    pass
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class UnknownCatalysis(UnknownPhysicalStimulation):
+    """Uncertain catalysis modulation.
+
+    Subclass of ``UnknownPhysicalStimulation``, mirroring the known-side
+    ``Catalysis(PhysicalStimulation)`` relationship.
     """
 
     pass
