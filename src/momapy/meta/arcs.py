@@ -49,7 +49,6 @@ Examples:
 """
 
 import dataclasses
-from dataclasses import dataclass
 
 from momapy.coloring import Color
 from momapy.core.elements import Direction
@@ -84,7 +83,7 @@ __all__ = [
 ]
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class PolyLine(SingleHeadedArc):
     """Single-headed arc with no arrowhead.
 
@@ -95,7 +94,7 @@ class PolyLine(SingleHeadedArc):
         return []
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Triangle(SingleHeadedArc):
     """Single-headed arc with a triangle arrowhead.
 
@@ -121,7 +120,7 @@ class Triangle(SingleHeadedArc):
         return shape.drawing_elements()
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class ReversedTriangle(SingleHeadedArc):
     """Single-headed arc with a reversed triangle arrowhead.
 
@@ -147,7 +146,7 @@ class ReversedTriangle(SingleHeadedArc):
         return shape.drawing_elements()
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Rectangle(SingleHeadedArc):
     """Single-headed arc with a rectangle arrowhead.
 
@@ -172,7 +171,7 @@ class Rectangle(SingleHeadedArc):
         return shape.drawing_elements()
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Ellipse(SingleHeadedArc):
     """Single-headed arc with an ellipse arrowhead.
 
@@ -197,7 +196,7 @@ class Ellipse(SingleHeadedArc):
         return shape.drawing_elements()
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Diamond(SingleHeadedArc):
     """Single-headed arc with a diamond arrowhead.
 
@@ -222,7 +221,7 @@ class Diamond(SingleHeadedArc):
         return shape.drawing_elements()
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Bar(SingleHeadedArc):
     """Single-headed arc with a bar arrowhead.
 
@@ -242,7 +241,7 @@ class Bar(SingleHeadedArc):
         return shape.drawing_elements()
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class ArcBarb(SingleHeadedArc):
     """Single-headed arc with an arc-barb arrowhead.
 
@@ -269,7 +268,7 @@ class ArcBarb(SingleHeadedArc):
         return shape.drawing_elements()
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class StraightBarb(SingleHeadedArc):
     """Single-headed arc with a straight-barb arrowhead.
 
@@ -296,7 +295,7 @@ class StraightBarb(SingleHeadedArc):
         return shape.drawing_elements()
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class To(SingleHeadedArc):
     """Single-headed arc with a to arrowhead.
 
@@ -323,7 +322,7 @@ class To(SingleHeadedArc):
         return shape.drawing_elements()
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class DoubleTriangle(DoubleHeadedArc):
     """Double-headed arc with triangle arrowheads.
 

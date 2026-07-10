@@ -6,8 +6,8 @@ between objects and their builder representations.
 
 Examples:
     ```python
-    from dataclasses import dataclass
-    @dataclass
+    import dataclasses
+    @dataclasses.dataclass
     class Person:
         name: str
         age: int
@@ -316,8 +316,8 @@ def object_from_builder(
 
     Examples:
         ```python
-        from dataclasses import dataclass
-        @dataclass
+        import dataclasses
+        @dataclasses.dataclass
         class Point:
             x: float
             y: float
@@ -393,8 +393,8 @@ def builder_from_object(
 
     Examples:
         ```python
-        from dataclasses import dataclass
-        @dataclass
+        import dataclasses
+        @dataclasses.dataclass
         class Point:
             x: float
             y: float
@@ -459,8 +459,8 @@ def new_builder_object(
 
     Examples:
         ```python
-        from dataclasses import dataclass
-        @dataclass
+        import dataclasses
+        @dataclasses.dataclass
         class Person:
             name: str
             age: int = 0
@@ -500,8 +500,8 @@ def get_or_make_builder_cls(
 
     Examples:
         ```python
-        from dataclasses import dataclass
-        @dataclass
+        import dataclasses
+        @dataclasses.dataclass
         class Point:
             x: float
             y: float
@@ -574,8 +574,8 @@ def isinstance_or_builder(
 
     Examples:
         ```python
-        from dataclasses import dataclass
-        @dataclass
+        import dataclasses
+        @dataclasses.dataclass
         class Point:
             x: float
             y: float

@@ -519,8 +519,8 @@ def pretty_print(
 
     Examples:
         ```python
-        from dataclasses import dataclass
-        @dataclass
+        import dataclasses
+        @dataclasses.dataclass
         class Point:
             x: float
             y: float
