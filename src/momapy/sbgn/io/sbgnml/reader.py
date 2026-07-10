@@ -34,7 +34,6 @@ import momapy.sbgn.pd
 from momapy.utils import IdentityMultiDict
 from momapy.core.mapping import LayoutModelMappingBuilder
 from momapy.core.elements import Orientation
-from momapy.core.layout import TextLayout
 from momapy.io.core import Reader
 from momapy.io.core import ReaderResult
 from momapy.utils import check_file_exists
@@ -42,18 +41,9 @@ from momapy.io._utils import apply_remap_to_layout_model_mapping
 from momapy.io._utils import build_id_mappings
 from momapy.io._utils import register_model_element
 from momapy.sbgn.io.sbgnml._reading_context import SBGNMLReadingContext
-from momapy.coloring import Color
 from momapy.positioning import set_fit
 from momapy.builder import get_or_make_builder_cls
-from momapy.builder import isinstance_or_builder
 from momapy.builder import object_from_builder
-from momapy.styling import ChildSelector
-from momapy.styling import IdSelector
-from momapy.styling import OrSelector
-from momapy.styling import StyleCollection
-from momapy.styling import StyleSheet
-from momapy.styling import TypeSelector
-from momapy.sbgn import SBGNNode
 from momapy.sbgn.pd import EntityPool
 from momapy.sbgn.pd import Modulation
 from momapy.sbgn.pd import Phenotype
@@ -1683,111 +1673,6 @@ class _SBGNMLReader(Reader):
             model_element = None
             layout_element = None
         return model_element, layout_element
-
-    @classmethod
-    def _make_style_sheet(
-        cls,
-        layout: typing.Any,
-        sbgnml_render_information: typing.Any,
-        sbgnml_id_to_layout_element: dict[str, typing.Any],
-    ) -> StyleSheet:
-        style_sheet = StyleSheet()
-        if sbgnml_render_information.background_color is not None:
-            style_collection = StyleCollection()
-            layout_selector = IdSelector(layout.id_)
-            style_collection["fill"] = Color.from_hexa(
-                sbgnml_render_information.background_color
-            )
-            style_sheet[layout_selector] = style_collection
-        d_colors = {}
-        if sbgnml_render_information.list_of_color_definitions is not None:
-            for (
-                color_definition
-            ) in sbgnml_render_information.list_of_color_definitions.color_definition:
-                color_hex = color_definition.value
-                if len(color_hex) < 8:
-                    color = Color.from_hex(color_hex)
-                else:
-                    color = Color.from_hexa(color_hex)
-                d_colors[color_definition.id] = color
-        if sbgnml_render_information.list_of_styles is not None:
-            for style in sbgnml_render_information.list_of_styles.style:
-                arc_ids = []
-                node_ids = []
-                for id_ in style.id_list.split(" "):
-                    layout_element = sbgnml_id_to_layout_element.get(id_)
-                    if layout_element is not None:
-                        if isinstance_or_builder(layout_element, SBGNNode):
-                            node_ids.append(id_)
-                        else:
-                            arc_ids.append(id_)
-                if node_ids:
-                    node_style_collection = StyleCollection()
-                    for attr in ["fill", "stroke"]:
-                        color_str = getattr(style.g, attr)
-                        if color_str is not None:
-                            color = d_colors.get(color_str)
-                            if color is None:
-                                color = Color.from_hex(color_str)
-                            node_style_collection[attr] = color
-                    for attr in ["stroke_width"]:
-                        value = getattr(style.g, attr)
-                        if value is not None:
-                            node_style_collection[attr] = value
-                    if node_style_collection:
-                        node_selector = OrSelector(
-                            tuple([IdSelector(node_id) for node_id in node_ids])
-                        )
-                        style_sheet[node_selector] = node_style_collection
-                if arc_ids:
-                    arc_style_collection = StyleCollection()
-                    for attr in ["fill", "stroke"]:
-                        color_str = getattr(style.g, attr)
-                        if color_str is not None:
-                            color = d_colors.get(color_str)
-                            if color is None:
-                                color = Color.from_hex(color_str)
-                            if attr == "stroke":
-                                arc_style_collection[f"path_{attr}"] = color
-                            arc_style_collection[f"arrowhead_{attr}"] = color
-                    for attr in ["stroke_width"]:
-                        value = getattr(style.g, attr)
-                        if value is not None:
-                            arc_style_collection[f"path_{attr}"] = value
-                            arc_style_collection[f"arrowhead_{attr}"] = value
-                    if arc_style_collection:
-                        arc_selector = OrSelector(
-                            tuple([IdSelector(id) for id in arc_ids])
-                        )
-                        style_sheet[arc_selector] = arc_style_collection
-                label_style_collection = StyleCollection()
-                for attr in ["font_size", "font_family"]:
-                    value = getattr(style.g, attr)
-                    if value is not None:
-                        label_style_collection[attr] = value
-                for attr in ["font_color"]:
-                    color_str = getattr(style.g, attr)
-                    if color_str is not None:
-                        color = d_colors.get(color_str)
-                        if color is None:
-                            if color_str == "#000":
-                                color_str = "#000000"
-                            color = Color.from_hex(color_str)
-                        label_style_collection["fill"] = color
-                if label_style_collection:
-                    if node_ids:
-                        node_label_selector = ChildSelector(
-                            node_selector,
-                            TypeSelector(TextLayout.__name__),
-                        )
-                        style_sheet[node_label_selector] = label_style_collection
-                    if arc_ids:
-                        arc_label_selector = ChildSelector(
-                            arc_selector,
-                            TypeSelector(TextLayout.__name__),
-                        )
-                        style_sheet[arc_label_selector] = label_style_collection
-        return style_sheet
 
 
 class SBGNML0_2Reader(_SBGNMLReader):
