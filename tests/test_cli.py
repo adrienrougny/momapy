@@ -112,6 +112,37 @@ class TestCLIInfoCommand:
         assert "entity_pools" in data["model"]
         assert "width" in data["layout"]
 
+    SBML_MAP_PATH = os.path.join(
+        os.path.dirname(__file__),
+        "sbml",
+        "models",
+        "Zake2021_Metformin_Human_multiple_PO_dose.xml",
+    )
+
+    def test_info_sbml_text_output(self, capsys):
+        """Info on a layout-less SBML map summarizes the model without crashing."""
+        with mock.patch("sys.argv", ["momapy", "info", self.SBML_MAP_PATH]):
+            momapy.cli.main()
+        captured = capsys.readouterr()
+        assert "SBML" in captured.out
+        assert "species:" in captured.out
+        assert "reactions:" in captured.out
+        # SBML has no layout, so the Layout section is omitted.
+        assert "Layout:" not in captured.out
+
+    def test_info_sbml_json_output(self, capsys):
+        """Info JSON on an SBML map reports layout as null."""
+        with mock.patch(
+            "sys.argv",
+            ["momapy", "info", self.SBML_MAP_PATH, "--format", "json"],
+        ):
+            momapy.cli.main()
+        captured = capsys.readouterr()
+        data = json.loads(captured.out)
+        assert data["map_type"] == "SBML"
+        assert data["layout"] is None
+        assert "reactions" in data["model"]
+
     def test_info_output_to_file(self, tmp_path):
         """Test info command writes to file when -o is given."""
         output_file = tmp_path / "info.txt"

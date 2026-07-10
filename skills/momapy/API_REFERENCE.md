@@ -490,6 +490,9 @@ Re-exports: `SBMLModelElement`, `SBMLMap`, `BiomodelQualifier`, `BQBiol`, `BQMod
 ### `src/momapy/sbml/map.py`
 - `SBMLMap(Map)` — `model: SBMLModel | None = None`. Model only; SBML has no layout, so the inherited `layout` / `layout_model_mapping` are always `None`.
 
+### `src/momapy/sbml/utils.py`
+- `get_info(map_: SBMLMap) -> dict[str, typing.Any]` (keys `map_type: str`, `model: dict[str, int]` with `compartments`/`species`/`reactions`, `layout: None` — SBML has no layout).
+
 ### `src/momapy/sbml/elements.py`
 - `SBMLModelElement(ModelElement)` — abstract; `name: str | None`, `sbo_term: str | None`, `metaid: str | None` (`compare=False, hash=False`). **(Formerly named `SBase`; renamed so that `Model` is never a `ModelElement` — see `tests/test_io_mappings.py`.)**
 

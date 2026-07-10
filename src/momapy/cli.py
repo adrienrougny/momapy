@@ -140,6 +140,7 @@ from momapy.sbgn.utils import (
 )
 from momapy.sbgn.utils import tidy as tidy_sbgn
 from momapy.sbml.map import SBMLMap
+from momapy.sbml.utils import get_info as get_info_sbml
 
 
 _BUILTIN_PRESETS = {
@@ -1393,12 +1394,18 @@ def _run(args: argparse.Namespace) -> None:
     elif args.subcommand == "info":
         reader_result = _read_input(args.input_file_path)
         map_ = reader_result.obj
-        if isinstance(map_, CellDesignerMap):
-            info = get_info_celldesigner(map_)
-        elif isinstance(map_, SBGNMap):
-            info = get_info_sbgn(map_)
-        else:
-            raise ValueError(f"unsupported map type: {type(map_).__name__}")
+        try:
+            if isinstance(map_, CellDesignerMap):
+                info = get_info_celldesigner(map_)
+            elif isinstance(map_, SBGNMap):
+                info = get_info_sbgn(map_)
+            elif isinstance(map_, SBMLMap):
+                info = get_info_sbml(map_)
+            else:
+                raise ValueError(f"unsupported map type: {type(map_).__name__}")
+        except ValueError as error:
+            print(f"error: {error}", file=sys.stderr)
+            sys.exit(1)
         info["file"] = str(args.input_file_path) if args.input_file_path else "<stdin>"
         if args.format == "json":
             output = json.dumps(info, indent=2)
@@ -1411,13 +1418,14 @@ def _run(args: argparse.Namespace) -> None:
             for key, value in info["model"].items():
                 label = key.replace("_", " ")
                 lines.append(f"  {label + ':':<26s}{value}")
-            lines.append("")
-            lines.append("Layout:")
-            lines.append(
-                f"  {'dimensions:':<26s}"
-                f"{info['layout']['width']} x {info['layout']['height']}"
-            )
-            lines.append(f"  {'elements:':<26s}{info['layout']['elements']}")
+            if info["layout"] is not None:
+                lines.append("")
+                lines.append("Layout:")
+                lines.append(
+                    f"  {'dimensions:':<26s}"
+                    f"{info['layout']['width']} x {info['layout']['height']}"
+                )
+                lines.append(f"  {'elements:':<26s}{info['layout']['elements']}")
             output = "\n".join(lines)
         if args.output_file_path:
             with open(args.output_file_path, "w") as file_handle:
