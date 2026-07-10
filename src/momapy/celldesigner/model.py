@@ -95,7 +95,7 @@ class ModificationState(enum.Enum):
     HYDROXYLATED = "OH"
     GLYCOSYLATED = "G"
     MYRISTOYLATED = "My"
-    PALMYTOYLATED = "Pa"
+    PALMITOYLATED = "Pa"
     PRENYLATED = "Pr"
     PROTONATED = "H"
     SULFATED = "S"
