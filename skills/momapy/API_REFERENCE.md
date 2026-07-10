@@ -345,7 +345,7 @@ Purpose: SBGN-AF model classes.
 ### `src/momapy/sbgn/io/sbgnml/_reading_classification.py`
 - `KEY_TO_MODULE: dict` — `"PROCESS_DESCRIPTION"` → `momapy.sbgn.pd`, `"ACTIVITY_FLOW"` → `momapy.sbgn.af`.
 - `KEY_TO_CLASS: dict[tuple|str, tuple[type, type]]` — ~70 entries like `("PROCESS_DESCRIPTION", "GLYPH", "MACROMOLECULE") -> (Macromolecule, MacromoleculeLayout)`.
-- `get_glyph_key(sbgnml_glyph, map_key)`, `get_subglyph_key(sbgnml_subglyph, map_key)`, `get_arc_key(sbgnml_arc, map_key)`, `get_model_and_layout_classes(key)`, `get_module(map_key)`, `get_module_from_object(obj)`.
+- `get_glyph_key(sbgnml_glyph, map_key)`, `get_subglyph_key(sbgnml_subglyph, map_key)`, `get_arc_key(sbgnml_arc, map_key)`, `get_module(map_key)`, `get_module_from_object(obj)`.
 
 ### `src/momapy/sbgn/io/sbgnml/_writing.py`
 - `NSMAP: dict` — SBGN/RDF/BioModels XML namespaces.

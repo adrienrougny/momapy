@@ -551,20 +551,6 @@ def get_arc_key(sbgnml_arc: lxml.etree._Element, map_key: str) -> tuple[str, str
     return (map_key, "ARC", sbgnml_class)
 
 
-def get_model_and_layout_classes(
-    key: str | tuple[str, ...],
-) -> tuple[type | None, ...]:
-    """Get the model and layout classes for a classification key.
-
-    Args:
-        key: A classification key (tuple or string).
-
-    Returns:
-        A tuple of (model_class, layout_class).
-    """
-    return KEY_TO_CLASS[key]
-
-
 def get_module(map_key: str) -> types.ModuleType | None:
     """Get the SBGN module (pd or af) for a map key.
 
