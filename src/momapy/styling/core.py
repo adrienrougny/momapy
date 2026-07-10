@@ -250,7 +250,7 @@ def apply_style_sheet(
 
 
 @dataclasses.dataclass(frozen=True)
-class Selector(object):
+class Selector(abc.ABC):
     """Abstract base class for CSS-like selectors.
 
     Selectors determine whether a layout element matches specific criteria.
