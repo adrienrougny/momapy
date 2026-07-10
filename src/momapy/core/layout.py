@@ -1144,15 +1144,17 @@ class DoubleHeadedArc(Arc):
         default=None,
         metadata={"description": "The end arrowhead stroke color of the arc"},
     )
-    end_arrowhead_stroke_dasharray: tuple[float, ...] | None = dataclasses.field(
-        default=None,
-        metadata={"description": "The end arrowhead stroke dasharray of the arc"},
+    end_arrowhead_stroke_dasharray: NoneValueType | tuple[float, ...] | None = (
+        dataclasses.field(
+            default=None,
+            metadata={"description": "The end arrowhead stroke dasharray of the arc"},
+        )
     )
-    end_arrowhead_stroke_dashoffset: float | None = dataclasses.field(
+    end_arrowhead_stroke_dashoffset: NoneValueType | float | None = dataclasses.field(
         default=None,
         metadata={"description": "The end arrowhead stroke dashoffset of the arc"},
     )
-    end_arrowhead_stroke_width: float | None = dataclasses.field(
+    end_arrowhead_stroke_width: NoneValueType | float | None = dataclasses.field(
         default=None,
         metadata={"description": "The end arrowhead stroke width of the arc"},
     )
@@ -1174,15 +1176,17 @@ class DoubleHeadedArc(Arc):
         default=None,
         metadata={"description": "The start arrowhead stroke color of the arc"},
     )
-    start_arrowhead_stroke_dasharray: tuple[float, ...] | None = dataclasses.field(
-        default=None,
-        metadata={"description": "The start arrowhead stroke dasharray of the arc"},
+    start_arrowhead_stroke_dasharray: NoneValueType | tuple[float, ...] | None = (
+        dataclasses.field(
+            default=None,
+            metadata={"description": "The start arrowhead stroke dasharray of the arc"},
+        )
     )
-    start_arrowhead_stroke_dashoffset: float | None = dataclasses.field(
+    start_arrowhead_stroke_dashoffset: NoneValueType | float | None = dataclasses.field(
         default=None,
         metadata={"description": "The start arrowhead stroke dashoffset of the arc"},
     )
-    start_arrowhead_stroke_width: float | None = dataclasses.field(
+    start_arrowhead_stroke_width: NoneValueType | float | None = dataclasses.field(
         default=None,
         metadata={"description": "The start arrowhead stroke width of the arc"},
     )
