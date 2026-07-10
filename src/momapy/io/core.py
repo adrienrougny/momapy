@@ -27,6 +27,7 @@ from momapy.utils import check_file_exists
 __all__ = [
     "get_reader",
     "get_writer",
+    "IOResult",
     "list_readers",
     "list_writers",
     "read",
