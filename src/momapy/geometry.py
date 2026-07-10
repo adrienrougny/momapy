@@ -447,28 +447,30 @@ class Segment(GeometryObject):
         Returns:
             The shortest distance.
         """
-        a = point.x - self.p1.x
-        b = point.y - self.p1.y
-        c = self.p2.x - self.p1.x
-        d = self.p2.y - self.p1.y
-        dot = a * c + b * d
-        len_sq = c**2 + d**2
-        if len_sq != 0:
-            param = dot / len_sq
+        point_offset_x = point.x - self.p1.x
+        point_offset_y = point.y - self.p1.y
+        segment_direction_x = self.p2.x - self.p1.x
+        segment_direction_y = self.p2.y - self.p1.y
+        dot_product = (
+            point_offset_x * segment_direction_x + point_offset_y * segment_direction_y
+        )
+        length_squared = segment_direction_x**2 + segment_direction_y**2
+        if length_squared != 0:
+            projection = dot_product / length_squared
         else:
-            param = -1
-        if param < 0:
-            xx = self.p1.x
-            yy = self.p1.y
-        elif param > 1:
-            xx = self.p2.x
-            yy = self.p2.y
+            projection = -1
+        if projection < 0:
+            closest_x = self.p1.x
+            closest_y = self.p1.y
+        elif projection > 1:
+            closest_x = self.p2.x
+            closest_y = self.p2.y
         else:
-            xx = self.p1.x + param * c
-            yy = self.p1.y + param * d
-        dx = point.x - xx
-        dy = point.y - yy
-        return math.sqrt(dx**2 + dy**2)
+            closest_x = self.p1.x + projection * segment_direction_x
+            closest_y = self.p1.y + projection * segment_direction_y
+        delta_x = point.x - closest_x
+        delta_y = point.y - closest_y
+        return math.sqrt(delta_x**2 + delta_y**2)
 
     def has_point(
         self, point: Point, max_distance: float = _ROUNDING_TOLERANCE
