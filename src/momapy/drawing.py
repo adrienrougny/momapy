@@ -544,11 +544,6 @@ INITIAL_VALUES: dict[str, typing.Any] = {
     "font_size": 16.0,
 }
 
-_FONT_WEIGHT_TO_VALUE = {
-    FontWeight.NORMAL: 400,
-    FontWeight.BOLD: 700,
-}
-
 
 def get_initial_value(attr_name: str) -> typing.Any:
     """Get the initial value of a presentation attribute.
