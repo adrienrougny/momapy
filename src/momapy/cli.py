@@ -70,7 +70,6 @@ Example:
 
 import argparse
 import base64
-import collections.abc
 import dataclasses
 import importlib
 import importlib.resources
@@ -705,7 +704,6 @@ def _extract_element_metadata(
 
 def _render_svg_string(
     layout_element: typing.Any,
-    style_sheet: typing.Any = None,
     to_top_left: bool = False,
 ) -> str:
     """Render a layout element to an SVG string.
@@ -716,7 +714,6 @@ def _render_svg_string(
 
     Args:
         layout_element: The layout element to render.
-        style_sheet: An optional style sheet to apply before rendering.
         to_top_left: Whether to move the layout element to the top left
             before rendering. Defaults to ``False``.
 
@@ -727,46 +724,23 @@ def _render_svg_string(
     from momapy.geometry import Translation
     from momapy.rendering.svg_native import SVGElement
     from momapy.rendering.svg_native import SVGNativeRenderer
-    from momapy.styling import StyleSheet
-    from momapy.styling import apply_style_sheet
-    from momapy.styling import combine_style_sheets
 
     bbox = layout_element.bbox()
     maximum_x = bbox.x + bbox.width / 2
     maximum_y = bbox.y + bbox.height / 2
-    if style_sheet is not None or to_top_left:
+    if to_top_left:
         layout_element = builder_from_object(layout_element)
-        if style_sheet is not None:
-            if (
-                not isinstance(style_sheet, collections.abc.Collection)
-                or isinstance(style_sheet, str)
-                or isinstance(style_sheet, StyleSheet)
-            ):
-                style_sheets = [style_sheet]
-            else:
-                style_sheets = list(style_sheet)
-            style_sheets = [
-                (
-                    StyleSheet.from_file(single_style_sheet)
-                    if not isinstance(single_style_sheet, StyleSheet)
-                    else single_style_sheet
-                )
-                for single_style_sheet in style_sheets
-            ]
-            combined_style_sheet = combine_style_sheets(style_sheets)
-            apply_style_sheet(layout_element, combined_style_sheet)
-        if to_top_left:
-            min_x = bbox.x - bbox.width / 2
-            min_y = bbox.y - bbox.height / 2
-            maximum_x -= min_x
-            maximum_y -= min_y
-            translation = Translation(-min_x, -min_y)
-            for attribute_name in ["group_transform", "transform"]:
-                if hasattr(layout_element, attribute_name):
-                    if getattr(layout_element, attribute_name) is None:
-                        setattr(layout_element, attribute_name, [])
-                    getattr(layout_element, attribute_name).append(translation)
-                    break
+        min_x = bbox.x - bbox.width / 2
+        min_y = bbox.y - bbox.height / 2
+        maximum_x -= min_x
+        maximum_y -= min_y
+        translation = Translation(-min_x, -min_y)
+        for attribute_name in ["group_transform", "transform"]:
+            if hasattr(layout_element, attribute_name):
+                if getattr(layout_element, attribute_name) is None:
+                    setattr(layout_element, attribute_name, [])
+                getattr(layout_element, attribute_name).append(translation)
+                break
     svg_element = SVGElement(
         name="svg",
         attributes={
@@ -1219,7 +1193,6 @@ $svg_content
 
 def _visualize_map(
     map_: typing.Any,
-    style_sheet: typing.Any = None,
     input_file_path: str | os.PathLike | None = None,
     to_top_left: bool = False,
 ) -> None:
@@ -1231,15 +1204,12 @@ def _visualize_map(
 
     Args:
         map_: The map to visualize.
-        style_sheet: An optional style sheet to apply before rendering.
         input_file_path: The original input file path, used for the page
             title. If ``None``, a generic title is used.
         to_top_left: Whether to move the layout to the top left before
             rendering. Defaults to ``False``.
     """
-    svg_string = _render_svg_string(
-        map_.layout, style_sheet=style_sheet, to_top_left=to_top_left
-    )
+    svg_string = _render_svg_string(map_.layout, to_top_left=to_top_left)
     layout_id_to_model_id = _build_layout_to_model_id_mapping(map_.layout_model_mapping)
     element_metadata = _extract_element_metadata(
         map_.layout,
