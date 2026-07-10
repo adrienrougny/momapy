@@ -45,7 +45,7 @@ class Map(MapElement):
     def get_mapping(
         self,
         map_element: "MapElement",
-    ) -> "ModelElement | list[LayoutElement] | None":
+    ) -> "ModelElement | list[LayoutElement | frozenset[LayoutElement]] | None":
         """Return the layout elements mapped to the given model element.
 
         Returns `None` when the map has no `layout_model_mapping` (for
