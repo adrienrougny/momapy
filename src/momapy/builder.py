@@ -611,7 +611,7 @@ def issubclass_or_builder(
     return issubclass(cls, type_)
 
 
-def super_or_builder(type_: typing.Type, obj: typing.Any) -> typing.Type:
+def super_or_builder(type_: typing.Type, obj: typing.Any) -> super:
     """Get super() proxy for a class or its builder class.
 
     Attempts to get the super() proxy for the given type. If that fails,

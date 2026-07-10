@@ -69,7 +69,7 @@ Constants (in `__all__`, imported cross-module): `DEFAULT_FONT_FAMILY: str`, `IN
 - `has_builder_cls(cls) -> bool`, `get_builder_cls(cls) -> type[Builder] | None`
 - `object_from_builder(builder, builder_to_object=None) -> Any`
 - `builder_from_object(obj, object_to_builder=None) -> Builder`
-- `isinstance_or_builder(obj, cls) -> bool`, `issubclass_or_builder(cls, parent) -> bool`, `super_or_builder(type_, obj) -> type`
+- `isinstance_or_builder(obj, cls) -> bool`, `issubclass_or_builder(cls, parent) -> bool`, `super_or_builder(type_, obj) -> super`
 - `new_builder_object(cls, *args, **kwargs) -> Builder`
 - `register_builder_cls(builder_cls)`
 
