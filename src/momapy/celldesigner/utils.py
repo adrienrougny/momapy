@@ -345,24 +345,23 @@ def set_nodes_to_fit_labels(
         exclude = []
     exclude = tuple(exclude)
     restrict_to = tuple(restrict_to)
-    if omit_width and omit_height:
-        return map_builder
-    for layout_element in map_builder.layout.descendants():
-        if (
-            isinstance_or_builder(layout_element, restrict_to)
-            and not isinstance_or_builder(layout_element, exclude)
-            and hasattr(layout_element, "label")
-            and layout_element.label is not None
-        ):
-            bbox = fit([layout_element.label.bbox()], xsep, ysep)
-            if not omit_width:
-                if bbox.width > layout_element.width:
-                    layout_element.width = bbox.width
-            if not omit_height:
-                if bbox.height > layout_element.height:
-                    layout_element.height = bbox.height
-            set_position(layout_element, bbox.position, anchor="label_center")
-            _update_active_layout(layout_element)
+    if not (omit_width and omit_height):
+        for layout_element in map_builder.layout.descendants():
+            if (
+                isinstance_or_builder(layout_element, restrict_to)
+                and not isinstance_or_builder(layout_element, exclude)
+                and hasattr(layout_element, "label")
+                and layout_element.label is not None
+            ):
+                bbox = fit([layout_element.label.bbox()], xsep, ysep)
+                if not omit_width:
+                    if bbox.width > layout_element.width:
+                        layout_element.width = bbox.width
+                if not omit_height:
+                    if bbox.height > layout_element.height:
+                        layout_element.height = bbox.height
+                set_position(layout_element, bbox.position, anchor="label_center")
+                _update_active_layout(layout_element)
     if snap_arcs:
         set_arcs_to_borders(map_builder)
     if isinstance(map_, CellDesignerMap):
