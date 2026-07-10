@@ -452,3 +452,9 @@ Write implementation plans to `./plans/` as markdown files. Use descriptive file
 - Bypass test coverage (70% minimum)
 - Add unnecessary complexity or premature abstractions
 - Use dangerouslyDisableSandbox (Claude code)
+- **Never add definitions for concepts of the modelling languages (SBGN, CellDesigner,
+  SBML) that are defined by their specifications.** Do not explain in docstrings what
+  a `Stimulation`, `Catalysis`, `Species`, etc. *means* — you do not have the expertise
+  to author spec definitions, and inventing them introduces errors. Keep model docstrings
+  to a minimal naming summary plus purely structural notes (field roles, base-class
+  relationships, momapy's own rendering behavior).

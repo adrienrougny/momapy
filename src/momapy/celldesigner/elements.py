@@ -36,21 +36,21 @@ from momapy.sbgn.elements import SBGNNode, _MultiMixin, _SBGNMixin, _SimpleMixin
 # abstract
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CellDesignerModelElement(ModelElement):
-    """Base class for CellDesigner model elements."""
+    """CellDesigner model element."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CellDesignerNode(SBGNNode):
-    """Base class for CellDesigner nodes."""
+    """CellDesigner node."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CellDesignerSingleHeadedArc(SingleHeadedArc):
-    """Base class for CellDesigner single-headed arcs."""
+    """CellDesigner single headed arc."""
 
     arrowhead_stroke: NoneValueType | Color | None = black
     arrowhead_stroke_width: float | None = 1.0
@@ -77,7 +77,7 @@ class CellDesignerSingleHeadedArc(SingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CellDesignerDoubleHeadedArc(DoubleHeadedArc):
-    """Base class for CellDesigner double-headed arcs."""
+    """CellDesigner double headed arc."""
 
     path_fill: NoneValueType | Color | None = NoneValue
     path_stroke: NoneValueType | Color | None = black
@@ -102,6 +102,8 @@ class CellDesignerDoubleHeadedArc(DoubleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _SimpleNodeMixin(_SimpleMixin):
+    """Simple node mixin."""
+
     @classmethod
     def _mixin_drawing_elements(cls, obj: typing.Any) -> list[DrawingElement]:
         return _SimpleMixin._mixin_drawing_elements(obj)
@@ -109,6 +111,7 @@ class _SimpleNodeMixin(_SimpleMixin):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _MultiNodeMixin(_MultiMixin):
+    """Multi node mixin."""
     n: int = dataclasses.field(
         default=1,
         metadata={"description": "Number of stacked node copies to draw."},

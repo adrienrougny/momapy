@@ -51,20 +51,14 @@ from momapy.sbgn.layout import SBGNLayout
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNAFLayout(SBGNLayout):
-    """SBGN-AF layout.
-
-    Represents the visual layout of an SBGN-AF model.
-    """
+    """SBGN AF layout."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnitOfInformationLayout(_SimpleMixin, SBGNNode):
-    """Layout for units of information.
-
-    Draws a unit of information as a rectangular glyph.
-    """
+    """Unit of information layout."""
 
     width: float = 18.0
     height: float = 12.0
@@ -79,10 +73,7 @@ class UnitOfInformationLayout(_SimpleMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnspecifiedEntityUnitOfInformationLayout(_SimpleMixin, SBGNNode):
-    """Layout for unspecified entity units of information.
-
-    Draws a unit of information typing an activity as an unspecified entity.
-    """
+    """Unspecified entity unit of information layout."""
 
     width: float = 18.0
     height: float = 12.0
@@ -93,10 +84,7 @@ class UnspecifiedEntityUnitOfInformationLayout(_SimpleMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SimpleChemicalUnitOfInformationLayout(_SimpleMixin, SBGNNode):
-    """Layout for simple chemical units of information.
-
-    Draws a unit of information typing an activity as a simple chemical.
-    """
+    """Simple chemical unit of information layout."""
 
     width: float = 12.0
     height: float = 12.0
@@ -107,10 +95,7 @@ class SimpleChemicalUnitOfInformationLayout(_SimpleMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class MacromoleculeUnitOfInformationLayout(_SimpleMixin, SBGNNode):
-    """Layout for macromolecule units of information.
-
-    Draws a unit of information typing an activity as a macromolecule.
-    """
+    """Macromolecule unit of information layout."""
 
     width: float = 18.0
     height: float = 12.0
@@ -124,10 +109,7 @@ class MacromoleculeUnitOfInformationLayout(_SimpleMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NucleicAcidFeatureUnitOfInformationLayout(_SimpleMixin, SBGNNode):
-    """Layout for nucleic acid feature units of information.
-
-    Draws a unit of information typing an activity as a nucleic acid feature.
-    """
+    """Nucleic acid feature unit of information layout."""
 
     width: float = 18.0
     height: float = 12.0
@@ -141,10 +123,7 @@ class NucleicAcidFeatureUnitOfInformationLayout(_SimpleMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ComplexUnitOfInformationLayout(_SimpleMixin, SBGNNode):
-    """Layout for complex units of information.
-
-    Draws a unit of information typing an activity as a complex.
-    """
+    """Complex unit of information layout."""
 
     width: float = 18.0
     height: float = 12.0
@@ -158,10 +137,7 @@ class ComplexUnitOfInformationLayout(_SimpleMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class PerturbationUnitOfInformationLayout(_SimpleMixin, SBGNNode):
-    """Layout for perturbation units of information.
-
-    Draws a unit of information typing an activity as a perturbation.
-    """
+    """Perturbation unit of information layout."""
 
     width: float = 18.0
     height: float = 12.0
@@ -175,10 +151,7 @@ class PerturbationUnitOfInformationLayout(_SimpleMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TerminalLayout(_SimpleMixin, SBGNNode):
-    """Layout for terminals.
-
-    Draws a terminal connection point of a submap.
-    """
+    """Terminal layout."""
 
     width: float = 35.0
     height: float = 35.0
@@ -196,10 +169,7 @@ class TerminalLayout(_SimpleMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CompartmentLayout(_SimpleMixin, SBGNNode):
-    """Layout for compartments.
-
-    Draws a compartment as a rounded rectangular region.
-    """
+    """Compartment layout."""
 
     width: float = 80.0
     height: float = 80.0
@@ -214,10 +184,7 @@ class CompartmentLayout(_SimpleMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SubmapLayout(_SimpleMixin, SBGNNode):
-    """Layout for submaps.
-
-    Draws a submap as a rectangular region embedding a sub-diagram.
-    """
+    """Submap layout."""
 
     width: float = 80.0
     height: float = 80.0
@@ -229,10 +196,7 @@ class SubmapLayout(_SimpleMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class BiologicalActivityLayout(_SimpleMixin, SBGNNode):
-    """Layout for biological activities.
-
-    Draws a biological activity as a rectangular glyph.
-    """
+    """Biological activity layout."""
 
     width: float = 60.0
     height: float = 30.0
@@ -245,10 +209,7 @@ class BiologicalActivityLayout(_SimpleMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class PhenotypeLayout(_SimpleMixin, SBGNNode):
-    """Layout for phenotypes.
-
-    Draws a phenotype as a hexagonal glyph.
-    """
+    """Phenotype layout."""
 
     width: float = 60.0
     height: float = 30.0
@@ -267,10 +228,7 @@ class AndOperatorLayout(
     _TextMixin,
     SBGNNode,
 ):
-    """Layout for AND operators.
-
-    Draws a logical AND operator as a labelled circular glyph.
-    """
+    """AND operator layout."""
 
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
     text: str = dataclasses.field(
@@ -292,10 +250,7 @@ class OrOperatorLayout(
     _TextMixin,
     SBGNNode,
 ):
-    """Layout for OR operators.
-
-    Draws a logical OR operator as a labelled circular glyph.
-    """
+    """OR operator layout."""
 
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
     text: str = dataclasses.field(
@@ -317,10 +272,7 @@ class NotOperatorLayout(
     _TextMixin,
     SBGNNode,
 ):
-    """Layout for NOT operators.
-
-    Draws a logical NOT operator as a labelled circular glyph.
-    """
+    """NOT operator layout."""
 
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
     text: str = dataclasses.field(
@@ -342,10 +294,7 @@ class DelayOperatorLayout(
     _TextMixin,
     SBGNNode,
 ):
-    """Layout for DELAY operators.
-
-    Draws a logical DELAY operator as a labelled circular glyph.
-    """
+    """Delay operator layout."""
 
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 2
     text: str = dataclasses.field(
@@ -362,10 +311,7 @@ class DelayOperatorLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TagLayout(PDTagLayout):
-    """Layout for tags.
-
-    Draws a tag as a labelled pointed glyph.
-    """
+    """Tag layout."""
 
     width: float = 35.0
     height: float = 35.0
@@ -383,10 +329,7 @@ class TagLayout(PDTagLayout):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownInfluenceLayout(SBGNSingleHeadedArc):
-    """Layout for unknown influences.
-
-    Draws an influence of unspecified sign with a diamond arrowhead.
-    """
+    """Unknown influence layout."""
 
     arrowhead_height: float = dataclasses.field(
         default=10.0, metadata={"description": "The height of the arrowhead."}
@@ -401,10 +344,7 @@ class UnknownInfluenceLayout(SBGNSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class PositiveInfluenceLayout(SBGNSingleHeadedArc):
-    """Layout for positive influences.
-
-    Draws a stimulating influence with a triangular arrowhead.
-    """
+    """Positive influence layout."""
 
     arrowhead_height: float = dataclasses.field(
         default=10.0, metadata={"description": "The height of the arrowhead."}
@@ -419,10 +359,7 @@ class PositiveInfluenceLayout(SBGNSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NecessaryStimulationLayout(SBGNSingleHeadedArc):
-    """Layout for necessary stimulations.
-
-    Draws a necessary stimulation with a bar followed by a triangular arrowhead.
-    """
+    """Necessary stimulation layout."""
 
     arrowhead_bar_height: float = dataclasses.field(
         default=12.0, metadata={"description": "The height of the arrowhead bar."}
@@ -460,10 +397,7 @@ class NecessaryStimulationLayout(SBGNSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NegativeInfluenceLayout(SBGNSingleHeadedArc):
-    """Layout for negative influences.
-
-    Draws an inhibiting influence with a perpendicular bar arrowhead.
-    """
+    """Negative influence layout."""
 
     arrowhead_height: float = dataclasses.field(
         default=10.0, metadata={"description": "The height of the arrowhead."}
@@ -475,10 +409,7 @@ class NegativeInfluenceLayout(SBGNSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class LogicArcLayout(SBGNSingleHeadedArc):
-    """Layout for logic arcs.
-
-    Draws a logic arc connecting an activity to a logical operator.
-    """
+    """Logic arc layout."""
 
     def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return PolyLineArc._arrowhead_border_drawing_elements(self)
@@ -486,10 +417,7 @@ class LogicArcLayout(SBGNSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class EquivalenceArcLayout(SBGNSingleHeadedArc):
-    """Layout for equivalence arcs.
-
-    Draws an equivalence arc linking a tag or terminal to its referenced element.
-    """
+    """Equivalence arc layout."""
 
     def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return PolyLineArc._arrowhead_border_drawing_elements(self)

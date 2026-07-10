@@ -67,10 +67,7 @@ from momapy.sbml.model import SBMLModel
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ModificationResidue(CellDesignerModelElement):
-    """Modification residue for protein post-translational modifications.
-
-    Residues represent specific amino acid positions that can be modified.
-    """
+    """Modification residue."""
 
     name: str | None = dataclasses.field(
         default=None, metadata={"description": "The name of the residue"}
@@ -82,11 +79,7 @@ class ModificationResidue(CellDesignerModelElement):
 
 
 class ModificationState(enum.Enum):
-    """Enumeration of protein modification states.
-
-    Represents common post-translational modification types with their
-    standard abbreviations.
-    """
+    """Modification state."""
 
     PHOSPHORYLATED = "P"
     ACETYLATED = "Ac"
@@ -105,10 +98,7 @@ class ModificationState(enum.Enum):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Region(CellDesignerModelElement):
-    """Region of a gene, RNA, or antisense RNA template.
-
-    Regions delimit a part of a nucleic acid template that can carry a name and an active state.
-    """
+    """Region."""
 
     name: str | None = dataclasses.field(
         default=None, metadata={"description": "The name of the region"}
@@ -121,60 +111,42 @@ class Region(CellDesignerModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ModificationSite(Region):
-    """Modification site region.
-
-    Marks a region of a template where a modification can occur.
-    """
+    """Modification site."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CodingRegion(Region):
-    """Coding region.
-
-    Marks a region of a nucleic acid template that codes for a product.
-    """
+    """Coding region."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class RegulatoryRegion(Region):
-    """Regulatory region.
-
-    Marks a region of a nucleic acid template that regulates transcription.
-    """
+    """Regulatory region."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TranscriptionStartingSiteL(Region):
-    """Left transcription starting site.
-
-    Marks the left-hand transcription starting site of a gene template.
-    """
+    """Transcription starting site L."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TranscriptionStartingSiteR(Region):
-    """Right transcription starting site.
-
-    Marks the right-hand transcription starting site of a gene template.
-    """
+    """Transcription starting site R."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ProteinBindingDomain(Region):
-    """Protein binding domain region.
-
-    Marks a region of a nucleic acid template where a protein binds.
-    """
+    """Protein binding domain."""
 
     pass
 
@@ -184,10 +156,7 @@ class ProteinBindingDomain(Region):
 # species reference which has a different meaning (reference to a species)
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SpeciesTemplate(CellDesignerModelElement):
-    """Base class for species templates.
-
-    Species templates describe the reusable structure shared by the species instances that derive from them.
-    """
+    """Species template."""
 
     name: str = dataclasses.field(
         metadata={"description": "The name of the species template"}
@@ -196,10 +165,7 @@ class SpeciesTemplate(CellDesignerModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ProteinTemplate(SpeciesTemplate):
-    """Base class for protein templates.
-
-    Protein templates describe the modification residues shared by the protein species deriving from them.
-    """
+    """Protein template."""
 
     modification_residues: frozenset[ModificationResidue] = dataclasses.field(
         default_factory=frozenset,
@@ -209,50 +175,35 @@ class ProteinTemplate(SpeciesTemplate):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class GenericProteinTemplate(ProteinTemplate):
-    """Template for generic proteins.
-
-    Describes the structure shared by generic protein species.
-    """
+    """Generic protein template."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TruncatedProteinTemplate(ProteinTemplate):
-    """Template for truncated proteins.
-
-    Describes the structure shared by truncated protein species.
-    """
+    """Truncated protein template."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ReceptorTemplate(ProteinTemplate):
-    """Template for receptors.
-
-    Describes the structure shared by receptor species.
-    """
+    """Receptor template."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class IonChannelTemplate(ProteinTemplate):
-    """Template for ion channels.
-
-    Describes the structure shared by ion channel species.
-    """
+    """Ion channel template."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class GeneTemplate(SpeciesTemplate):
-    """Template for genes.
-
-    Describes the structure, including its regions, shared by gene species.
-    """
+    """Gene template."""
 
     regions: frozenset[
         ModificationSite
@@ -268,10 +219,7 @@ class GeneTemplate(SpeciesTemplate):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class RNATemplate(SpeciesTemplate):
-    """Template for RNAs.
-
-    Describes the structure, including its regions, shared by RNA species.
-    """
+    """RNA template."""
 
     regions: frozenset[ModificationSite | CodingRegion | ProteinBindingDomain] = (
         dataclasses.field(
@@ -283,10 +231,7 @@ class RNATemplate(SpeciesTemplate):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class AntisenseRNATemplate(SpeciesTemplate):
-    """Template for antisense RNAs.
-
-    Describes the structure, including its regions, shared by antisense RNA species.
-    """
+    """Antisense RNA template."""
 
     regions: frozenset[ModificationSite | CodingRegion | ProteinBindingDomain] = (
         dataclasses.field(
@@ -298,10 +243,7 @@ class AntisenseRNATemplate(SpeciesTemplate):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Modification(CellDesignerModelElement):
-    """Post-translational modification carried by a species.
-
-    A modification associates a modification state with a residue or modification site of the species.
-    """
+    """Modification."""
 
     residue: ModificationResidue | ModificationSite | None = dataclasses.field(
         default=None,
@@ -314,10 +256,7 @@ class Modification(CellDesignerModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class StructuralState(CellDesignerModelElement):
-    """Structural state carried by a species or complex.
-
-    A structural state holds a free-text value describing the conformation or state of the species.
-    """
+    """Structural state."""
 
     value: str | None = dataclasses.field(
         default=None,
@@ -327,10 +266,7 @@ class StructuralState(CellDesignerModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Compartment(SBMLCompartment, CellDesignerModelElement):
-    """Compartment in a CellDesigner map.
-
-    Compartments represent distinct spatial regions where species are located.
-    """
+    """Compartment."""
 
     pass
 
@@ -338,10 +274,7 @@ class Compartment(SBMLCompartment, CellDesignerModelElement):
 # abstract
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Species(SBMLSpecies, CellDesignerModelElement):
-    """Base class for species.
-
-    Species represent the biological entities that participate in reactions and modulations.
-    """
+    """Species."""
 
     hypothetical: bool = dataclasses.field(
         default=False,
@@ -360,10 +293,7 @@ class Species(SBMLSpecies, CellDesignerModelElement):
 # abstract
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Protein(Species):
-    """Base class for proteins.
-
-    Proteins are species defined by a protein template and carrying modifications and structural states.
-    """
+    """Protein."""
 
     template: ProteinTemplate = dataclasses.field(
         metadata={"description": "The template of the species"}
@@ -380,10 +310,7 @@ class Protein(Species):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class GenericProtein(Protein):
-    """Generic protein species.
-
-    A protein with no specialized role, defined by a generic protein template.
-    """
+    """Generic protein."""
 
     template: GenericProteinTemplate = dataclasses.field(
         metadata={"description": "The template of the generic protein"}
@@ -392,10 +319,7 @@ class GenericProtein(Protein):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TruncatedProtein(Protein):
-    """Truncated protein species.
-
-    A protein missing part of its sequence, defined by a truncated protein template.
-    """
+    """Truncated protein."""
 
     template: TruncatedProteinTemplate = dataclasses.field(
         metadata={"description": "The template of the truncated protein"}
@@ -404,10 +328,7 @@ class TruncatedProtein(Protein):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Receptor(Protein):
-    """Receptor species.
-
-    A protein acting as a receptor, defined by a receptor template.
-    """
+    """Receptor."""
 
     template: ReceptorTemplate = dataclasses.field(
         metadata={"description": "The template of the receptor"}
@@ -416,10 +337,7 @@ class Receptor(Protein):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class IonChannel(Protein):
-    """Ion channel species.
-
-    A protein acting as an ion channel, defined by an ion channel template.
-    """
+    """Ion channel."""
 
     template: IonChannelTemplate = dataclasses.field(
         metadata={"description": "The template of the ion channel"}
@@ -428,10 +346,7 @@ class IonChannel(Protein):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Gene(Species):
-    """Gene species.
-
-    A gene defined by a gene template and carrying modifications.
-    """
+    """Gene."""
 
     template: GeneTemplate = dataclasses.field(
         metadata={"description": "The template of the gene"}
@@ -443,10 +358,7 @@ class Gene(Species):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class RNA(Species):
-    """RNA species.
-
-    An RNA defined by an RNA template and carrying modifications.
-    """
+    """RNA."""
 
     template: RNATemplate = dataclasses.field(
         metadata={"description": "The template of the RNA"}
@@ -458,10 +370,7 @@ class RNA(Species):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class AntisenseRNA(Species):
-    """Antisense RNA species.
-
-    An antisense RNA defined by an antisense RNA template and carrying modifications.
-    """
+    """Antisense RNA."""
 
     template: AntisenseRNATemplate = dataclasses.field(
         metadata={"description": "The template of the antisense RNA"}
@@ -473,60 +382,42 @@ class AntisenseRNA(Species):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Phenotype(Species):
-    """Phenotype species.
-
-    Represents a biological phenotype or process outcome.
-    """
+    """Phenotype."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Ion(Species):
-    """Ion species.
-
-    Represents an ion participating in the map.
-    """
+    """Ion."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SimpleMolecule(Species):
-    """Simple molecule species.
-
-    Represents a small, structurally simple chemical species.
-    """
+    """Simple molecule."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Drug(Species):
-    """Drug species.
-
-    Represents a drug acting on the system.
-    """
+    """Drug."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Unknown(Species):
-    """Unknown species.
-
-    Used when the class of the species is unknown or unspecified.
-    """
+    """Unknown."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Complex(Species):
-    """Complex species.
-
-    A complex is a species made of subunits and carrying its own structural states.
-    """
+    """Complex."""
 
     structural_states: frozenset[StructuralState] = dataclasses.field(
         default_factory=frozenset,
@@ -540,10 +431,7 @@ class Complex(Species):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Reactant(SpeciesReference, CellDesignerModelElement):
-    """Reactant of a reaction.
-
-    A reactant references a species consumed by a reaction, optionally as a base reactant.
-    """
+    """Reactant."""
 
     base: bool = dataclasses.field(
         default=False,
@@ -553,10 +441,7 @@ class Reactant(SpeciesReference, CellDesignerModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Product(SpeciesReference, CellDesignerModelElement):
-    """Product of a reaction.
-
-    A product references a species produced by a reaction, optionally as a base product.
-    """
+    """Product."""
 
     base: bool = dataclasses.field(
         default=False,
@@ -566,13 +451,7 @@ class Product(SpeciesReference, CellDesignerModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class BooleanLogicGateInput(SimpleSpeciesReference, CellDesignerModelElement):
-    """Input of a Boolean logic gate.
-
-    A gate input references the species (via the inherited ``referred_element``)
-    providing one of the gate's operands. Like reactants, products and
-    modulators, it is a species reference, so all CellDesigner participation
-    classes share the ``SimpleSpeciesReference`` base.
-    """
+    """Boolean logic gate input."""
 
     pass
 
@@ -580,10 +459,7 @@ class BooleanLogicGateInput(SimpleSpeciesReference, CellDesignerModelElement):
 # abstract
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class BooleanLogicGate(CellDesignerModelElement):
-    """Base class for Boolean logic gates.
-
-    Boolean logic gates combine several species inputs into a single logical modulation source.
-    """
+    """Boolean logic gate."""
 
     inputs: frozenset[BooleanLogicGateInput] = dataclasses.field(
         default_factory=frozenset,
@@ -593,40 +469,28 @@ class BooleanLogicGate(CellDesignerModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class AndGate(BooleanLogicGate):
-    """Boolean AND gate.
-
-    Outputs true when all of its inputs are active.
-    """
+    """AND gate."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class OrGate(BooleanLogicGate):
-    """Boolean OR gate.
-
-    Outputs true when at least one of its inputs is active.
-    """
+    """OR gate."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NotGate(BooleanLogicGate):
-    """Boolean NOT gate.
-
-    Outputs the negation of its input.
-    """
+    """NOT gate."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownGate(BooleanLogicGate):
-    """Boolean gate of unknown type.
-
-    Used when the logical operation of the gate is unknown or unspecified.
-    """
+    """Unknown gate."""
 
     pass
 
@@ -634,10 +498,7 @@ class UnknownGate(BooleanLogicGate):
 # abstract
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class KnownOrUnknownModulator(ModifierSpeciesReference, CellDesignerModelElement):
-    """Base class for known or unknown modulators.
-
-    A modulator is a reaction modifier that references the species or Boolean gate exerting the influence.
-    """
+    """Known OR unknown modulator."""
 
     # redefined because can be BooleanLogicGate
     referred_element: Species | BooleanLogicGate = dataclasses.field(
@@ -647,80 +508,56 @@ class KnownOrUnknownModulator(ModifierSpeciesReference, CellDesignerModelElement
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Modulator(KnownOrUnknownModulator):
-    """Modulator with a known effect.
-
-    Base class for reaction modifiers whose regulatory effect is known.
-    """
+    """Modulator."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownModulator(KnownOrUnknownModulator):
-    """Modulator with an unknown effect.
-
-    Base class for reaction modifiers whose regulatory effect is unknown.
-    """
+    """Unknown modulator."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Inhibitor(Modulator):
-    """Inhibitor modulator.
-
-    A modulator that inhibits its target reaction.
-    """
+    """Inhibitor."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class PhysicalStimulator(Modulator):
-    """Physical stimulator modulator.
-
-    A modulator that physically stimulates its target reaction.
-    """
+    """Physical stimulator."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Catalyzer(PhysicalStimulator):
-    """Catalyzer modulator.
-
-    A modulator that catalyzes its target reaction.
-    """
+    """Catalyzer."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Trigger(Modulator):
-    """Trigger modulator.
-
-    A modulator that triggers its target reaction.
-    """
+    """Trigger."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownCatalyzer(UnknownModulator):
-    """Catalyzer modulator with an unknown effect.
-
-    A modulator presumed to catalyze its target reaction with an unknown effect.
-    """
+    """Unknown catalyzer."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownInhibitor(UnknownModulator):
-    """Inhibitor modulator with an unknown effect.
-
-    A modulator presumed to inhibit its target reaction with an unknown effect.
-    """
+    """Unknown inhibitor."""
 
     pass
 
@@ -728,17 +565,13 @@ class UnknownInhibitor(UnknownModulator):
 # abstract
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Reaction(SBMLReaction, CellDesignerModelElement):
-    """Base class for reactions.
+    """Reaction.
 
     CellDesigner's degraded glyph (a ``<species class="DEGRADED">`` used
-    on either side of a reaction to denote unspecified external flux)
-    is *not* represented as a member of ``reactants`` or ``products``.
-    Instead, it is encoded as the boolean flags ``has_external_source``
-    (a degraded reactant) and ``has_external_sink`` (a degraded product).
-    The corresponding glyph lives only in the layout (``DegradedLayout``
-    / ``DegradedActiveLayout``); the model carries no peer species for
-    it. The writer reconstructs the degraded SBML/XML elements from the
-    layout at write time.
+    as a source-and-sink for unspecified external flux) is *not*
+    represented as a member of ``reactants`` or ``products``. Instead, it
+    is encoded as the boolean flags ``has_external_source`` (a degraded
+    reactant) and ``has_external_sink`` (a degraded product).
     """
 
     reactants: frozenset[Reactant] = dataclasses.field(
@@ -775,90 +608,63 @@ class Reaction(SBMLReaction, CellDesignerModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class StateTransition(Reaction):
-    """State transition reaction.
-
-    Represents a transition of a species from one state to another.
-    """
+    """State transition."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class KnownTransitionOmitted(Reaction):
-    """Known transition omitted reaction.
-
-    Represents a known transition whose intermediate steps are deliberately omitted.
-    """
+    """Known transition omitted."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownTransition(Reaction):
-    """Unknown transition reaction.
-
-    Represents a transition whose mechanism is unknown.
-    """
+    """Unknown transition."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Transcription(Reaction):
-    """Transcription reaction.
-
-    Represents the transcription of a gene into RNA.
-    """
+    """Transcription."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Translation(Reaction):
-    """Translation reaction.
-
-    Represents the translation of RNA into protein.
-    """
+    """Translation."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Transport(Reaction):
-    """Transport reaction.
-
-    Represents the transport of a species between compartments.
-    """
+    """Transport."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class HeterodimerAssociation(Reaction):
-    """Heterodimer association reaction.
-
-    Represents the association of species into a heterodimer or complex.
-    """
+    """Heterodimer association."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Dissociation(Reaction):
-    """Dissociation reaction.
-
-    Represents the dissociation of a complex into its components.
-    """
+    """Dissociation."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Truncation(Reaction):
-    """Truncation reaction.
-
-    Represents the truncation of a species into a shorter form.
-    """
+    """Truncation."""
 
     pass
 
@@ -866,10 +672,7 @@ class Truncation(Reaction):
 # abstract
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class KnownOrUnknownModulation(CellDesignerModelElement):
-    """Base class for known or unknown modulations.
-
-    A modulation represents a regulatory influence exerted by a source species or Boolean gate on a target species.
-    """
+    """Known OR unknown modulation."""
 
     source: Species | BooleanLogicGate = dataclasses.field(
         metadata={"description": "The source of the influence"}
@@ -881,41 +684,28 @@ class KnownOrUnknownModulation(CellDesignerModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Modulation(KnownOrUnknownModulation):
-    """Modulation with a known effect.
-
-    Base class for modulations whose regulatory effect is known.
-    """
+    """Modulation."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Inhibition(Modulation):
-    """Inhibition modulation.
-
-    Represents the inhibition of the target by the source.
-    """
+    """Inhibition."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class PhysicalStimulation(Modulation):
-    """Physical stimulation modulation.
-
-    Represents the physical stimulation of the target by the source.
-    """
+    """Physical stimulation."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Catalysis(PhysicalStimulation):
-    """Catalysis modulation.
-
-    Subclass of ``PhysicalStimulation``, mirroring the modifier-side
-    ``Catalyzer(PhysicalStimulator)`` relationship.
-    """
+    """Catalysis."""
 
     pass
 
@@ -923,112 +713,77 @@ class Catalysis(PhysicalStimulation):
 # need to be a different name than the modifier Trigger
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Triggering(Modulation):
-    """Triggering modulation.
-
-    Represents the triggering of the target by the source.
-    """
+    """Triggering."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class PositiveInfluence(Modulation):
-    """Positive influence modulation.
-
-    Represents a positive influence of the source on the target.
-    """
+    """Positive influence."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NegativeInfluence(Modulation):
-    """Negative influence modulation.
-
-    Represents a negative influence of the source on the target.
-    """
+    """Negative influence."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownModulation(KnownOrUnknownModulation):
-    """Modulation with an unknown effect.
-
-    Base class for modulations whose regulatory effect is unknown.
-    """
+    """Unknown modulation."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownInhibition(UnknownModulation):
-    """Inhibition modulation with an unknown effect.
-
-    Represents a presumed inhibition of the target by the source with an unknown effect.
-    """
+    """Unknown inhibition."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownPositiveInfluence(UnknownModulation):
-    """Positive influence modulation with an unknown effect.
-
-    Represents a presumed positive influence of the source on the target with an unknown effect.
-    """
+    """Unknown positive influence."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownNegativeInfluence(UnknownModulation):
-    """Negative influence modulation with an unknown effect.
-
-    Represents a presumed negative influence of the source on the target with an unknown effect.
-    """
+    """Unknown negative influence."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownPhysicalStimulation(UnknownModulation):
-    """Physical stimulation modulation with an unknown effect.
-
-    Represents a presumed physical stimulation of the target by the source with an unknown effect.
-    """
+    """Unknown physical stimulation."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownCatalysis(UnknownPhysicalStimulation):
-    """Uncertain catalysis modulation.
-
-    Subclass of ``UnknownPhysicalStimulation``, mirroring the known-side
-    ``Catalysis(PhysicalStimulation)`` relationship.
-    """
+    """Unknown catalysis."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownTriggering(UnknownModulation):
-    """Triggering modulation with an unknown effect.
-
-    Represents a presumed triggering of the target by the source with an unknown effect.
-    """
+    """Unknown triggering."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CellDesignerModel(SBMLModel):
-    """CellDesigner model container.
-
-    Aggregates all elements of a CellDesigner pathway model including
-    species, reactions, templates, and modulations.
-    """
+    """CellDesigner model."""
 
     species_templates: frozenset[SpeciesTemplate] = dataclasses.field(
         default_factory=frozenset,

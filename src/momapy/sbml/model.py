@@ -25,28 +25,13 @@ from momapy.sbml.elements import SBMLModelElement
 
 
 class BiomodelQualifier(enum.Enum):
-    """Abstract base class for BioModels.net qualifiers.
-
-    BioModels qualifiers are used in RDF annotations to describe the relationship
-    between model elements and external resources.
-    """
+    """BioModels.net qualifiers."""
 
     pass
 
 
 class BQModel(BiomodelQualifier):
-    """BioModels.net model qualifiers.
-
-    These qualifiers describe the relationship between the model and
-    external resources such as publications or databases.
-
-    Attributes:
-        HAS_INSTANCE: The resource is an instance of this model.
-        IS: The resource is exactly this model.
-        IS_DERIVED_FROM: The model is derived from the resource.
-        IS_DESCRIBED_BY: The resource describes the model.
-        IS_INSTANCE_OF: The model is an instance of the resource.
-    """
+    """BioModels.net model qualifiers."""
 
     HAS_INSTANCE = "hasInstance"
     IS = "is"
@@ -56,26 +41,7 @@ class BQModel(BiomodelQualifier):
 
 
 class BQBiol(BiomodelQualifier):
-    """BioModels.net biology qualifiers.
-
-    These qualifiers describe the relationship between biological elements
-    and external resources.
-
-    Attributes:
-        ENCODES: The element encodes the resource.
-        HAS_PART: The element has the resource as a part.
-        HAS_PROPERTY: The element has the resource as a property.
-        HAS_VERSION: The element has the resource as a version.
-        IS: The element is exactly the resource.
-        IS_DESCRIBED_BY: The resource describes the element.
-        IS_ENCODED_BY: The element is encoded by the resource.
-        IS_HOMOLOG_TO: The element is homologous to the resource.
-        IS_PART_OF: The element is part of the resource.
-        IS_PROPERTY_OF: The element is a property of the resource.
-        IS_VERSION_OF: The element is a version of the resource.
-        OCCURS_IN: The process occurs in the resource.
-        HAS_TAXON: The element has the resource as a taxon.
-    """
+    """BioModels.net biology qualifiers."""
 
     ENCODES = "encodes"
     HAS_PART = "hasPart"
@@ -94,20 +60,11 @@ class BQBiol(BiomodelQualifier):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class RDFAnnotation:
-    """RDF annotation linking model elements to external resources.
+    """RDF annotation.
 
     RDF annotations are metadata attached to model elements, not model
     entities themselves, and are therefore plain frozen dataclasses rather
     than ``ModelElement`` subclasses.
-
-    Examples:
-        ```python
-        from momapy.sbml.model import RDFAnnotation, BQBiol
-        annotation = RDFAnnotation(
-            qualifier=BQBiol.IS,
-            resources={"https://identifiers.org/chebi:4167"}
-        )
-        ```
     """
 
     qualifier: BiomodelQualifier = dataclasses.field(
@@ -118,16 +75,7 @@ class RDFAnnotation:
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Compartment(SBMLModelElement):
-    """SBML compartment representing a bounded region.
-
-    A compartment defines a container where species are located.
-
-    Examples:
-        ```python
-        cytosol = Compartment(name="cytosol")
-        nucleus = Compartment(name="nucleus", outside=cytosol)
-        ```
-    """
+    """Compartment."""
 
     outside: typing.Optional[
         typing.ForwardRef("Compartment", module="momapy.sbml.model")
@@ -141,17 +89,7 @@ class Compartment(SBMLModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Species(SBMLModelElement):
-    """SBML species representing a pool of entities.
-
-    A species represents a population of chemically identical entities
-    (molecules, ions, etc.) located in a specific compartment.
-
-    Examples:
-        ```python
-        compartment = Compartment(name="cytosol")
-        glucose = Species(name="glucose", compartment=compartment)
-        ```
-    """
+    """Species."""
 
     compartment: Compartment | None = dataclasses.field(
         default=None,
@@ -161,7 +99,7 @@ class Species(SBMLModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SimpleSpeciesReference(SBMLModelElement):
-    """Base class for species references in reactions."""
+    """Simple species reference."""
 
     referred_element: Species = dataclasses.field(
         metadata={"description": "The species being referenced."}
@@ -170,25 +108,14 @@ class SimpleSpeciesReference(SBMLModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ModifierSpeciesReference(SimpleSpeciesReference):
-    """Reference to a species that modifies a reaction.
-
-    Modifier species influence reaction kinetics without being
-    consumed or produced (e.g., catalysts, inhibitors).
-    """
+    """Modifier species reference."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SpeciesReference(SimpleSpeciesReference):
-    """Reference to a reactant or product species.
-
-    Examples:
-        ```python
-        species = Species(name="ATP", compartment=compartment)
-        ref = SpeciesReference(referred_element=species, stoichiometry=2)
-        ```
-    """
+    """Species reference."""
 
     stoichiometry: float | None = dataclasses.field(
         default=None,
@@ -198,21 +125,7 @@ class SpeciesReference(SimpleSpeciesReference):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Reaction(SBMLModelElement):
-    """SBML reaction representing a biochemical transformation.
-
-    Reactions describe the conversion of reactants into products,
-    potentially influenced by modifiers.
-
-    Examples:
-        ```python
-        reaction = Reaction(
-            name="hexokinase",
-            reversible=False,
-            reactants={glucose_ref, atp_ref},
-            products={g6p_ref, adp_ref}
-        )
-        ```
-    """
+    """Reaction."""
 
     reversible: bool = dataclasses.field(
         default=False,
@@ -235,21 +148,7 @@ class Reaction(SBMLModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBMLModel(Model):
-    """SBML model container.
-
-    Models aggregate compartments, species, and reactions into a
-    complete biological system description.
-
-    Examples:
-        ```python
-        model = SBMLModel(
-            name="glycolysis",
-            compartments={cytosol},
-            species={glucose, atp, g6p},
-            reactions={hexokinase}
-        )
-        ```
-    """
+    """SBML model."""
 
     name: str | None = dataclasses.field(
         default=None,

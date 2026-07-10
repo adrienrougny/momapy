@@ -42,31 +42,21 @@ from momapy.geometry import Transformation
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNModelElement(ModelElement):
-    """Base class for all SBGN model elements.
-
-    Provides the foundation for SBGN-specific model components.
-    """
+    """SBGN model element."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNAuxiliaryUnit(SBGNModelElement):
-    """Base class for SBGN auxiliary units.
-
-    Auxiliary units represent additional information or states
-    associated with SBGN glyphs, such as compartments or tags.
-    """
+    """SBGN auxiliary unit."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNRole(SBGNModelElement):
-    """Base class for SBGN roles.
-
-    Roles define how elements participate in SBGN processes.
-    """
+    """SBGN role."""
 
     referred_element: SBGNModelElement = dataclasses.field(
         metadata={"description": "The SBGN model element that has this role."}
@@ -75,16 +65,7 @@ class SBGNRole(SBGNModelElement):
 
 @dataclasses.dataclass(frozen=True)
 class SBGNNode(Node):
-    """Base class for SBGN nodes (glyphs).
-
-    SBGN nodes represent biological entities such as macromolecules,
-    simple chemicals, or complexes in SBGN diagrams.
-
-    Examples:
-        ```python
-        node = SBGNNode(position=Point(100, 100))
-        ```
-    """
+    """SBGN node."""
 
     fill: NoneValueType | Color | None = white
     stroke: NoneValueType | Color | None = black
@@ -111,11 +92,7 @@ class SBGNNode(Node):
 
 @dataclasses.dataclass(frozen=True)
 class SBGNSingleHeadedArc(SingleHeadedArc):
-    """Base class for SBGN arcs with a single arrowhead.
-
-    Single-headed arcs represent directional relationships in SBGN,
-    such as stimulation or catalysis.
-    """
+    """SBGN single headed arc."""
 
     arrowhead_fill: NoneValueType | Color | None = white
     arrowhead_stroke: NoneValueType | Color | None = black
@@ -127,11 +104,7 @@ class SBGNSingleHeadedArc(SingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True)
 class SBGNDoubleHeadedArc(DoubleHeadedArc):
-    """Base class for SBGN arcs with arrowheads at both ends.
-
-    Double-headed arcs represent reversible or bidirectional
-    relationships in SBGN diagrams.
-    """
+    """SBGN double headed arc."""
 
     end_arrowhead_fill: NoneValueType | Color | None = white
     end_arrowhead_stroke: NoneValueType | Color | None = black
@@ -146,11 +119,7 @@ class SBGNDoubleHeadedArc(DoubleHeadedArc):
 
 @dataclasses.dataclass(frozen=True)
 class _SBGNMixin(object):
-    """Private mixin class for SBGN drawing element generation.
-
-    Provides abstract interface for generating drawing elements
-    in SBGN nodes and arcs.
-    """
+    """SBGN mixin."""
 
     @classmethod
     @abc.abstractmethod
@@ -168,11 +137,7 @@ class _SBGNMixin(object):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _ConnectorsMixin(_SBGNMixin):
-    """Private mixin for elements with connector lines.
-
-    Provides support for left and right connector lines that extend
-    from the main shape, used in SBGN process nodes.
-    """
+    """Connectors mixin."""
 
     orientation: Orientation = dataclasses.field(
         default=Orientation.HORIZONTAL,
@@ -396,10 +361,7 @@ class _ConnectorsMixin(_SBGNMixin):
 
 @dataclasses.dataclass(frozen=True)
 class _SimpleMixin(_SBGNMixin):
-    """Private mixin for simple single-shape SBGN nodes.
-
-    Provides support for nodes that consist of a single geometric shape.
-    """
+    """Simple mixin."""
 
     @abc.abstractmethod
     def _make_shape(self) -> Shape:
@@ -427,11 +389,7 @@ class _SimpleMixin(_SBGNMixin):
 
 @dataclasses.dataclass(frozen=True)
 class _MultiMixin(_SBGNMixin):
-    """Private mixin for multi-unit SBGN nodes (multimers).
-
-    Provides support for nodes composed of multiple stacked units,
-    such as macromolecule multimers or complex multimers.
-    """
+    """Multi mixin."""
 
     _n: typing.ClassVar[int] = 2
     offset: float = dataclasses.field(
@@ -546,14 +504,7 @@ class _MultiMixin(_SBGNMixin):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _TextMixin(_SBGNMixin):
-    """Private mixin for SBGN nodes with text labels.
-
-    Provides support for rendering text labels on SBGN nodes,
-    such as state variables or unit of information labels.
-
-    ``_font_size_func`` is kept as a ``ClassVar`` because it is a computation
-    rule rather than a style value and relies on descriptor binding.
-    """
+    """Text mixin."""
 
     _font_size_func: typing.ClassVar[typing.Callable]
     text: str = dataclasses.field(

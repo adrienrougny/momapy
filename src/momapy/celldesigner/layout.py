@@ -74,10 +74,7 @@ from momapy.sbgn.elements import _SBGNMixin, _TextMixin
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CellDesignerLayout(Layout):
-    """Layout for a CellDesigner map.
-
-    Represents the visual layout of a CellDesigner model.
-    """
+    """CellDesigner layout."""
 
     pass
 
@@ -94,10 +91,7 @@ DEFAULT_ACTIVE_YSEP = 4.0
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class GenericProteinLayout(_MultiNodeMixin, CellDesignerNode):
-    """Layout for generic proteins.
-
-    Draws a generic protein as a rounded rectangle glyph.
-    """
+    """Generic protein layout."""
 
     width: float = 80.0
     height: float = 40.0
@@ -117,10 +111,7 @@ class GenericProteinLayout(_MultiNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class GenericProteinActiveLayout(_MultiNodeMixin, CellDesignerNode):
-    """Active border for generic protein layouts.
-
-    Draws the dashed active-state border around a generic protein.
-    """
+    """Generic protein active layout."""
 
     width: float = 80.0 + DEFAULT_ACTIVE_XSEP * 2
     height: float = 40.0 + DEFAULT_ACTIVE_YSEP * 2
@@ -144,10 +135,7 @@ class GenericProteinActiveLayout(_MultiNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _IonChannelShape(Shape):
-    """Shape for ion channel layouts.
-
-    Draws an ion channel as a rounded rectangle with a detached right-hand gate.
-    """
+    """Ion channel shape."""
 
     position: Point = dataclasses.field(
         metadata={"description": "The center position of the shape."}
@@ -282,10 +270,7 @@ class _IonChannelShape(Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class IonChannelLayout(_MultiNodeMixin, CellDesignerNode):
-    """Layout for ion channels.
-
-    Draws an ion channel as a rounded rectangle with a detached right-hand gate.
-    """
+    """Ion channel layout."""
 
     width: float = 80.0
     height: float = 40.0
@@ -317,10 +302,7 @@ class IonChannelLayout(_MultiNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class IonChannelActiveLayout(_MultiNodeMixin, CellDesignerNode):
-    """Active border for ion channel layouts.
-
-    Draws the dashed active-state border around an ion channel.
-    """
+    """Ion channel active layout."""
 
     width: float = 80.0 + DEFAULT_ACTIVE_XSEP * 2
     height: float = 40.0 + DEFAULT_ACTIVE_YSEP * 2
@@ -352,10 +334,7 @@ class IonChannelActiveLayout(_MultiNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ComplexLayout(_MultiNodeMixin, CellDesignerNode):
-    """Layout for complexes.
-
-    Draws a complex as a rectangle glyph with cut corners.
-    """
+    """Complex layout."""
 
     width: float = 100.0
     height: float = 120.0
@@ -394,10 +373,7 @@ class ComplexLayout(_MultiNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ComplexActiveLayout(_MultiNodeMixin, CellDesignerNode):
-    """Active border for complex layouts.
-
-    Draws the dashed active-state border around a complex.
-    """
+    """Complex active layout."""
 
     width: float = 100.0 + DEFAULT_ACTIVE_XSEP * 2
     height: float = 120.0 + DEFAULT_ACTIVE_YSEP * 2
@@ -435,10 +411,7 @@ class ComplexActiveLayout(_MultiNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SimpleMoleculeLayout(_MultiNodeMixin, CellDesignerNode):
-    """Layout for simple molecules.
-
-    Draws a simple molecule as an ellipse glyph.
-    """
+    """Simple molecule layout."""
 
     width: float = 70.0
     height: float = 25.0
@@ -453,10 +426,7 @@ class SimpleMoleculeLayout(_MultiNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SimpleMoleculeActiveLayout(_MultiNodeMixin, CellDesignerNode):
-    """Active border for simple molecule layouts.
-
-    Draws the dashed active-state border around a simple molecule.
-    """
+    """Simple molecule active layout."""
 
     width: float = 70.0 + DEFAULT_ACTIVE_XSEP * 2
     height: float = 25.0 + DEFAULT_ACTIVE_YSEP * 2
@@ -475,10 +445,7 @@ class SimpleMoleculeActiveLayout(_MultiNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class IonLayout(_MultiNodeMixin, CellDesignerNode):
-    """Layout for ions.
-
-    Draws an ion as an ellipse glyph.
-    """
+    """Ion layout."""
 
     width: float = 35.0
     height: float = 35.0
@@ -493,10 +460,7 @@ class IonLayout(_MultiNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class IonActiveLayout(_MultiNodeMixin, CellDesignerNode):
-    """Active border for ion layouts.
-
-    Draws the dashed active-state border around an ion.
-    """
+    """Ion active layout."""
 
     width: float = 35.0 + DEFAULT_ACTIVE_XSEP * 2
     height: float = 35.0 + DEFAULT_ACTIVE_YSEP * 2
@@ -515,10 +479,7 @@ class IonActiveLayout(_MultiNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownLayout(_MultiNodeMixin, CellDesignerNode):
-    """Layout for unknown species.
-
-    Draws an unknown species as an ellipse glyph.
-    """
+    """Unknown layout."""
 
     width: float = 60.0
     height: float = 30.0
@@ -534,10 +495,7 @@ class UnknownLayout(_MultiNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownActiveLayout(_MultiNodeMixin, CellDesignerNode):
-    """Active border for unknown species layouts.
-
-    Draws the dashed active-state border around an unknown species.
-    """
+    """Unknown active layout."""
 
     width: float = 60.0 + DEFAULT_ACTIVE_XSEP * 2
     height: float = 30.0 + DEFAULT_ACTIVE_YSEP * 2
@@ -556,10 +514,7 @@ class UnknownActiveLayout(_MultiNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _DegradedShape(Shape):
-    """Shape for degraded species layouts.
-
-    Draws a degraded species as a circle crossed by a diagonal bar.
-    """
+    """Degraded shape."""
 
     position: Point = dataclasses.field(
         metadata={"description": "The center position of the shape."}
@@ -585,10 +540,7 @@ class _DegradedShape(Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class DegradedLayout(_MultiNodeMixin, CellDesignerNode):
-    """Layout for degraded species.
-
-    Draws a degraded species as a circle crossed by a diagonal bar.
-    """
+    """Degraded layout."""
 
     width: float = 30.0
     height: float = 30.0
@@ -601,10 +553,7 @@ class DegradedLayout(_MultiNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class DegradedActiveLayout(_MultiNodeMixin, CellDesignerNode):
-    """Active border for degraded species layouts.
-
-    Draws the dashed active-state border around a degraded species.
-    """
+    """Degraded active layout."""
 
     width: float = 30.0 + DEFAULT_ACTIVE_XSEP * 2
     height: float = 30.0 + DEFAULT_ACTIVE_YSEP * 2
@@ -623,10 +572,7 @@ class DegradedActiveLayout(_MultiNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class GeneLayout(_MultiNodeMixin, CellDesignerNode):
-    """Layout for genes.
-
-    Draws a gene as a rectangle glyph.
-    """
+    """Gene layout."""
 
     width: float = 80.0
     height: float = 25.0
@@ -641,10 +587,7 @@ class GeneLayout(_MultiNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class GeneActiveLayout(_MultiNodeMixin, CellDesignerNode):
-    """Active border for gene layouts.
-
-    Draws the dashed active-state border around a gene.
-    """
+    """Gene active layout."""
 
     width: float = 80.0 + DEFAULT_ACTIVE_XSEP * 2
     height: float = 25.0 + DEFAULT_ACTIVE_YSEP * 2
@@ -663,10 +606,7 @@ class GeneActiveLayout(_MultiNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class PhenotypeLayout(_MultiNodeMixin, CellDesignerNode):
-    """Layout for phenotypes.
-
-    Draws a phenotype as a hexagon glyph.
-    """
+    """Phenotype layout."""
 
     width: float = 80.0
     height: float = 30.0
@@ -869,10 +809,7 @@ class PhenotypeLayout(_MultiNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class PhenotypeActiveLayout(_MultiNodeMixin, CellDesignerNode):
-    """Active border for phenotype layouts.
-
-    Draws the dashed active-state border around a phenotype.
-    """
+    """Phenotype active layout."""
 
     width: float = 80.0 + DEFAULT_ACTIVE_XSEP * 2
     height: float = 30.0 + DEFAULT_ACTIVE_YSEP * 2
@@ -903,10 +840,7 @@ class PhenotypeActiveLayout(_MultiNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class RNALayout(_MultiNodeMixin, CellDesignerNode):
-    """Layout for RNAs.
-
-    Draws an RNA as a parallelogram glyph.
-    """
+    """RNA layout."""
 
     width: float = 90.0
     height: float = 25.0
@@ -1102,10 +1036,7 @@ class RNALayout(_MultiNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class RNAActiveLayout(_MultiNodeMixin, CellDesignerNode):
-    """Active border for RNA layouts.
-
-    Draws the dashed active-state border around an RNA.
-    """
+    """RNA active layout."""
 
     width: float = 90.0 + DEFAULT_ACTIVE_XSEP * 2
     height: float = 25.0 + DEFAULT_ACTIVE_YSEP * 2
@@ -1129,10 +1060,7 @@ class RNAActiveLayout(_MultiNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class AntisenseRNALayout(_MultiNodeMixin, CellDesignerNode):
-    """Layout for antisense RNAs.
-
-    Draws an antisense RNA as a mirrored parallelogram glyph.
-    """
+    """Antisense RNA layout."""
 
     width: float = 90.0
     height: float = 25.0
@@ -1331,10 +1259,7 @@ class AntisenseRNALayout(_MultiNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class AntisenseRNAActiveLayout(_MultiNodeMixin, CellDesignerNode):
-    """Active border for antisense RNA layouts.
-
-    Draws the dashed active-state border around an antisense RNA.
-    """
+    """Antisense RNA active layout."""
 
     width: float = 90.0 + DEFAULT_ACTIVE_XSEP * 2
     height: float = 25.0 + DEFAULT_ACTIVE_YSEP * 2
@@ -1361,10 +1286,7 @@ class AntisenseRNAActiveLayout(_MultiNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _TruncatedProteinShape(Shape):
-    """Shape for truncated protein layouts.
-
-    Draws a truncated protein as a rounded rectangle with a clipped corner.
-    """
+    """Truncated protein shape."""
 
     position: Point = dataclasses.field(
         metadata={"description": "The center position of the shape."}
@@ -1470,10 +1392,7 @@ class _TruncatedProteinShape(Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TruncatedProteinLayout(_MultiNodeMixin, CellDesignerNode):
-    """Layout for truncated proteins.
-
-    Draws a truncated protein as a rounded rectangle with a clipped corner.
-    """
+    """Truncated protein layout."""
 
     width: float = 80.0
     height: float = 50.0
@@ -1510,10 +1429,7 @@ class TruncatedProteinLayout(_MultiNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TruncatedProteinActiveLayout(_MultiNodeMixin, CellDesignerNode):
-    """Active border for truncated protein layouts.
-
-    Draws the dashed active-state border around a truncated protein.
-    """
+    """Truncated protein active layout."""
 
     width: float = 80.0 + DEFAULT_ACTIVE_XSEP * 2
     height: float = 50.0 + DEFAULT_ACTIVE_YSEP * 2
@@ -1554,10 +1470,7 @@ class TruncatedProteinActiveLayout(_MultiNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ReceptorLayout(_MultiNodeMixin, CellDesignerNode):
-    """Layout for receptors.
-
-    Draws a receptor as a turned hexagon glyph with a notched top.
-    """
+    """Receptor layout."""
 
     width: float = 80.0
     height: float = 40.0
@@ -1761,10 +1674,7 @@ class ReceptorLayout(_MultiNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ReceptorActiveLayout(_MultiNodeMixin, CellDesignerNode):
-    """Active border for receptor layouts.
-
-    Draws the dashed active-state border around a receptor.
-    """
+    """Receptor active layout."""
 
     width: float = 80.0 + DEFAULT_ACTIVE_XSEP * 2
     height: float = 40.0 + DEFAULT_ACTIVE_YSEP * 2
@@ -1796,10 +1706,7 @@ class ReceptorActiveLayout(_MultiNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _DrugShape(Shape):
-    """Shape for drug layouts.
-
-    Draws a drug as a stadium glyph with a double outline.
-    """
+    """Drug shape."""
 
     position: Point = dataclasses.field(
         metadata={"description": "The center position of the shape."}
@@ -1901,10 +1808,7 @@ class _DrugShape(Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class DrugLayout(_MultiNodeMixin, CellDesignerNode):
-    """Layout for drugs.
-
-    Draws a drug as a stadium glyph with a double outline.
-    """
+    """Drug layout."""
 
     width: float = 80.0
     height: float = 30.0
@@ -1937,10 +1841,7 @@ class DrugLayout(_MultiNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class DrugActiveLayout(_MultiNodeMixin, CellDesignerNode):
-    """Active border for drug layouts.
-
-    Draws the dashed active-state border around a drug.
-    """
+    """Drug active layout."""
 
     width: float = 80.0 + DEFAULT_ACTIVE_XSEP * 2
     height: float = 30.0 + DEFAULT_ACTIVE_YSEP * 2
@@ -1977,10 +1878,7 @@ class DrugActiveLayout(_MultiNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class StructuralStateLayout(_SimpleNodeMixin, CellDesignerNode):
-    """Layout for structural states.
-
-    Draws a structural state as an ellipse glyph.
-    """
+    """Structural state layout."""
 
     width: float = 50.0
     height: float = 16.0
@@ -1993,10 +1891,7 @@ class StructuralStateLayout(_SimpleNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ModificationLayout(_SimpleNodeMixin, CellDesignerNode):
-    """Layout for modifications.
-
-    Draws a residue modification as an ellipse glyph.
-    """
+    """Modification layout."""
 
     width: float = 16.0
     height: float = 16.0
@@ -2009,10 +1904,7 @@ class ModificationLayout(_SimpleNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _OvalCompartmentShape(Shape):
-    """Shape for oval compartment layouts.
-
-    Draws an oval compartment as two concentric ellipses.
-    """
+    """Oval compartment shape."""
 
     position: Point = dataclasses.field(
         metadata={"description": "The center position of the shape."}
@@ -2058,10 +1950,7 @@ class _OvalCompartmentShape(Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class OvalCompartmentLayout(_SimpleNodeMixin, CellDesignerNode):
-    """Layout for oval compartments.
-
-    Draws an oval compartment as two concentric ellipses.
-    """
+    """Oval compartment layout."""
 
     height: float = 16.0
     inner_fill: NoneValueType | Color | None = dataclasses.field(
@@ -2096,10 +1985,7 @@ class OvalCompartmentLayout(_SimpleNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _RectangleCompartmentShape(Shape):
-    """Shape for rectangle compartment layouts.
-
-    Draws a rectangle compartment as two concentric rounded rectangles.
-    """
+    """Rectangle compartment shape."""
 
     position: Point = dataclasses.field(
         metadata={"description": "The center position of the shape."}
@@ -2160,10 +2046,7 @@ class _RectangleCompartmentShape(Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class RectangleCompartmentLayout(_SimpleNodeMixin, CellDesignerNode):
-    """Layout for rectangle compartments.
-
-    Draws a rectangle compartment as two concentric rounded rectangles.
-    """
+    """Rectangle compartment layout."""
 
     width: float = 16.0
     height: float = 16.0
@@ -2209,7 +2092,7 @@ class RectangleCompartmentLayout(_SimpleNodeMixin, CellDesignerNode):
 
 
 class CompartmentCorner(enum.Enum):
-    """Rounded-corner position for a `CornerCompartmentLayout`."""
+    """Compartment corner."""
 
     NORTHWEST = "NORTHWEST"
     NORTHEAST = "NORTHEAST"
@@ -2218,7 +2101,7 @@ class CompartmentCorner(enum.Enum):
 
 
 class CompartmentSide(enum.Enum):
-    """Border-side position for a `LineCompartmentLayout`."""
+    """Compartment side."""
 
     NORTH = "NORTH"
     SOUTH = "SOUTH"
@@ -2228,10 +2111,7 @@ class CompartmentSide(enum.Enum):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _CornerCompartmentShape(Shape):
-    """Shape for corner closeup compartment layouts.
-
-    Draws a quarter-rectangle whose rounded border sits at the named corner.
-    """
+    """Corner compartment shape."""
 
     position: Point = dataclasses.field(
         metadata={"description": "The center position of the shape."}
@@ -2355,13 +2235,7 @@ class _CornerCompartmentShape(Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CornerCompartmentLayout(_SimpleNodeMixin, CellDesignerNode):
-    """Layout for corner closeup compartments.
-
-    Represents CellDesigner `SQUARE_CLOSEUP_{NORTHWEST,NORTHEAST,
-    SOUTHWEST,SOUTHEAST}` compartments: a quarter-rectangle whose
-    rounded border sits at the named corner while the opposite sides
-    coincide with the canvas edges.
-    """
+    """Corner compartment layout."""
 
     width: float = 16.0
     height: float = 16.0
@@ -2401,10 +2275,7 @@ class CornerCompartmentLayout(_SimpleNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _LineCompartmentShape(Shape):
-    """Shape for line closeup compartment layouts.
-
-    Draws a half-plane bounded on the named side by a double line.
-    """
+    """Line compartment shape."""
 
     position: Point = dataclasses.field(
         metadata={"description": "The center position of the shape."}
@@ -2479,12 +2350,7 @@ class _LineCompartmentShape(Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class LineCompartmentLayout(_SimpleNodeMixin, CellDesignerNode):
-    """Layout for line closeup compartments.
-
-    Represents CellDesigner `SQUARE_CLOSEUP_{NORTH,SOUTH,EAST,WEST}`
-    compartments: a half-plane bounded on the named side by a single
-    horizontal or vertical double line spanning the canvas.
-    """
+    """Line compartment layout."""
 
     width: float = 16.0
     height: float = 16.0
@@ -2517,10 +2383,7 @@ class LineCompartmentLayout(_SimpleNodeMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ConsumptionLayout(CellDesignerSingleHeadedArc):
-    """Layout for consumptions.
-
-    Draws a consumption as a plain line with no arrowhead.
-    """
+    """Consumption layout."""
 
     def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return PolyLine._arrowhead_border_drawing_elements(self)
@@ -2528,10 +2391,7 @@ class ConsumptionLayout(CellDesignerSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ProductionLayout(CellDesignerSingleHeadedArc):
-    """Layout for productions.
-
-    Draws a production as a line ending in a filled triangular arrowhead.
-    """
+    """Production layout."""
 
     arrowhead_fill: NoneValueType | Color | None = black
     arrowhead_height: float = dataclasses.field(
@@ -2548,10 +2408,7 @@ class ProductionLayout(CellDesignerSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CatalysisLayout(CellDesignerSingleHeadedArc):
-    """Layout for catalyses.
-
-    Draws a catalysis as a line ending in a hollow circular arrowhead.
-    """
+    """Catalysis layout."""
 
     arrowhead_fill: NoneValueType | Color | None = white
     arrowhead_height: float = dataclasses.field(
@@ -2567,10 +2424,7 @@ class CatalysisLayout(CellDesignerSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownCatalysisLayout(CellDesignerSingleHeadedArc):
-    """Layout for unknown catalyses.
-
-    Draws an unknown catalysis as a dashed line ending in a hollow circular arrowhead.
-    """
+    """Unknown catalysis layout."""
 
     arrowhead_fill: NoneValueType | Color | None = white
     arrowhead_height: float = dataclasses.field(
@@ -2587,10 +2441,7 @@ class UnknownCatalysisLayout(CellDesignerSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class InhibitionLayout(CellDesignerSingleHeadedArc):
-    """Layout for inhibitions.
-
-    Draws an inhibition as a line ending in a perpendicular bar.
-    """
+    """Inhibition layout."""
 
     arrowhead_height: float = dataclasses.field(
         default=10.0, metadata={"description": "The height of the arrowhead bar."}
@@ -2603,10 +2454,7 @@ class InhibitionLayout(CellDesignerSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownInhibitionLayout(CellDesignerSingleHeadedArc):
-    """Layout for unknown inhibitions.
-
-    Draws an unknown inhibition as a dashed line ending in a perpendicular bar.
-    """
+    """Unknown inhibition layout."""
 
     arrowhead_height: float = dataclasses.field(
         default=10.0, metadata={"description": "The height of the arrowhead bar."}
@@ -2620,10 +2468,7 @@ class UnknownInhibitionLayout(CellDesignerSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class PhysicalStimulationLayout(CellDesignerSingleHeadedArc):
-    """Layout for physical stimulations.
-
-    Draws a physical stimulation as a line ending in a hollow triangular arrowhead.
-    """
+    """Physical stimulation layout."""
 
     arrowhead_fill: NoneValueType | Color | None = white
     arrowhead_height: float = dataclasses.field(
@@ -2639,10 +2484,7 @@ class PhysicalStimulationLayout(CellDesignerSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownPhysicalStimulationLayout(CellDesignerSingleHeadedArc):
-    """Layout for unknown physical stimulations.
-
-    Draws an unknown physical stimulation as a dashed line ending in a hollow triangular arrowhead.
-    """
+    """Unknown physical stimulation layout."""
 
     arrowhead_fill: NoneValueType | Color | None = white
     arrowhead_height: float = dataclasses.field(
@@ -2659,10 +2501,7 @@ class UnknownPhysicalStimulationLayout(CellDesignerSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ModulationLayout(CellDesignerSingleHeadedArc):
-    """Layout for modulations.
-
-    Draws a modulation as a line ending in a hollow diamond arrowhead.
-    """
+    """Modulation layout."""
 
     arrowhead_fill: NoneValueType | Color | None = white
     arrowhead_height: float = dataclasses.field(
@@ -2678,10 +2517,7 @@ class ModulationLayout(CellDesignerSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownModulationLayout(CellDesignerSingleHeadedArc):
-    """Layout for unknown modulations.
-
-    Draws an unknown modulation as a dashed line ending in a hollow diamond arrowhead.
-    """
+    """Unknown modulation layout."""
 
     arrowhead_fill: NoneValueType | Color | None = white
     arrowhead_height: float = dataclasses.field(
@@ -2698,10 +2534,7 @@ class UnknownModulationLayout(CellDesignerSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class PositiveInfluenceLayout(CellDesignerSingleHeadedArc):
-    """Layout for positive influences.
-
-    Draws a positive influence as a line ending in an open barbed arrowhead.
-    """
+    """Positive influence layout."""
 
     arrowhead_fill: NoneValueType | Color | None = NoneValue
     arrowhead_height: float = dataclasses.field(
@@ -2718,10 +2551,7 @@ class PositiveInfluenceLayout(CellDesignerSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownPositiveInfluenceLayout(CellDesignerSingleHeadedArc):
-    """Layout for unknown positive influences.
-
-    Draws an unknown positive influence as a dashed line ending in an open barbed arrowhead.
-    """
+    """Unknown positive influence layout."""
 
     arrowhead_fill: NoneValueType | Color | None = NoneValue
     arrowhead_height: float = dataclasses.field(
@@ -2739,10 +2569,7 @@ class UnknownPositiveInfluenceLayout(CellDesignerSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TriggeringLayout(CellDesignerSingleHeadedArc):
-    """Layout for triggerings.
-
-    Draws a triggering as a line ending in a bar followed by a hollow triangle.
-    """
+    """Triggering layout."""
 
     arrowhead_bar_height: float = dataclasses.field(
         default=8.0, metadata={"description": "The height of the arrowhead bar."}
@@ -2784,10 +2611,7 @@ class TriggeringLayout(CellDesignerSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownTriggeringLayout(CellDesignerSingleHeadedArc):
-    """Layout for unknown triggerings.
-
-    Draws an unknown triggering as a dashed line ending in a bar followed by a hollow triangle.
-    """
+    """Unknown triggering layout."""
 
     arrowhead_bar_height: float = dataclasses.field(
         default=8.0, metadata={"description": "The height of the arrowhead bar."}
@@ -2830,10 +2654,7 @@ class UnknownTriggeringLayout(CellDesignerSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ReactionLayout(CellDesignerDoubleHeadedArc):
-    """Layout for reactions.
-
-    Base class for the double-headed arcs that draw CellDesigner reactions.
-    """
+    """Reaction layout."""
 
     reversible: bool = dataclasses.field(
         default=False, metadata={"description": "Whether the reaction is reversible."}
@@ -2842,10 +2663,7 @@ class ReactionLayout(CellDesignerDoubleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _ReactionNodeMixin(_SBGNMixin):
-    """Mixin adding a reaction node to a reaction layout.
-
-    Draws the small rectangular process node sitting on the reaction's arc.
-    """
+    """Reaction node mixin."""
 
     _font_size_func: typing.ClassVar[typing.Callable] = (
         lambda obj: obj.reaction_node_width / 1.1
@@ -3022,10 +2840,7 @@ class _ReactionNodeMixin(_SBGNMixin):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class StateTransitionLayout(ReactionLayout, _ReactionNodeMixin):
-    """Layout for state transitions.
-
-    Draws a state transition as a reaction arc with filled triangular arrowheads.
-    """
+    """State transition layout."""
 
     end_arrowhead_fill: NoneValueType | Color | None = black
     end_arrowhead_filter: NoneValueType | Filter | None = None
@@ -3067,10 +2882,7 @@ class StateTransitionLayout(ReactionLayout, _ReactionNodeMixin):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class KnownTransitionOmittedLayout(ReactionLayout, _ReactionNodeMixin):
-    """Layout for known transition omitted reactions.
-
-    Draws a known omitted transition as a reaction arc marked with a `//` node.
-    """
+    """Known transition omitted layout."""
 
     reaction_node_font_weight: FontWeight | float = dataclasses.field(
         default=FontWeight.BOLD,
@@ -3119,10 +2931,7 @@ class KnownTransitionOmittedLayout(ReactionLayout, _ReactionNodeMixin):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownTransitionLayout(ReactionLayout, _ReactionNodeMixin):
-    """Layout for unknown transitions.
-
-    Draws an unknown transition as a reaction arc marked with a `?` node.
-    """
+    """Unknown transition layout."""
 
     reaction_node_font_weight: FontWeight | float = dataclasses.field(
         default=FontWeight.BOLD,
@@ -3171,10 +2980,7 @@ class UnknownTransitionLayout(ReactionLayout, _ReactionNodeMixin):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TranscriptionLayout(ReactionLayout, _ReactionNodeMixin):
-    """Layout for transcriptions.
-
-    Draws a transcription as a dashed reaction arc with filled triangular arrowheads.
-    """
+    """Transcription layout."""
 
     end_arrowhead_fill: NoneValueType | Color | None = black
     end_arrowhead_filter: NoneValueType | Filter | None = None
@@ -3224,10 +3030,7 @@ class TranscriptionLayout(ReactionLayout, _ReactionNodeMixin):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TranslationLayout(ReactionLayout, _ReactionNodeMixin):
-    """Layout for translations.
-
-    Draws a translation as a dashed reaction arc with filled triangular arrowheads.
-    """
+    """Translation layout."""
 
     end_arrowhead_fill: NoneValueType | Color | None = black
     end_arrowhead_filter: NoneValueType | Filter | None = None
@@ -3275,10 +3078,7 @@ class TranslationLayout(ReactionLayout, _ReactionNodeMixin):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TransportLayout(ReactionLayout, _ReactionNodeMixin):
-    """Layout for transports.
-
-    Draws a transport as a reaction arc with bar-and-triangle arrowheads.
-    """
+    """Transport layout."""
 
     end_arrowhead_bar_height: float = dataclasses.field(
         default=8.0, metadata={"description": "The height of the end arrowhead bar."}
@@ -3376,10 +3176,7 @@ class TransportLayout(ReactionLayout, _ReactionNodeMixin):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class HeterodimerAssociationLayout(ReactionLayout, _ReactionNodeMixin):
-    """Layout for heterodimer associations.
-
-    Draws a heterodimer association as a reaction arc with a filled circular start cap.
-    """
+    """Heterodimer association layout."""
 
     end_arrowhead_fill: NoneValueType | Color | None = black
     end_arrowhead_filter: NoneValueType | Filter | None = None
@@ -3424,10 +3221,7 @@ class HeterodimerAssociationLayout(ReactionLayout, _ReactionNodeMixin):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class DissociationLayout(ReactionLayout, _ReactionNodeMixin):
-    """Layout for dissociations.
-
-    Draws a dissociation as a reaction arc with a double circular end arrowhead.
-    """
+    """Dissociation layout."""
 
     end_arrowhead_fill: NoneValueType | Color | None = white
     end_arrowhead_filter: NoneValueType | Filter | None = None
@@ -3485,10 +3279,7 @@ class DissociationLayout(ReactionLayout, _ReactionNodeMixin):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TruncationLayout(ReactionLayout, _ReactionNodeMixin):
-    """Layout for truncations.
-
-    Draws a truncation as a reaction arc marked with an `N` node.
-    """
+    """Truncation layout."""
 
     reaction_node_font_weight: FontWeight | float = dataclasses.field(
         default=FontWeight.BOLD,
@@ -3545,10 +3336,7 @@ class AndGateLayout(
     _TextMixin,
     CellDesignerNode,
 ):
-    """Layout for AND gates.
-
-    Draws an AND logic gate as an ellipse glyph labelled `&`.
-    """
+    """AND gate layout."""
 
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width
     text: str = dataclasses.field(
@@ -3569,10 +3357,7 @@ class OrGateLayout(
     _TextMixin,
     CellDesignerNode,
 ):
-    """Layout for OR gates.
-
-    Draws an OR logic gate as an ellipse glyph labelled `|`.
-    """
+    """OR gate layout."""
 
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
     text: str = dataclasses.field(
@@ -3593,10 +3378,7 @@ class NotGateLayout(
     _TextMixin,
     CellDesignerNode,
 ):
-    """Layout for NOT gates.
-
-    Draws a NOT logic gate as an ellipse glyph labelled `!`.
-    """
+    """NOT gate layout."""
 
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
     text: str = dataclasses.field(
@@ -3617,10 +3399,7 @@ class UnknownGateLayout(
     _TextMixin,
     CellDesignerNode,
 ):
-    """Layout for unknown gates.
-
-    Draws an unknown logic gate as an ellipse glyph labelled `?`.
-    """
+    """Unknown gate layout."""
 
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
     text: str = dataclasses.field(
@@ -3637,10 +3416,7 @@ class UnknownGateLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class LogicArcLayout(CellDesignerSingleHeadedArc):
-    """Layout for logic arcs.
-
-    Draws a logic arc as a plain line connecting an input to a logic gate.
-    """
+    """Logic arc layout."""
 
     def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return PolyLine._arrowhead_border_drawing_elements(self)
