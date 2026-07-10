@@ -73,6 +73,8 @@ class CellDesignerWriter(Writer):
         Returns:
             WriterResult.
         """
+        if obj.model is None or obj.layout is None:
+            raise ValueError("cannot write a map without both a model and a layout")
         check_parent_dir_exists(file_path)
         if element_to_annotations is None:
             element_to_annotations = {}
@@ -80,22 +82,21 @@ class CellDesignerWriter(Writer):
             element_to_notes = {}
 
         subunit_to_complex: dict = {}
-        if obj.model is not None:
 
-            def _collect(species: typing.Any) -> None:
-                if isinstance(species, Complex):
-                    for sub in species.subunits:
-                        # Map to top-level ancestor, not immediate parent.
-                        # If the parent is itself a subunit, its entry
-                        # was already set (parent before children).
-                        ancestor = species
-                        while id(ancestor) in subunit_to_complex:
-                            ancestor = subunit_to_complex[id(ancestor)]
-                        subunit_to_complex[id(sub)] = ancestor
-                        _collect(sub)
+        def _collect(species: typing.Any) -> None:
+            if isinstance(species, Complex):
+                for sub in species.subunits:
+                    # Map to top-level ancestor, not immediate parent.
+                    # If the parent is itself a subunit, its entry
+                    # was already set (parent before children).
+                    ancestor = species
+                    while id(ancestor) in subunit_to_complex:
+                        ancestor = subunit_to_complex[id(ancestor)]
+                    subunit_to_complex[id(sub)] = ancestor
+                    _collect(sub)
 
-            for species in obj.model.species:
-                _collect(species)
+        for species in obj.model.species:
+            _collect(species)
 
         writing_context = CellDesignerWritingContext(
             map_=obj,
@@ -113,8 +114,7 @@ class CellDesignerWriter(Writer):
         # emission, so a from-scratch id can never steal a source id's
         # name and round-tripped ids are preserved verbatim.
         reserve_source_xml_ids(writing_context)
-        if obj.model is not None and obj.layout is not None:
-            writing_context.degraded_entries = collect_degraded_entries(writing_context)
+        writing_context.degraded_entries = collect_degraded_entries(writing_context)
 
         sbml = make_sbml_document(writing_context)
         tree = lxml.etree.ElementTree(sbml)

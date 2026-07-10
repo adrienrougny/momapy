@@ -69,6 +69,8 @@ class SBGNML0_3Writer(Writer):
         Returns:
             WriterResult containing the written object and file path.
         """
+        if obj.model is None or obj.layout is None:
+            raise ValueError("cannot write a map without both a model and a layout")
         check_parent_dir_exists(file_path)
         if element_to_annotations is None:
             element_to_annotations = {}
