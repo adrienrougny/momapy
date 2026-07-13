@@ -1288,15 +1288,6 @@ def _run(args: argparse.Namespace) -> None:
 
     Raises:
         ValueError: If the subcommand is not supported.
-
-    Examples:
-        ```python
-        import argparse
-        parser = argparse.ArgumentParser()
-        parser.add_argument("subcommand", default="render")
-        args = parser.parse_args(["render"])
-        _run(args)  # Executes the render command
-        ```
     """
     if args.subcommand == "render":
         from momapy.builder import builder_from_object
