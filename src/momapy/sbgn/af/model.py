@@ -12,7 +12,7 @@ from momapy.sbgn.model import SBGNModel
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class UnitOfInformation(SBGNModelElement):
+class UnitOfInformation(SBGNAuxiliaryUnit):
     """Unit of information."""
 
     label: str | None = dataclasses.field(
