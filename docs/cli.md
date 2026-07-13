@@ -446,10 +446,10 @@ momapy tidy all my_map.sbgn -o tidy_map.sbgn
 momapy tidy fit-epns my_map.sbgn -o tidy_map.sbgn
 ```
 
-#### Snap arc endpoints to node borders with custom padding
+#### Snap arc endpoints to node borders
 
 ```bash
-momapy tidy snap-arcs my_map.sbgn -o tidy_map.sbgn --xsep 5.0 --ysep 5.0
+momapy tidy snap-arcs my_map.sbgn -o tidy_map.sbgn
 ```
 
 #### Read from stdin and write to stdout (pipeline)
