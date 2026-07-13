@@ -10,8 +10,8 @@ Examples:
     species = Species(name="glucose", compartment=compartment)
     model = SBMLModel(
         name="glycolysis",
-        compartments={compartment},
-        species={species},
+        compartments=frozenset({compartment}),
+        species=frozenset({species}),
     )
     ```
 """
