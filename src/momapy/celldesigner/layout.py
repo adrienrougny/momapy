@@ -75,7 +75,7 @@ from momapy.sbgn.elements import _SBGNMixin, _TextMixin
 class CellDesignerLayout(Layout):
     """CellDesigner layout."""
 
-    pass
+    fill: NoneValueType | Color | None = white
 
 
 # Default label font sizes the CellDesigner reader injects when building layouts.
