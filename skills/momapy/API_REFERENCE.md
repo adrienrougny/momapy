@@ -63,7 +63,7 @@ Classes: `NoneValueType`, `FilterEffect(ABC)` + (`DropShadowEffect`, `CompositeE
 
 Functions: `get_initial_value(attr_name: str) -> Any`, `drawing_elements_to_geometry(elements) -> list[Segment|Curve|Arc]`, `get_drawing_elements_border(drawing_elements, point, center=None) -> Point | None`, `get_drawing_elements_angle(drawing_elements, angle, unit="degrees", center=None) -> Point | None`, `get_drawing_elements_bbox(drawing_elements) -> Bbox`, `get_drawing_elements_anchor_point(drawing_elements, anchor_point, center=None) -> Point | None`.
 
-Constants (in `__all__`, imported cross-module): `DEFAULT_FONT_FAMILY: str`, `INITIAL_VALUES: dict[str, Any]`, `PRESENTATION_ATTRIBUTES: dict[str, dict[str, Any]]`.
+Constants (in `__all__`, imported cross-module): `DEFAULT_FONT_FAMILY: str`, `INITIAL_VALUES: dict[str, Any]`, `PRESENTATION_ATTRIBUTES: dict[str, dict[str, Any]]`, and `NoneValue` — the singleton instance of `NoneValueType` used to mark an explicitly-unset presentation attribute (compare with `is`/`is not`, not `==`).
 
 ### `src/momapy/builder.py`
 - `Builder(ABC)` — `build(builder_to_object=None)`, `from_object(obj, object_to_builder=None) -> Self`.
