@@ -270,7 +270,7 @@ Purpose: SBGN-PD model classes.
 - **Compartment**: `Compartment(SBGNModelElement)` — `label`, `state_variables`, `units_of_information`.
 - **Entity pools**: `EntityPool(SBGNModelElement)` (`compartment`); subclasses `PerturbingAgent`, `UnspecifiedEntity`, `Macromolecule`, `NucleicAcidFeature`, `SimpleChemical`, `Complex` (+ `subunits`), `Multimer(Complex)` (+ `cardinality`) and the four multimer variants. (The empty set has a layout only, `EmptySetLayout`; there is no `EmptySet` model class.)
 - **Flux roles**: `FluxRole(SBGNRole)` — `referred_element: EntityPool`, `stoichiometry`; `Reactant`, `Product`.
-- **Processes**: `Process(SBGNModelElement)` (`reactants`, `products`); `StoichiometricProcess` (adds `reversible`, `has_external_source`, `has_external_sink`) → `GenericProcess`, `UncertainProcess`, `OmittedProcess`; `GenericProcess` → `Association`, `Dissociation`; `Phenotype(Process)`.
+- **Processes**: `Process(SBGNModelElement)` (no fields); `StoichiometricProcess(Process)` (`reactants`, `products`, `reversible`, `has_external_source`, `has_external_sink`) → `GenericProcess`, `UncertainProcess`; `GenericProcess` → `Association`, `Dissociation`, `OmittedProcess`; `Phenotype(Process)` (no `reactants`/`products`).
 - **Logical operators**: `LogicalOperator(SBGNModelElement)` (`inputs: frozenset[LogicalOperatorInput]`) → `OrOperator`, `AndOperator`, `NotOperator`. `LogicalOperatorInput(SBGNRole)` — `referred_element: EntityPool | LogicalOperator`.
 - **Equivalence operators**: `EquivalenceOperator` (`inputs`, `output`), `EquivalenceOperatorInput`, `EquivalenceOperatorOutput`.
 - **Modulations**: `Modulation(SBGNModelElement)` (`source`, `target`) → `Inhibition`, `Stimulation`. `Stimulation` → `Catalysis`, `NecessaryStimulation`.
