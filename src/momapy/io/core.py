@@ -166,7 +166,7 @@ class IOResult:
 class ReaderResult(IOResult):
     """Result from reading a map file."""
 
-    obj: typing.Any | None = dataclasses.field(
+    obj: typing.Any = dataclasses.field(
         default=None,
         metadata={"description": "The read map object (MapElement or None)."},
     )
@@ -257,7 +257,7 @@ class ReaderResult(IOResult):
 class WriterResult(IOResult):
     """Result from writing a map file."""
 
-    obj: typing.Any | None = dataclasses.field(
+    obj: typing.Any = dataclasses.field(
         default=None,
         metadata={"description": "The written object."},
     )
