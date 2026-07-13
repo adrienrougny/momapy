@@ -24,7 +24,8 @@ Examples:
     ```python
     from momapy.meta.arcs import Triangle, Diamond
     from momapy.meta.nodes import Rectangle
-    import momapy.geometry
+    from momapy.geometry import Point
+    from momapy.geometry import Segment
 
     # Create nodes with Point positions
     source_node = Rectangle(
@@ -39,7 +40,7 @@ Examples:
     )
 
     # Create arc with segments defining the path
-    segment = momapy.geometry.Segment(
+    segment = Segment(
         Point(125, 100),
         Point(275, 100)
     )

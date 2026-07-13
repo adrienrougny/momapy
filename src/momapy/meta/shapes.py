@@ -23,7 +23,7 @@ Available shapes:
 Examples:
     ```python
     from momapy.meta.shapes import Rectangle, Ellipse
-    import momapy.geometry
+    from momapy.geometry import Point
 
     # Create a rectangle shape at origin
     rectangle_shape = Rectangle(

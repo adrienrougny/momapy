@@ -22,18 +22,18 @@ Available node types:
 Examples:
     ```python
     from momapy.meta.nodes import Rectangle, Ellipse
-    import momapy.geometry
+    from momapy.geometry import Point
 
     # Create a rectangle node at position (100, 100)
     rectangle_node = Rectangle(
-        position=momapy.geometry.Point(100, 100),
+        position=Point(100, 100),
         width=200,
         height=100
     )
 
     # Create a circular node at position (300, 300)
     circle_node = Ellipse(
-        position=momapy.geometry.Point(300, 300),
+        position=Point(300, 300),
         width=150,
         height=150
     )
