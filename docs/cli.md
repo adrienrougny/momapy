@@ -19,11 +19,11 @@ Available subcommands:
 ```bash
 momapy render <input_file_path>... -o <output_file_path> [options]
 momapy export <input_file_path> -o <output_file_path> [options]
-momapy info <input_file_path> [options]
+momapy info [<input_file_path>] [options]
 momapy list {readers,writers,renderers,colors,styles,attributes}
 momapy tidy <operation> [<input_file_path>] [options]
 momapy style [<input_file_path>] [options]
-momapy visualize <input_file_path> [options]
+momapy visualize [<input_file_path>] [options]
 ```
 
 ## Subcommand: `render`
@@ -201,7 +201,7 @@ Prints a summary of a map file's contents, including the map type, model element
 
 | Argument | Description |
 |----------|-------------|
-| `input_file_path` | Input file path (SBGN-ML or CellDesigner format) |
+| `input_file_path` | Input file path (SBGN-ML or CellDesigner format; reads from stdin if omitted) |
 
 ### Options
 
@@ -517,7 +517,7 @@ Opens an interactive viewer for a molecular map in the default web browser. The 
 
 | Argument | Description |
 |----------|-------------|
-| `input_file_path` | Input file path (SBGN-ML or CellDesigner format) |
+| `input_file_path` | Input file path (SBGN-ML or CellDesigner format; reads from stdin if omitted) |
 
 ### Options
 
