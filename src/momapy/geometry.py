@@ -6,7 +6,9 @@ elliptical arcs, and various geometric operations.
 
 Examples:
     ```python
-    from momapy.geometry import Point, Line, Segment, Rotation, Translation
+    import math
+
+    from momapy.geometry import Point, Line, Segment, Rotation
 
     # Create points
     p1 = Point(0, 0)
