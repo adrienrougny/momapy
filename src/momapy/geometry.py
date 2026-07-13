@@ -907,14 +907,14 @@ class QuadraticBezierCurve(GeometryObject):
         angle = math.atan2(dy, dx)
         return (pos, angle)
 
-    def get_intersection_with_line(self, line: Line) -> list[Point] | list[Segment]:
+    def get_intersection_with_line(self, line: Line) -> list[Point]:
         """Get intersection with a line.
 
         Args:
             line: The line to intersect with.
 
         Returns:
-            List of intersection points or segments.
+            List of intersection points.
         """
         # Line equation: a*x + b*y + c = 0
         a = line.p2.y - line.p1.y
@@ -1220,14 +1220,14 @@ class CubicBezierCurve(GeometryObject):
         angle = math.atan2(dy, dx)
         return (pos, angle)
 
-    def get_intersection_with_line(self, line: Line) -> list[Point] | list[Segment]:
+    def get_intersection_with_line(self, line: Line) -> list[Point]:
         """Get intersection with a line.
 
         Args:
             line: The line to intersect with.
 
         Returns:
-            List of intersection points or segments.
+            List of intersection points.
         """
         a = line.p2.y - line.p1.y
         b = line.p1.x - line.p2.x
