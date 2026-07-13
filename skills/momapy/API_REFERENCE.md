@@ -313,9 +313,6 @@ Purpose: SBGN-AF model classes.
 ### `src/momapy/sbgn/io/sbgnml/writer.py`
 - `SBGNML0_3Writer(Writer)` — the single SBGN-ML writer, registered as both `sbgnml-0.3` and `sbgnml`.
 
-### `src/momapy/sbgn/io/sbgnml/_writing.py` (serialization helpers, public-named)
-- `make_sbgnml_map(writing_context)`, the XML-id helpers `reserve_source_xml_ids`, `get_xml_id`, and the builders `get_layout_elements`, `get_frozenset_keys`, `get_child_layout_element`, `make_sbgnml_glyph`, `make_sbgnml_arc_element`, `make_sbgnml_child_glyphs`, `collect_model_elements` (plus the pure XML helpers `make_lxml_element`, `ensure_ncname`, `make_sbgnml_*`).
-
 ### `src/momapy/sbgn/io/sbgnml/_reading_model.py` (`make_*` internal helpers)
 - `make_annotations_from_element(sbgnml_element)`, `make_notes_from_element(sbgnml_element)`, `make_and_add_annotations_and_notes(reading_context, sbgnml_element, model_element)`
 - `set_label(model_element, sbgnml_element)`, `set_compartment(model_element, sbgnml_element, sbgnml_id_to_model_element)`, `set_stoichiometry(model_element, sbgnml_stoichiometry)`
@@ -349,10 +346,11 @@ Purpose: SBGN-AF model classes.
 - `KEY_TO_CLASS: dict[tuple|str, tuple[type | None, type]]` — ~70 entries like `("PROCESS_DESCRIPTION", "GLYPH", "MACROMOLECULE") -> (Macromolecule, MacromoleculeLayout)`; the model slot is `None` for `SOURCE_AND_SINK`/`EMPTY_SET` (e.g. `-> (None, EmptySetLayout)`).
 - `get_glyph_key(sbgnml_glyph, map_key)`, `get_subglyph_key(sbgnml_subglyph, map_key)`, `get_arc_key(sbgnml_arc, map_key)`, `get_module(map_key)`, `get_module_from_object(obj)`.
 
-### `src/momapy/sbgn/io/sbgnml/_writing.py`
+### `src/momapy/sbgn/io/sbgnml/_writing.py` (serialization helpers, public-named)
+- `make_sbgnml_map(writing_context)`; the XML-id helpers `reserve_source_xml_ids`, `get_xml_id`; the builders `get_layout_elements`, `get_frozenset_keys`, `get_child_layout_element`, `make_sbgnml_glyph`, `make_sbgnml_arc_element`, `make_sbgnml_child_glyphs`, `collect_model_elements`.
 - `NSMAP: dict` — SBGN/RDF/BioModels XML namespaces.
 - `make_lxml_element(tag, namespace=None, attributes=None, text=None, nsmap=None)`
-- `ensure_ncname(id_str) -> str` — coerces an id to XML NCName (`xs:ID`) syntax. (Replaces the removed `get_sbgnml_id`; XML-id assignment now lives in `writer.py` private helpers.)
+- `ensure_ncname(id_str) -> str` — coerces an id to XML NCName (`xs:ID`) syntax. (Replaces the removed `get_sbgnml_id`; XML-id assignment now lives in the `_writing.py` helpers `reserve_source_xml_ids`/`get_xml_id`.)
 - `make_sbgnml_bbox_from_node(node)`, `make_sbgnml_bbox_from_text_layout(text_layout)`
 - `make_sbgnml_label(text_layout)`, `make_sbgnml_state(text_layout)`, `make_sbgnml_entity(...)`
 - `make_sbgnml_port(point, port_id)`, `make_sbgnml_points(points)`
