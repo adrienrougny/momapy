@@ -782,13 +782,18 @@ def get_info(map_: SBGNMap) -> dict[str, typing.Any]:
 
     Returns:
         A dictionary with keys ``map_type``, ``model``, and ``layout``.
+        The ``model`` and ``layout`` entries are ``None`` when the map has
+        no model or no layout, respectively.
 
     Raises:
-        ValueError: If the model type is not recognized.
+        ValueError: If the model is not None and its type is not recognized.
     """
     model = map_.model
     layout = map_.layout
-    if isinstance(model, SBGNPDModel):
+    if model is None:
+        map_type = "SBGN"
+        model_info = None
+    elif isinstance(model, SBGNPDModel):
         map_type = "SBGN Process Description"
         model_info = {
             "compartments": len(model.compartments),
@@ -812,11 +817,14 @@ def get_info(map_: SBGNMap) -> dict[str, typing.Any]:
         }
     else:
         raise ValueError(f"unknown SBGN model type: {type(model).__name__}")
-    layout_info = {
-        "width": layout.width,
-        "height": layout.height,
-        "elements": len(layout.descendants()),
-    }
+    if layout is None:
+        layout_info = None
+    else:
+        layout_info = {
+            "width": layout.width,
+            "height": layout.height,
+            "elements": len(layout.descendants()),
+        }
     return {
         "map_type": map_type,
         "model": model_info,

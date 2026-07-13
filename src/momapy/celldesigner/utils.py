@@ -956,22 +956,30 @@ def get_info(map_: CellDesignerMap) -> dict[str, typing.Any]:
 
     Returns:
         A dictionary with keys ``map_type``, ``model``, and ``layout``.
+        The ``model`` and ``layout`` entries are ``None`` when the map has
+        no model or no layout, respectively.
     """
     model = map_.model
     layout = map_.layout
-    model_info = {
-        "compartments": len(model.compartments),
-        "species": len(model.species),
-        "reactions": len(model.reactions),
-        "species_templates": len(model.species_templates),
-        "boolean_logic_gates": len(model.boolean_logic_gates),
-        "modulations": len(model.modulations),
-    }
-    layout_info = {
-        "width": layout.width,
-        "height": layout.height,
-        "elements": len(layout.descendants()),
-    }
+    if model is None:
+        model_info = None
+    else:
+        model_info = {
+            "compartments": len(model.compartments),
+            "species": len(model.species),
+            "reactions": len(model.reactions),
+            "species_templates": len(model.species_templates),
+            "boolean_logic_gates": len(model.boolean_logic_gates),
+            "modulations": len(model.modulations),
+        }
+    if layout is None:
+        layout_info = None
+    else:
+        layout_info = {
+            "width": layout.width,
+            "height": layout.height,
+            "elements": len(layout.descendants()),
+        }
     return {
         "map_type": "CellDesigner",
         "model": model_info,
