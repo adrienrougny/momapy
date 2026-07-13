@@ -69,11 +69,11 @@ class SkiaRenderer(
     Examples:
         ```python
         from momapy.meta.nodes import Rectangle
-        import momapy.geometry
+        from momapy.geometry import Point
 
         # Create a layout element to render
         node = Rectangle(
-            position=momapy.geometry.Point(100, 100),
+            position=Point(100, 100),
             width=200,
             height=100
         )
