@@ -669,7 +669,7 @@ class Node(GroupLayout):
         return self.own_angle(0)
 
     def east_south_east(self) -> Point:
-        """Return the east south east west anchor of the node."""
+        """Return the east south east anchor of the node."""
         line = Line(self.center(), self.center() + (self.width / 2, self.height / 4))
         angle = -line.get_angle_to_horizontal()
         return self.own_angle(angle, unit="radians")
