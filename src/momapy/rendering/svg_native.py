@@ -73,7 +73,7 @@ class SVGElement(object):
             "description": "The tag name of the SVG element (e.g. 'svg', 'rect', 'path')"
         }
     )
-    value: typing.Optional[str] = dataclasses.field(
+    value: str | None = dataclasses.field(
         default=None,
         metadata={"description": "The optional text content of the element"},
     )
