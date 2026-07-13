@@ -609,8 +609,7 @@ def _build_layout_to_model_id_mapping(
 
     Iterates the layout-model mapping and extracts the ``id_`` of each
     layout element and its corresponding model element. For frozenset keys,
-    each layout element in the set is mapped. For tuple values (child
-    elements), the child model element's ``id_`` is used.
+    each layout element in the set is mapped.
 
     Args:
         layout_model_mapping: The layout-model mapping from the map, or
@@ -630,10 +629,7 @@ def _build_layout_to_model_id_mapping(
     for key, value in layout_model_mapping.items():
         if not isinstance(key, frozenset):
             continue
-        if isinstance(value, tuple):
-            model_id = str(value[0].id_)
-        else:
-            model_id = str(value.id_)
+        model_id = str(value.id_)
         for layout_element in key:
             if singleton_to_key.get(layout_element) == key:
                 layout_id_to_model_id[str(layout_element.id_)] = model_id
@@ -642,10 +638,7 @@ def _build_layout_to_model_id_mapping(
     for key, value in layout_model_mapping.items():
         if isinstance(key, frozenset):
             continue
-        if isinstance(value, tuple):
-            model_id = str(value[0].id_)
-        else:
-            model_id = str(value.id_)
+        model_id = str(value.id_)
         layout_id_to_model_id[str(key.id_)] = model_id
     return layout_id_to_model_id
 
