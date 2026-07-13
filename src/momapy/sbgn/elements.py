@@ -4,10 +4,9 @@ The public base classes here (``SBGNModelElement``, ``SBGNAuxiliaryUnit``,
 ``SBGNRole``, ``SBGNNode``, ``SBGNSingleHeadedArc``, ``SBGNDoubleHeadedArc``)
 are part of the public API and may be subclassed.
 
-NOTE: The private ``_*Mixin`` classes are internal and may change without a
-deprecation cycle. They are an internal composition protocol; their public
-value (anchors, fields) is already reachable on the concrete ``*Layout`` and
-``*Node`` classes, which is what you should subclass.
+The private ``_*Mixin`` classes are an internal composition protocol; their
+public value (anchors, fields) is already reachable on the concrete ``*Layout``
+and ``*Node`` classes, which is what you should subclass.
 """
 
 import abc

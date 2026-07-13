@@ -1,20 +1,10 @@
-"""Core classes for CellDesigner maps.
+"""Base classes and mixins for CellDesigner model and layout elements.
 
-This module provides classes for representing CellDesigner pathway diagrams,
-including model elements (species, reactions, modifications) and layout elements
-(nodes, arcs, compartments). CellDesigner is a tool for visualizing biochemical
-pathways and networks.
+The public base classes here (``CellDesignerModelElement``, ``CellDesignerNode``,
+``CellDesignerSingleHeadedArc``, ``CellDesignerDoubleHeadedArc``) are part of the
+public API and may be subclassed.
 
-Examples:
-    ```python
-    from momapy.celldesigner.model import CellDesignerModel
-    from momapy.celldesigner.layout import CellDesignerLayout
-    model = CellDesignerModel(name="MAPK_cascade")
-    layout = CellDesignerLayout()
-    ```
-
-NOTE: The base classes and ``_*Mixin`` classes here are internal and may change
-without a deprecation cycle. They are an internal composition protocol; the
+The private ``_*Mixin`` classes are an internal composition protocol; their
 public value (anchors, fields) is already reachable on the concrete ``*Layout``
 and ``*Node`` classes, which is what you should subclass.
 """
