@@ -46,7 +46,12 @@ class Map(MapElement):
         self,
         map_element: "MapElement",
     ) -> "ModelElement | list[LayoutElement | frozenset[LayoutElement]] | None":
-        """Return the layout elements mapped to the given model element.
+        """Return the model element or layout elements mapped to `map_element`.
+
+        The lookup is bidirectional: a layout key (a singleton or frozenset)
+        resolves to its model element, and a model element resolves to the
+        list of layout keys mapped to it. Forwards to
+        `layout_model_mapping.get_mapping`.
 
         Returns `None` when the map has no `layout_model_mapping` (for
         example a layout-less map such as one read from SBML).
