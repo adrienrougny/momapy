@@ -40,7 +40,7 @@ mkdocs serve
 ```
 src/momapy/
 ├── core/             # Base classes (package): Map, Model, Layout, LayoutElement, Arc, etc.
-├── geometry.py       # Point, Bbox, Vector, path operations
+├── geometry.py       # Point, Bbox, path operations
 ├── drawing.py        # Drawing primitives: Path, Rectangle, Ellipse, Text, Group
 ├── builder.py        # Builder pattern for modifying frozen dataclasses
 ├── styling/          # CSS-like stylesheet parsing and application (package)
