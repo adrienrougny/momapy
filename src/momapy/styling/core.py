@@ -204,7 +204,7 @@ def apply_style_sheet(
     map_or_layout_element: (Map | LayoutElement | Builder),
     style_sheet: StyleSheet,
     strict: bool = True,
-    ancestors: collections.abc.Collection[LayoutElement | Builder] = None,
+    ancestors: collections.abc.Collection[LayoutElement | Builder] | None = None,
 ) -> Map | LayoutElement | Builder:
     """Apply a StyleSheet to a layout element or map layout recursively.
 
