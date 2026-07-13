@@ -382,7 +382,7 @@ class NecessaryStimulationLayout(SBGNSingleHeadedArc):
         ]
         bar = Path(actions=actions)
         actions = [
-            MoveTo(Point(0, 0)),
+            MoveTo(Point(0.0, 0.0)),
             LineTo(Point(self.arrowhead_sep, 0)),
         ]
         sep = Path(actions=actions)

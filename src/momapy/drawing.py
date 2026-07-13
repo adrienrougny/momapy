@@ -13,8 +13,8 @@ Examples:
     # Create a simple path
     path = Path(
         actions=(
-            MoveTo(Point(0, 0)),
-            LineTo(Point(10, 10)),
+            MoveTo(Point(0.0, 0.0)),
+            LineTo(Point(10.0, 10.0)),
         ),
         stroke=red,
         stroke_width=2.0
@@ -22,9 +22,9 @@ Examples:
 
     # Create a rectangle
     rect = Rectangle(
-        point=Point(5, 5),
-        width=10,
-        height=10,
+        point=Point(5.0, 5.0),
+        width=10.0,
+        height=10.0,
         rx=0.0,
         ry=0.0,
         fill=blue,
@@ -34,7 +34,7 @@ Examples:
     # Create text
     text = Text(
         text="Hello",
-        point=Point(10, 10),
+        point=Point(10.0, 10.0),
         font_size=14.0
     )
     ```
@@ -652,7 +652,7 @@ class DrawingElement(abc.ABC):
         """
         primitives = self.to_geometry()
         if not primitives:
-            return Bbox(Point(0, 0), 0, 0)
+            return Bbox(Point(0.0, 0.0), 0, 0)
         bboxes = [p.bbox() for p in primitives]
         return Bbox.union(bboxes)
 
@@ -951,7 +951,7 @@ class EllipticalArc(PathAction):
             -math.sin(rotation) * self.ry,
             math.cos(rotation) * self.ry,
         )
-        new_center = Point(0, 0).transformed(transformation)
+        new_center = Point(0.0, 0.0).transformed(transformation)
         new_east = east.transformed(transformation)
         new_north = north.transformed(transformation)
         new_rx = Segment(new_center, new_east).length()
@@ -1193,7 +1193,7 @@ class Path(DrawingElement):
             or EllipticalArc objects.
         """
         primitives = []
-        current_point = Point(0, 0)
+        current_point = Point(0.0, 0.0)
         initial_point = current_point
         for action in self.actions:
             if isinstance(action, MoveTo):

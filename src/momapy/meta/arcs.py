@@ -29,20 +29,20 @@ Examples:
 
     # Create nodes with Point positions
     source_node = Rectangle(
-        position=Point(100, 100),
-        width=50,
-        height=30
+        position=Point(100.0, 100.0),
+        width=50.0,
+        height=30.0
     )
     target_node = Rectangle(
-        position=Point(300, 100),
-        width=50,
-        height=30
+        position=Point(300.0, 100.0),
+        width=50.0,
+        height=30.0
     )
 
     # Create arc with segments defining the path
     segment = Segment(
-        Point(125, 100),
-        Point(275, 100)
+        Point(125.0, 100.0),
+        Point(275.0, 100.0)
     )
     arc1 = Triangle(segments=(segment,))
     arc2 = Diamond(segments=(segment,))
@@ -236,7 +236,7 @@ class Bar(SingleHeadedArc):
 
     def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         shape = BarShape(
-            position=Point(0, 0),
+            position=Point(0.0, 0.0),
             height=self.arrowhead_height,
         )
         return shape.drawing_elements()

@@ -11,8 +11,8 @@ Examples:
     from momapy.geometry import Point, Line, Segment, Rotation
 
     # Create points
-    p1 = Point(0, 0)
-    p2 = Point(10, 10)
+    p1 = Point(0.0, 0.0)
+    p2 = Point(10.0, 10.0)
 
     # Create a line
     line = Line(p1, p2)
@@ -104,7 +104,7 @@ class Point(GeometryObject):
 
     Examples:
         ```python
-        p = Point(10, 20)
+        p = Point(10.0, 20.0)
         p.x
         p + (5, 5)
         ```
@@ -251,7 +251,7 @@ class Line(GeometryObject):
 
     Examples:
         ```python
-        line = Line(Point(0, 0), Point(10, 10))
+        line = Line(Point(0.0, 0.0), Point(10.0, 10.0))
         line.slope()
         line.intercept()
         ```
@@ -423,7 +423,7 @@ class Segment(GeometryObject):
 
     Examples:
         ```python
-        seg = Segment(Point(0, 0), Point(10, 10))
+        seg = Segment(Point(0.0, 0.0), Point(10.0, 10.0))
         seg.length()
         seg.get_position_at_fraction(0.5)
         ```
@@ -733,9 +733,9 @@ class QuadraticBezierCurve(GeometryObject):
     Examples:
         ```python
         curve = QuadraticBezierCurve(
-            Point(0, 0),
-            Point(10, 0),
-            Point(5, 5)
+            Point(0.0, 0.0),
+            Point(10.0, 0.0),
+            Point(5.0, 5.0)
         )
         ```
     """
@@ -1002,10 +1002,10 @@ class CubicBezierCurve(GeometryObject):
     Examples:
         ```python
         curve = CubicBezierCurve(
-            Point(0, 0),
-            Point(10, 0),
-            Point(3, 5),
-            Point(7, 5)
+            Point(0.0, 0.0),
+            Point(10.0, 0.0),
+            Point(3.0, 5.0),
+            Point(7.0, 5.0)
         )
         ```
     """
@@ -1318,7 +1318,7 @@ class EllipticalArc(GeometryObject):
     Examples:
         ```python
         arc = EllipticalArc(
-            Point(0, 0), Point(10, 0), 5, 5, 0, 0, 1
+            Point(0.0, 0.0), Point(10.0, 0.0), 5, 5, 0, 0, 1
         )
         ```
     """
@@ -1439,12 +1439,12 @@ class EllipticalArc(GeometryObject):
         cx = math.cos(sigma) * cxp - math.sin(sigma) * cyp + (x1 + x2) / 2
         cy = math.sin(sigma) * cxp + math.cos(sigma) * cyp + (y1 + y2) / 2
         theta1 = _get_angle_between_segments(
-            Segment(Point(0, 0), Point(1, 0)),
-            Segment(Point(0, 0), Point((x1p - cxp) / rx, (y1p - cyp) / ry)),
+            Segment(Point(0.0, 0.0), Point(1.0, 0.0)),
+            Segment(Point(0.0, 0.0), Point((x1p - cxp) / rx, (y1p - cyp) / ry)),
         )
         delta_theta = _get_angle_between_segments(
-            Segment(Point(0, 0), Point((x1p - cxp) / rx, (y1p - cyp) / ry)),
-            Segment(Point(0, 0), Point(-(x1p + cxp) / rx, -(y1p + cyp) / ry)),
+            Segment(Point(0.0, 0.0), Point((x1p - cxp) / rx, (y1p - cyp) / ry)),
+            Segment(Point(0.0, 0.0), Point(-(x1p + cxp) / rx, -(y1p + cyp) / ry)),
         )
         if fs == 0 and delta_theta > 0:
             delta_theta -= 2 * math.pi
@@ -1655,7 +1655,7 @@ class EllipticalArc(GeometryObject):
             -math.sin(rotation) * self.ry,
             math.cos(rotation) * self.ry,
         )
-        new_center = Point(0, 0).transformed(transformation)
+        new_center = Point(0.0, 0.0).transformed(transformation)
         new_east = east.transformed(transformation)
         new_north = north.transformed(transformation)
         new_rx = Segment(new_center, new_east).length()
@@ -1704,7 +1704,7 @@ class Bbox(object):
 
     Examples:
         ```python
-        bbox = Bbox(Point(5, 5), 10, 10)
+        bbox = Bbox(Point(5.0, 5.0), 10, 10)
         bbox.north_west()
         bbox.south_east()
         ```
@@ -1870,7 +1870,7 @@ class Bbox(object):
             A new Bbox enclosing all input bboxes.
         """
         if not bboxes:
-            return cls(Point(0, 0), 0, 0)
+            return cls(Point(0.0, 0.0), 0, 0)
         corners = []
         for bbox in bboxes:
             corners.append(bbox.north_west())
@@ -1936,7 +1936,7 @@ class Rotation(Transformation):
 
     Examples:
         ```python
-        rot = Rotation(math.pi / 2, Point(5, 5))
+        rot = Rotation(math.pi / 2, Point(5.0, 5.0))
         ```
     """
 

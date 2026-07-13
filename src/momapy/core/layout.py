@@ -381,7 +381,7 @@ class Shape(LayoutElement):
         """Compute and return the bounding box of the shape."""
         primitives = self.to_geometry()
         if not primitives:
-            return Bbox(Point(0, 0), 0, 0)
+            return Bbox(Point(0.0, 0.0), 0, 0)
         bboxes = [p.bbox() for p in primitives]
         return Bbox.union(bboxes)
 
@@ -470,7 +470,7 @@ class GroupLayout(LayoutElement):
         """Compute and return the bounding box of the self drawing element of the group layout."""
         primitives = self.own_to_geometry()
         if not primitives:
-            return Bbox(Point(0, 0), 0, 0)
+            return Bbox(Point(0.0, 0.0), 0, 0)
         bboxes = [p.bbox() for p in primitives]
         return Bbox.union(bboxes)
 

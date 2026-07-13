@@ -2592,7 +2592,7 @@ class TriggeringLayout(CellDesignerSingleHeadedArc):
         ]
         bar = Path(actions=actions)
         actions = [
-            MoveTo(Point(0, 0)),
+            MoveTo(Point(0.0, 0.0)),
             LineTo(Point(self.arrowhead_sep, 0)),
         ]
         sep = Path(actions=actions)
@@ -2635,7 +2635,7 @@ class UnknownTriggeringLayout(CellDesignerSingleHeadedArc):
         ]
         bar = Path(actions=actions)
         actions = [
-            MoveTo(Point(0, 0)),
+            MoveTo(Point(0.0, 0.0)),
             LineTo(Point(self.arrowhead_sep, 0)),
         ]
         sep = Path(actions=actions)
@@ -3134,7 +3134,7 @@ class TransportLayout(ReactionLayout, _ReactionNodeMixin):
             ]
             bar = Path(actions=actions)
             actions = [
-                MoveTo(Point(0, 0)),
+                MoveTo(Point(0.0, 0.0)),
                 LineTo(Point(-self.start_arrowhead_sep, 0)),
             ]
             sep = Path(actions=actions)
@@ -3157,7 +3157,7 @@ class TransportLayout(ReactionLayout, _ReactionNodeMixin):
         ]
         bar = Path(actions=actions)
         actions = [
-            MoveTo(Point(0, 0)),
+            MoveTo(Point(0.0, 0.0)),
             LineTo(Point(self.end_arrowhead_sep, 0)),
         ]
         sep = Path(actions=actions)
@@ -3211,7 +3211,7 @@ class HeterodimerAssociationLayout(ReactionLayout, _ReactionNodeMixin):
 
     def _start_arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         shape = MetaShapesEllipse(
-            position=Point(0, 0),
+            position=Point(0.0, 0.0),
             width=self.start_arrowhead_width,
             height=self.start_arrowhead_height,
         )
@@ -3264,12 +3264,12 @@ class DissociationLayout(ReactionLayout, _ReactionNodeMixin):
 
     def _end_arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         outer_circle = MetaShapesEllipse(
-            position=Point(0, 0),
+            position=Point(0.0, 0.0),
             width=self.end_arrowhead_width,
             height=self.end_arrowhead_height,
         )
         inner_circle = MetaShapesEllipse(
-            position=Point(0, 0),
+            position=Point(0.0, 0.0),
             width=self.end_arrowhead_width - 2 * self.end_arrowhead_sep,
             height=self.end_arrowhead_height - 2 * self.end_arrowhead_sep,
         )

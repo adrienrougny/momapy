@@ -252,8 +252,8 @@ def highlight_layout_elements(
 
 def set_layout_to_fit_content(
     map_: CellDesignerMap | Builder,
-    xsep: float = 0,
-    ysep: float = 0,
+    xsep: float = 0.0,
+    ysep: float = 0.0,
 ) -> CellDesignerMap | Builder:
     """Resize layout to fit all elements.
 
@@ -305,8 +305,8 @@ def _update_active_layout(layout_element: typing.Any) -> None:
 
 def set_nodes_to_fit_labels(
     map_: CellDesignerMap | Builder,
-    xsep: float = 0,
-    ysep: float = 0,
+    xsep: float = 0.0,
+    ysep: float = 0.0,
     omit_width: bool = False,
     omit_height: bool = False,
     restrict_to: collections.abc.Sequence[type] | None = None,
@@ -371,8 +371,8 @@ def set_nodes_to_fit_labels(
 
 def set_compartments_to_fit_content(
     map_: CellDesignerMap | Builder,
-    xsep: float = 0,
-    ysep: float = 0,
+    xsep: float = 0.0,
+    ysep: float = 0.0,
     snap_arcs: bool = False,
 ) -> CellDesignerMap | Builder:
     """Resize compartments to fit their content.
@@ -491,8 +491,8 @@ def _sort_compartments_inside_out(
 
 def set_complexes_to_fit_content(
     map_: CellDesignerMap | Builder,
-    xsep: float = 0,
-    ysep: float = 0,
+    xsep: float = 0.0,
+    ysep: float = 0.0,
     snap_arcs: bool = False,
 ) -> CellDesignerMap | Builder:
     """Resize complexes to fit their subunits.
@@ -860,16 +860,16 @@ def tidy(
     map_: CellDesignerMap | Builder,
     modifications_omit_width: bool = False,
     modifications_omit_height: bool = False,
-    nodes_xsep: float = 4,
-    nodes_ysep: float = 4,
-    modifications_xsep: float = 2,
-    modifications_ysep: float = 2,
-    complexes_xsep: float = 10,
-    complexes_ysep: float = 10,
-    compartments_xsep: float = 25,
-    compartments_ysep: float = 25,
-    layout_xsep: float = 0,
-    layout_ysep: float = 0,
+    nodes_xsep: float = 4.0,
+    nodes_ysep: float = 4.0,
+    modifications_xsep: float = 2.0,
+    modifications_ysep: float = 2.0,
+    complexes_xsep: float = 10.0,
+    complexes_ysep: float = 10.0,
+    compartments_xsep: float = 25.0,
+    compartments_ysep: float = 25.0,
+    layout_xsep: float = 0.0,
+    layout_ysep: float = 0.0,
     arcs_angle_tolerance: float = 5.0,
 ) -> CellDesignerMap | Builder:
     """Apply comprehensive layout tidying to a CellDesigner map.

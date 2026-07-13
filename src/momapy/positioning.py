@@ -8,7 +8,7 @@ Examples:
     ```python
     from momapy.positioning import right_of, fit
     from momapy.geometry import Point
-    point = Point(0, 0)
+    point = Point(0.0, 0.0)
     new_point = right_of(point, 10)
     print(new_point)
     ```
@@ -77,7 +77,7 @@ def right_of(
 
     Examples:
         ```python
-        point = Point(0, 0)
+        point = Point(0.0, 0.0)
         right_of(point, 10)
         ```
     """
@@ -109,7 +109,7 @@ def left_of(
 
     Examples:
         ```python
-        point = Point(10, 0)
+        point = Point(10.0, 0.0)
         left_of(point, 5)
         ```
     """
@@ -141,7 +141,7 @@ def above_of(
 
     Examples:
         ```python
-        point = Point(0, 10)
+        point = Point(0.0, 10.0)
         above_of(point, 5)
         ```
     """
@@ -173,7 +173,7 @@ def below_of(
 
     Examples:
         ```python
-        point = Point(0, 0)
+        point = Point(0.0, 0.0)
         below_of(point, 10)
         ```
     """
@@ -208,7 +208,7 @@ def above_left_of(
 
     Examples:
         ```python
-        point = Point(10, 10)
+        point = Point(10.0, 10.0)
         above_left_of(point, 5)
         ```
     """
@@ -245,7 +245,7 @@ def above_right_of(
 
     Examples:
         ```python
-        point = Point(0, 10)
+        point = Point(0.0, 10.0)
         above_right_of(point, 5, 10)
         ```
     """
@@ -282,7 +282,7 @@ def below_left_of(
 
     Examples:
         ```python
-        point = Point(10, 0)
+        point = Point(10.0, 0.0)
         below_left_of(point, 5)
         ```
     """
@@ -319,7 +319,7 @@ def below_right_of(
 
     Examples:
         ```python
-        point = Point(0, 0)
+        point = Point(0.0, 0.0)
         below_right_of(point, 5, 10)
         ```
     """
@@ -336,8 +336,8 @@ def below_right_of(
 
 def fit(
     elements: collections.abc.Collection[LayoutElement | Bbox | Point | Builder],
-    xsep: float = 0,
-    ysep: float = 0,
+    xsep: float = 0.0,
+    ysep: float = 0.0,
 ) -> Bbox:
     """Compute a bounding box that fits the given elements with optional margins.
 
@@ -356,7 +356,7 @@ def fit(
 
     Examples:
         ```python
-        points = [Point(0, 0), Point(10, 10)]
+        points = [Point(0.0, 0.0), Point(10.0, 10.0)]
         bbox = fit(points, xsep=2, ysep=2)
         print(bbox.position)
         ```
@@ -402,8 +402,8 @@ def mid_of(
 
     Examples:
         ```python
-        p1 = Point(0, 0)
-        p2 = Point(10, 10)
+        p1 = Point(0.0, 0.0)
+        p2 = Point(10.0, 10.0)
         mid_of(p1, p2)
         ```
     """
@@ -434,8 +434,8 @@ def cross_vh_of(
 
     Examples:
         ```python
-        p1 = Point(5, 0)
-        p2 = Point(0, 10)
+        p1 = Point(5.0, 0.0)
+        p2 = Point(0.0, 10.0)
         cross_vh_of(p1, p2)
         ```
     """
@@ -467,8 +467,8 @@ def cross_hv_of(
 
     Examples:
         ```python
-        p1 = Point(0, 5)
-        p2 = Point(10, 0)
+        p1 = Point(0.0, 5.0)
+        p2 = Point(10.0, 0.0)
         cross_hv_of(p1, p2)
         ```
     """
@@ -523,7 +523,7 @@ def set_position(
     Examples:
         ```python
         builder = get_or_make_builder_cls(MyNode)()
-        set_position(builder, Point(100, 100), anchor="center")
+        set_position(builder, Point(100.0, 100.0), anchor="center")
         ```
     """
     obj.position = position
@@ -687,8 +687,8 @@ def set_below_right_of(
 def set_fit(
     obj: Builder,
     elements: collections.abc.Collection[Point | Bbox | LayoutElement | Builder],
-    xsep: float = 0,
-    ysep: float = 0,
+    xsep: float = 0.0,
+    ysep: float = 0.0,
     anchor: str | None = None,
 ) -> None:
     """Set obj's dimensions and position to fit the given elements.

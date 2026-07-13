@@ -138,9 +138,9 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
 
         # Create a layout element to render
         node = Rectangle(
-            position=momapy.geometry.Point(100, 100),
-            width=200,
-            height=100
+            position=momapy.geometry.Point(100.0, 100.0),
+            width=200.0,
+            height=100.0
         )
 
         # Create renderer and render the element

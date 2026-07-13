@@ -27,16 +27,16 @@ Examples:
 
     # Create a rectangle shape at origin
     rectangle_shape = Rectangle(
-        position=Point(0, 0),
-        width=100,
-        height=50
+        position=Point(0.0, 0.0),
+        width=100.0,
+        height=50.0
     )
 
     # Create an ellipse shape at position (200, 200)
     ellipse_shape = Ellipse(
-        position=Point(200, 200),
-        width=100,
-        height=80
+        position=Point(200.0, 200.0),
+        width=100.0,
+        height=80.0
     )
     ```
 """

@@ -26,16 +26,16 @@ Examples:
 
     # Create a rectangle node at position (100, 100)
     rectangle_node = Rectangle(
-        position=Point(100, 100),
-        width=200,
-        height=100
+        position=Point(100.0, 100.0),
+        width=200.0,
+        height=100.0
     )
 
     # Create a circular node at position (300, 300)
     circle_node = Ellipse(
-        position=Point(300, 300),
-        width=150,
-        height=150
+        position=Point(300.0, 300.0),
+        width=150.0,
+        height=150.0
     )
     ```
 """

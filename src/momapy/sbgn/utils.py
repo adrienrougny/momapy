@@ -89,8 +89,8 @@ _AUXILIARY_UNIT_LAYOUT_CLASSES = (
 
 def set_compartments_to_fit_content(
     map_: SBGNMap | Builder,
-    xsep: float = 0,
-    ysep: float = 0,
+    xsep: float = 0.0,
+    ysep: float = 0.0,
     snap_arcs: bool = False,
 ) -> SBGNMap | Builder:
     """Resize compartments to fit their content.
@@ -147,8 +147,8 @@ def set_compartments_to_fit_content(
 
 def set_complexes_to_fit_content(
     map_: SBGNMap | Builder,
-    xsep: float = 0,
-    ysep: float = 0,
+    xsep: float = 0.0,
+    ysep: float = 0.0,
     snap_arcs: bool = False,
 ) -> SBGNMap | Builder:
     """Resize complexes to fit their subunits.
@@ -197,8 +197,8 @@ def set_complexes_to_fit_content(
 
 def set_submaps_to_fit_content(
     map_: SBGNMap | Builder,
-    xsep: float = 0,
-    ysep: float = 0,
+    xsep: float = 0.0,
+    ysep: float = 0.0,
     snap_arcs: bool = False,
 ) -> SBGNMap | Builder:
     """Resize submaps to fit their terminals.
@@ -250,8 +250,8 @@ def set_submaps_to_fit_content(
 
 def set_nodes_to_fit_labels(
     map_: SBGNMap | Builder,
-    xsep: float = 0,
-    ysep: float = 0,
+    xsep: float = 0.0,
+    ysep: float = 0.0,
     omit_width: bool = False,
     omit_height: bool = False,
     restrict_to: collections.abc.Sequence[type] | None = None,
@@ -594,8 +594,8 @@ def set_auxiliary_units_label_font_size(
 
 def set_layout_to_fit_content(
     map_: SBGNMap | Builder,
-    xsep: float = 0,
-    ysep: float = 0,
+    xsep: float = 0.0,
+    ysep: float = 0.0,
 ) -> SBGNMap | Builder:
     """Resize layout to fit all elements.
 
@@ -625,16 +625,16 @@ def tidy(
     map_: SBGNMap | Builder,
     auxiliary_units_omit_width: bool = False,
     auxiliary_units_omit_height: bool = True,
-    nodes_xsep: float = 4,
-    nodes_ysep: float = 4,
-    auxiliary_units_xsep: float = 1,
-    auxiliary_units_ysep: float = 1,
-    complexes_xsep: float = 10,
-    complexes_ysep: float = 10,
-    compartments_xsep: float = 25,
-    compartments_ysep: float = 25,
-    layout_xsep: float = 0,
-    layout_ysep: float = 0,
+    nodes_xsep: float = 4.0,
+    nodes_ysep: float = 4.0,
+    auxiliary_units_xsep: float = 1.0,
+    auxiliary_units_ysep: float = 1.0,
+    complexes_xsep: float = 10.0,
+    complexes_ysep: float = 10.0,
+    compartments_xsep: float = 25.0,
+    compartments_ysep: float = 25.0,
+    layout_xsep: float = 0.0,
+    layout_ysep: float = 0.0,
 ) -> SBGNMap | Builder:
     """Apply comprehensive layout tidying to an SBGN map.
 

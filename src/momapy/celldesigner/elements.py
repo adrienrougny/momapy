@@ -102,6 +102,7 @@ class _SimpleNodeMixin(_SimpleMixin):
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _MultiNodeMixin(_MultiMixin):
     """Multi node mixin."""
+
     n: int = dataclasses.field(
         default=1,
         metadata={"description": "Number of stacked node copies to draw."},
