@@ -729,8 +729,12 @@ class Text(DrawingElement):
     def transformed(self, transformation: Transformation) -> typing_extensions.Self:
         """Apply a transformation.
 
+        Returns an unmodified copy: text is positioned by its ``point`` and
+        the renderer applies any ``transform`` attribute at render time, so
+        the transformation is not baked into the returned element.
+
         Args:
-            transformation: The transformation.
+            transformation: The transformation (unused).
 
         Returns:
             A copy of the text element.
