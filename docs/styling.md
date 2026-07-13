@@ -76,7 +76,7 @@ StateVariableLayout > TextLayout {
 Matches elements at any depth:
 
 ```css
-Group TextLayout {
+GroupLayout TextLayout {
     fill: white;
 }
 ```
