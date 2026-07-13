@@ -310,7 +310,7 @@ class DelayOperatorLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class TagLayout(PDTagLayout):
+class TagLayout(_SimpleMixin, SBGNNode):
     """Tag layout."""
 
     width: float = 35.0
