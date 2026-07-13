@@ -8,7 +8,7 @@ The momapy public API is organized into the following subpackages.
 - [Builder](builder.md) — builder pattern for modifying frozen dataclasses
 - [Drawing](drawing.md) — drawing primitives (`Path`, `Rectangle`, `Ellipse`, `Text`, `Group`)
 - [Coloring](coloring.md) — colors and named color constants
-- [Geometry](geometry.md) — `Point`, `Bbox`, `Vector`, path operations
+- [Geometry](geometry.md) — `Point`, `Bbox`, path operations
 - [Positioning](positioning.md) — layout positioning helpers
 - [Styling](styling.md) — CSS-like stylesheet parsing and application
 - [I/O](io.md) — reader/writer registries and entry points
@@ -17,6 +17,7 @@ The momapy public API is organized into the following subpackages.
 
 - [Core](rendering/core.md) — renderer registry and render functions
 - [Skia](rendering/skia.md) — Skia backend
+- [Cairo](rendering/cairo.md) — Cairo backend
 - [SVG-native](rendering/svg_native.md) — native SVG backend
 
 ## SBGN
