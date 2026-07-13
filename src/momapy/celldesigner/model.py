@@ -300,7 +300,7 @@ class Protein(Species):
     )
     modifications: frozenset[Modification] = dataclasses.field(
         default_factory=frozenset,
-        metadata={"description": "The modifications of the proteins"},
+        metadata={"description": "The modifications of the protein"},
     )
     structural_states: frozenset[StructuralState] = dataclasses.field(
         default_factory=frozenset,
@@ -352,7 +352,8 @@ class Gene(Species):
         metadata={"description": "The template of the gene"}
     )
     modifications: frozenset[Modification] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={"description": "The modifications of the gene"},
     )
 
 
@@ -364,7 +365,8 @@ class RNA(Species):
         metadata={"description": "The template of the RNA"}
     )
     modifications: frozenset[Modification] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={"description": "The modifications of the RNA"},
     )
 
 
@@ -376,7 +378,8 @@ class AntisenseRNA(Species):
         metadata={"description": "The template of the antisense RNA"}
     )
     modifications: frozenset[Modification] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={"description": "The modifications of the antisense RNA"},
     )
 
 
