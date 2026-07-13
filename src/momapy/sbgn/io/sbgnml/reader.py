@@ -154,8 +154,8 @@ class _SBGNMLReader(Reader):
         with_layout: bool = True,
         with_annotations: bool = True,
         with_notes: bool = True,
-        xsep: float = 0,
-        ysep: float = 0,
+        xsep: float = 0.0,
+        ysep: float = 0.0,
         **options: typing.Any,
     ) -> ReaderResult:
         """Read an SBGN-ML file and return a reader result object.
@@ -173,10 +173,12 @@ class _SBGNMLReader(Reader):
                 `True`.
             with_annotations: Whether to read annotations. Defaults to `True`.
             with_notes: Whether to read notes. Defaults to `True`.
-            xsep: Extra horizontal separation added around active nodes when
-                computing layout. Defaults to `0`.
-            ysep: Extra vertical separation added around active nodes when
-                computing layout. Defaults to `0`.
+            xsep: Horizontal padding added around the fitted layout elements
+                when the map has no explicit bounding box (passed to
+                `set_fit`). Defaults to `0.0`.
+            ysep: Vertical padding added around the fitted layout elements
+                when the map has no explicit bounding box (passed to
+                `set_fit`). Defaults to `0.0`.
             options: Additional reader-specific options (ignored).
 
         Returns:
@@ -338,8 +340,8 @@ class _SBGNMLReader(Reader):
         with_layout: bool = True,
         with_annotations: bool = True,
         with_notes: bool = True,
-        xsep: float = 0,
-        ysep: float = 0,
+        xsep: float = 0.0,
+        ysep: float = 0.0,
     ) -> tuple[typing.Any, ...]:
         if return_type not in ("map", "model", "layout"):
             raise ValueError(
