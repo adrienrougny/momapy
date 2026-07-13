@@ -268,15 +268,16 @@ MacromoleculeLayout {
 
 **Note:** Both `from_file()` and `from_string()` raise a `ParseException` if the CSS cannot be parsed. Selectors that do not match any element are silently ignored, but a property name that is not a field of a matched element raises `AttributeError` when the stylesheet is applied. Pass `strict=False` to `apply_style_sheet()` to skip such unknown properties instead.
 
-Apply to a layout:
+Bake the styles into the map. `apply_style_sheet` returns a new, styled copy
+(the map is frozen), so capture the return value:
 
 ```python
 from momapy.styling import apply_style_sheet
 
-apply_style_sheet(map_.layout, style_sheet)
+styled_map = apply_style_sheet(map_, style_sheet)
 ```
 
-Or apply during rendering:
+Or apply during rendering, leaving the map unchanged:
 
 ```python
 from momapy.rendering import render_map

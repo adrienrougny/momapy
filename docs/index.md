@@ -93,7 +93,7 @@ You can also customize the appearance using [CSS-like stylesheets](styling.md):
 from momapy.styling import StyleSheet, apply_style_sheet
 
 style_sheet = StyleSheet.from_file("my_style.css")
-apply_style_sheet(map_.layout, style_sheet)
+styled_map = apply_style_sheet(map_, style_sheet)
 ```
 
 ## User manual
