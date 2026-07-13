@@ -266,7 +266,7 @@ MacromoleculeLayout {
 """)
 ```
 
-**Note:** Both `from_file()` and `from_string()` raise a `ParseException` if the CSS cannot be parsed. Selectors or property names that are valid CSS but not recognised by momapy are silently ignored rather than raising an error.
+**Note:** Both `from_file()` and `from_string()` raise a `ParseException` if the CSS cannot be parsed. Selectors that do not match any element are silently ignored, but a property name that is not a field of a matched element raises `AttributeError` when the stylesheet is applied. Pass `strict=False` to `apply_style_sheet()` to skip such unknown properties instead.
 
 Apply to a layout:
 
