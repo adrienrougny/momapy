@@ -1,7 +1,8 @@
 """Rendering subpackage for exporting maps to various formats.
 
 Provides functions and registries for rendering molecular maps to
-images (PNG, PDF, SVG) using different backends (Skia, Cairo, SVG).
+images (SVG, PDF, PNG, JPEG, WebP, PS) using different backends
+(Skia, Cairo, and native SVG).
 
 Examples:
     ```python
