@@ -18,7 +18,7 @@ Available subcommands:
 
 ```bash
 momapy render <input_file_path>... -o <output_file_path> [options]
-momapy export <input_file_path> -o <output_file_path> [options]
+momapy export [<input_file_path>] [-o <output_file_path>] [options]
 momapy info [<input_file_path>] [options]
 momapy list {readers,writers,renderers,colors,styles,attributes}
 momapy tidy <operation> [<input_file_path>] [options]
