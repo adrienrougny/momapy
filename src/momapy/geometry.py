@@ -136,7 +136,7 @@ class Point(GeometryObject):
         """Return the point divided by a scalar."""
         return Point(self.x / scalar, self.y / scalar)
 
-    def __iter__(self):
+    def __iter__(self) -> collections.abc.Iterator[float]:
         """Yield the x and y coordinates of the point in order."""
         yield self.x
         yield self.y
