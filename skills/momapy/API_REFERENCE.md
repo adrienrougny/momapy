@@ -56,6 +56,8 @@ Key `Bbox` members: constructed as `Bbox(position: Point, width, height)`; `cent
 
 Constants: `ROUNDING: int = 4` (in `__all__`; imported by `drawing`), `COMPASS_ANCHOR_NAMES: tuple[str, ...]` (in `__all__`; the 16 compass anchor names supported by `Bbox`/`Node`, excluding `center`). Internal-only (underscored, not exported): `_ROUNDING_TOLERANCE`, `_ZERO_TOLERANCE`, `_PARAMETER_TOLERANCE`, `_CONVERGENCE_TOLERANCE`.
 
+Functions (all in `__all__`, used cross-module by `drawing`/`celldesigner`): `get_primitives_border(primitives, point, center=None) -> Point | None`, `get_primitives_angle(primitives, angle, unit="degrees", center=None) -> Point | None`, `get_primitives_anchor_point(primitives, anchor_point, center=None) -> Point | None` (where `primitives: list[Segment | QuadraticBezierCurve | CubicBezierCurve | EllipticalArc]`), `get_normalized_angle(angle: float) -> float`, `get_transformation_for_frame(origin, unit_x, unit_y) -> MatrixTransformation`.
+
 ### `src/momapy/drawing.py`
 Classes: `NoneValueType`, `FilterEffect(ABC)` + (`DropShadowEffect`, `CompositeEffect`, `FloodEffect`, `GaussianBlurEffect`, `OffsetEffect`), `FilterEffectInput(Enum)`, `CompositionOperator(Enum)`, `EdgeMode(Enum)`, `FilterUnits(Enum)`, `Filter`, `FontStyle(Enum)`, `FontWeight(Enum)`, `TextAnchor(Enum)`, `FillRule(Enum)`, `DrawingElement(ABC)`, `Text(DrawingElement)`, `Group(DrawingElement)`, `PathAction(ABC)` + (`MoveTo`, `LineTo`, `EllipticalArc`, `CurveTo`, `QuadraticCurveTo`, `ClosePath`), `Path(DrawingElement)`, `Ellipse(DrawingElement)`, `Rectangle(DrawingElement)`.
 
