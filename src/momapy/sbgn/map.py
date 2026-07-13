@@ -13,13 +13,6 @@ class SBGNMap(Map):
 
     SBGN maps combine a model and its visual layout into a complete
     diagram representation.
-
-    Examples:
-        ```python
-        model = SBGNModel()
-        layout = SBGNLayout()
-        map_ = SBGNMap(model=model, layout=layout)
-        ```
     """
 
     model: SBGNModel | None = None

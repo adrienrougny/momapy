@@ -14,11 +14,6 @@ class SBGNLayout(Layout):
 
     SBGN layouts define the visual representation of SBGN models,
     including the positions and styles of glyphs.
-
-    Examples:
-        ```python
-        layout = SBGNLayout()
-        ```
     """
 
     fill: NoneValueType | Color | None = white
