@@ -148,7 +148,6 @@ Parameters: `drop-shadow(dx, dy, std_dev, opacity, color)`
 | `stroke` | Stroke/border color | `stroke: black;` |
 | `stroke-width` | Stroke thickness | `stroke-width: 2.0;` |
 | `stroke-dasharray` | Dash pattern | `stroke-dasharray: 5, 5;` |
-| `opacity` | Opacity (0.0-1.0) | `opacity: 0.8;` |
 | `filter` | Visual effects | `filter: drop-shadow(2.0, 2.0, 3.0, 0.5, gray);` |
 
 ### Text Properties
