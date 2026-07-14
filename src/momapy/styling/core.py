@@ -216,6 +216,9 @@ def apply_style_sheet(
 
     Returns:
         The modified map, layout element, or builder.
+
+    Raises:
+        ValueError: If given a map without a layout (e.g. an SBML map).
     """
     if not isinstance(map_or_layout_element, Builder):
         map_or_layout_element = builder_from_object(map_or_layout_element)
@@ -224,6 +227,8 @@ def apply_style_sheet(
         is_builder = True
     if isinstance_or_builder(map_or_layout_element, Map):
         layout_element = map_or_layout_element.layout
+        if layout_element is None:
+            raise ValueError("cannot apply a stylesheet to a map without a layout")
     else:
         layout_element = map_or_layout_element
     if style_sheet is not None:

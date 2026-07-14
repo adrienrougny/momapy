@@ -2,6 +2,8 @@
 
 import os
 
+import pytest
+
 import momapy.styling
 import momapy.coloring
 import momapy.core.layout
@@ -715,6 +717,25 @@ class TestStyleApplication:
         # Check that style was applied to the text layout within the result
         assert isinstance(result, momapy.core.layout.TextLayout)
         assert result.font_size == 24.0
+
+    def test_apply_style_sheet_on_layout_less_map_raises(self):
+        """A Map with layout=None raises a clear ValueError, not AttributeError.
+
+        Regression (finding 3): styling a layout-less map (e.g. every SBMLMap,
+        reachable via ``momapy style <sbml>.xml``) set layout_element to None
+        and then called None.children(), raising AttributeError.
+        """
+        import momapy.core.map
+
+        map_ = momapy.core.map.Map()
+        assert map_.layout is None
+
+        style_sheet = momapy.styling.StyleSheet()
+        selector = momapy.styling.TypeSelector(class_name="TextLayout")
+        style_sheet[selector] = momapy.styling.StyleCollection({"font_size": 24.0})
+
+        with pytest.raises(ValueError, match="without a layout"):
+            momapy.styling.apply_style_sheet(map_, style_sheet)
 
 
 class TestStylableAttributes:
