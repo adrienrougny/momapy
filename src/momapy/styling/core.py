@@ -723,7 +723,8 @@ def _make_document_parser(base_dir: pathlib.Path) -> pyparsing.ParserElement:
         style_sheets = [
             style_sheet for style_sheet in results if style_sheet is not None
         ]
-        return combine_style_sheets(style_sheets)
+        combined = combine_style_sheets(style_sheets)
+        return combined if combined is not None else StyleSheet()
 
     document.set_parse_action(_combine)
     return document

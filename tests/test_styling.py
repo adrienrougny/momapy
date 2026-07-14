@@ -65,6 +65,28 @@ def test_style_sheet_from_string():
         pass
 
 
+@pytest.mark.parametrize("css_string", ["", "   ", "\n\t  \n"])
+def test_style_sheet_from_string_empty(css_string):
+    """An empty/whitespace-only stylesheet parses to an empty StyleSheet.
+
+    Regression (finding 4): the document parse action returned None for a
+    rule-less document, which pyparsing dropped, so from_string indexed [0]
+    on empty ParseResults and raised IndexError.
+    """
+    style_sheet = momapy.styling.StyleSheet.from_string(css_string)
+    assert isinstance(style_sheet, momapy.styling.StyleSheet)
+    assert len(style_sheet) == 0
+
+
+def test_style_sheet_from_file_empty(tmp_path):
+    """An empty CSS file parses to an empty StyleSheet (finding 4)."""
+    path = tmp_path / "empty.css"
+    path.write_text("")
+    style_sheet = momapy.styling.StyleSheet.from_file(str(path))
+    assert isinstance(style_sheet, momapy.styling.StyleSheet)
+    assert len(style_sheet) == 0
+
+
 def test_style_sheet_from_file_import_keeps_own_rules(tmp_path):
     """@import must merge the imported rules with the file's own rules."""
     base = tmp_path / "base.css"
