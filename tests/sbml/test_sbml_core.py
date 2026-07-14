@@ -47,3 +47,33 @@ class TestSBMLModel:
 
         assert hasattr(model, "id_")
         assert hasattr(model, "name")
+
+
+class TestSBMLGetInfo:
+    """Tests for momapy.sbml.utils.get_info."""
+
+    def test_get_info_with_model(self):
+        """get_info summarizes a populated model."""
+        import momapy.sbml
+        import momapy.sbml.utils
+
+        map_ = momapy.sbml.SBMLMap(model=momapy.sbml.SBMLModel())
+        info = momapy.sbml.utils.get_info(map_)
+        assert info["map_type"] == "SBML"
+        assert info["model"] == {
+            "compartments": 0,
+            "species": 0,
+            "reactions": 0,
+        }
+        assert info["layout"] is None
+
+    def test_get_info_on_model_less_map_returns_none(self):
+        """get_info returns model=None for a map without a model."""
+        import momapy.sbml
+        import momapy.sbml.utils
+
+        map_ = momapy.sbml.SBMLMap(model=None)
+        info = momapy.sbml.utils.get_info(map_)
+        assert info["map_type"] == "SBML"
+        assert info["model"] is None
+        assert info["layout"] is None

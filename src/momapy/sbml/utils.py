@@ -19,15 +19,19 @@ def get_info(map_: SBMLMap) -> dict[str, typing.Any]:
         map_: An SBML map.
 
     Returns:
-        A dictionary with keys ``map_type``, ``model``, and ``layout``
-        (the last being ``None``).
+        A dictionary with keys ``map_type``, ``model``, and ``layout``. The
+        ``model`` entry is ``None`` when the map has no model (e.g. after
+        ``read(..., with_model=False)``), and ``layout`` is always ``None``.
     """
     model = map_.model
-    model_info = {
-        "compartments": len(model.compartments),
-        "species": len(model.species),
-        "reactions": len(model.reactions),
-    }
+    if model is None:
+        model_info = None
+    else:
+        model_info = {
+            "compartments": len(model.compartments),
+            "species": len(model.species),
+            "reactions": len(model.reactions),
+        }
     return {
         "map_type": "SBML",
         "model": model_info,
