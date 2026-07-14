@@ -197,6 +197,23 @@ def func(param1: str, param2: int = 0) -> list[str]:
 - `momapy.coloring.Color` class
 - Predefined: `momapy.coloring.black`, `momapy.coloring.white`, etc.
 
+### `NoneValue` vs `None` (SVG "none" vs "unset")
+
+`momapy.drawing.NoneValue` is a singleton (`NoneValueType`) distinct from
+Python `None`. On presentation/drawing attributes the two mean different
+things, **by design**:
+
+- `NoneValue` ⇔ SVG `"none"` — an explicit value. It is serialized as
+  `attribute="none"` (e.g. `fill="none"`, `edgeMode="none"`), and a backend
+  that must choose a concrete behavior maps it to the `"none"` equivalent
+  (skia: `TileMode.kDecal`).
+- `None` ⇔ SVG "unset" — the attribute is omitted from the output, letting
+  the consumer apply the SVG default.
+
+Compare with `is` / `is not NoneValue` (never truthiness or `== None`), since
+it is a separate singleton. See the `NoneValueType` docstring in
+`src/momapy/drawing.py`.
+
 ## Conventional Commits
 
 Enforced via commitlint. Format: `<type>(<scope>): <subject>`

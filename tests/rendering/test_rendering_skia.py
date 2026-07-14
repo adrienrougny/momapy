@@ -43,3 +43,19 @@ class TestSkiaRendering:
         )
         assert os.path.exists(output_file)
         assert os.path.getsize(output_file) > 0
+
+    def test_default_edge_mode_resolves_to_tile_mode(self):
+        """The default blur edge_mode (NoneValue) resolves to a TileMode.
+
+        Regression (finding 5): the mapping was keyed on None, but
+        GaussianBlurEffect.edge_mode defaults to NoneValue, so the lookup
+        raised KeyError for any directly-built blur with the default edge mode.
+        """
+        import momapy.drawing
+        import momapy.rendering.skia
+
+        mapping = momapy.rendering.skia.SkiaRenderer._fe_gaussian_blur_edgemode_tilemode_mapping
+        assert momapy.drawing.NoneValue in mapping
+        assert None not in mapping
+        effect = momapy.drawing.GaussianBlurEffect(std_deviation=2.0)
+        assert mapping[effect.edge_mode] is skia.TileMode.kDecal

@@ -137,7 +137,7 @@ class SkiaRenderer(
     ] = {
         EdgeMode.WRAP: skia.TileMode.kMirror,
         EdgeMode.DUPLICATE: skia.TileMode.kClamp,
-        None: skia.TileMode.kDecal,
+        NoneValue: skia.TileMode.kDecal,
     }
     _te_font_style_slant_mapping: typing.ClassVar[dict[typing.Any, typing.Any]] = {
         FontStyle.NORMAL: skia.FontStyle.Slant.kUpright_Slant,

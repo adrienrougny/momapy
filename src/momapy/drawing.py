@@ -110,7 +110,7 @@ __all__ = [
 
 
 class NoneValueType(object):
-    """Singleton type for None values (as in SVG)."""
+    """Singleton type for the SVG ``"none"`` value (distinct from ``None``)."""
 
     def __copy__(self) -> "NoneValueType":
         """Return the singleton itself, as it is immutable."""
