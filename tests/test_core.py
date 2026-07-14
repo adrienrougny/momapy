@@ -229,10 +229,23 @@ class TestArcPoints:
         arc = _ConcreteArc(segments=())
         assert arc.points() == []
 
-    def test_empty_arc_start_point_raises_index_error(self):
+    def test_empty_arc_start_point_raises_value_error(self):
+        # Regression (finding 13): was IndexError.
         arc = _ConcreteArc(segments=())
-        with pytest.raises(IndexError):
+        with pytest.raises(ValueError):
             arc.start_point()
+
+    def test_empty_arc_end_point_raises_value_error(self):
+        # Regression (finding 13): was IndexError.
+        arc = _ConcreteArc(segments=())
+        with pytest.raises(ValueError):
+            arc.end_point()
+
+    def test_empty_arc_fraction_raises_value_error(self):
+        # Regression (finding 13): was UnboundLocalError.
+        arc = _ConcreteArc(segments=())
+        with pytest.raises(ValueError):
+            arc.fraction(0.5)
 
 
 class TestArcPathAction:

@@ -884,11 +884,23 @@ class Arc(GroupLayout):
         return sum([segment.length() for segment in self.segments])
 
     def start_point(self) -> Point:
-        """Return the starting point of the arc."""
+        """Return the starting point of the arc.
+
+        Raises:
+            ValueError: If the arc has no segments.
+        """
+        if not self.segments:
+            raise ValueError("arc has no segments")
         return self.points()[0]
 
     def end_point(self) -> Point:
-        """Return the ending point of the arc."""
+        """Return the ending point of the arc.
+
+        Raises:
+            ValueError: If the arc has no segments.
+        """
+        if not self.segments:
+            raise ValueError("arc has no segments")
         return self.points()[-1]
 
     def childless(self) -> typing_extensions.Self:
@@ -896,7 +908,13 @@ class Arc(GroupLayout):
         return dataclasses.replace(self, layout_elements=tuple([]))
 
     def fraction(self, fraction: float) -> tuple[Point, float]:
-        """Return the position and angle on the arc at a given fraction (of the total arc length)."""
+        """Return the position and angle on the arc at a given fraction (of the total arc length).
+
+        Raises:
+            ValueError: If the arc has no segments.
+        """
+        if not self.segments:
+            raise ValueError("arc has no segments")
         current_length = 0
         length_to_reach = fraction * self.length()
         for segment in self.segments:
