@@ -542,7 +542,7 @@ def set_complexes_to_fit_content(
             if elements:
                 set_fit(complex_layout, elements, xsep, ysep)
                 if complex_layout.label is not None:
-                    complex_layout.label.position = complex_layout.position
+                    complex_layout.label.position = complex_layout.label_center()
                 _update_active_layout(complex_layout)
     if snap_arcs:
         set_arcs_to_borders(map_builder)

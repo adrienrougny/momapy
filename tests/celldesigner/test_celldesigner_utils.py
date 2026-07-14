@@ -183,6 +183,30 @@ class TestSetLayoutToFitContent:
         assert isinstance(result, CellDesignerMap)
 
 
+class TestSetComplexesToFitContent:
+    """set_complexes_to_fit_content places labels at label_center."""
+
+    def test_label_at_label_center(self, cd_map):
+        """The complex label is anchored at label_center() (bottom), not center.
+
+        Regression: the CD utility copied the sbgn.utils line that sets the
+        label to complex_layout.position (center); CellDesigner's
+        ComplexLayout.label_center() is near the bottom, matching where the
+        reader places the label.
+        """
+        result = momapy.celldesigner.utils.set_complexes_to_fit_content(cd_map)
+        checked = 0
+        for le in result.layout.descendants():
+            if not isinstance(le, ComplexLayout):
+                continue
+            if le.label is None:
+                continue
+            assert le.label.position == le.label_center()
+            checked += 1
+        if checked == 0:
+            pytest.skip("no complex layout with a label in this map")
+
+
 class TestTidy:
     """tidy applies all layout optimizations."""
 
