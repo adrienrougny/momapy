@@ -254,6 +254,70 @@ class TestEllipticalArc:
         assert arc.evaluate(0.5) == point
         assert arc.get_center() == point
 
+    @pytest.mark.parametrize("rx, ry", [(0.0, 5.0), (5.0, 0.0), (0.0, 0.0)])
+    def test_zero_radius_arc_degrades_to_line(self, rx, ry):
+        """A zero-radius arc with distinct endpoints behaves as a p1->p2 line.
+
+        Regression (finding 12): the center parameterization divided by the
+        radii, so any dependent method raised ZeroDivisionError. Per SVG
+        (Implementation Notes F.6.2) such an arc is a straight line joining the
+        endpoints.
+        """
+        p1 = momapy.geometry.Point(0.0, 0.0)
+        p2 = momapy.geometry.Point(10.0, 4.0)
+        arc = momapy.geometry.EllipticalArc(
+            p1, p2, rx=rx, ry=ry, x_axis_rotation=0.0, arc_flag=0, sweep_flag=1
+        )
+        assert arc.evaluate(0.0) == p1
+        assert arc.evaluate(1.0) == p2
+        midpoint = momapy.geometry.Point(5.0, 2.0)
+        assert arc.evaluate(0.5) == midpoint
+        assert arc.length() == pytest.approx(math.hypot(10.0, 4.0))
+        # bbox spans the segment exactly.
+        bbox = arc.bbox()
+        assert bbox.width == pytest.approx(10.0)
+        assert bbox.height == pytest.approx(4.0)
+        assert bbox.position == midpoint
+        # derivative points along p2 - p1.
+        derivative_x, derivative_y = arc.derivative(0.3)
+        assert math.atan2(derivative_y, derivative_x) == pytest.approx(
+            math.atan2(4.0, 10.0)
+        )
+        # get_center falls back to the midpoint (a line has no ellipse center).
+        assert arc.get_center() == midpoint
+
+    def test_zero_radius_arc_intersection_with_line(self):
+        """A degenerate arc intersects a line as its p1->p2 segment does."""
+        arc = momapy.geometry.EllipticalArc(
+            momapy.geometry.Point(0.0, 0.0),
+            momapy.geometry.Point(10.0, 4.0),
+            rx=0.0,
+            ry=5.0,
+            x_axis_rotation=0.0,
+            arc_flag=0,
+            sweep_flag=1,
+        )
+        line = momapy.geometry.Line(
+            momapy.geometry.Point(5.0, -10.0), momapy.geometry.Point(5.0, 10.0)
+        )
+        intersections = arc.get_intersection_with_line(line)
+        assert len(intersections) == 1
+        assert intersections[0] == momapy.geometry.Point(5.0, 2.0)
+
+    def test_zero_radius_arc_center_parameterization_raises(self):
+        """The center parameterization is undefined for a degenerate arc."""
+        arc = momapy.geometry.EllipticalArc(
+            momapy.geometry.Point(0.0, 0.0),
+            momapy.geometry.Point(10.0, 4.0),
+            rx=0.0,
+            ry=5.0,
+            x_axis_rotation=0.0,
+            arc_flag=0,
+            sweep_flag=1,
+        )
+        with pytest.raises(ValueError):
+            arc.get_center_parameterization()
+
     def test_transformed_non_uniform_scaling_measures_ry_correctly(self):
         """Regression (finding 7): the minor-axis probe must be perpendicular.
 

@@ -1342,6 +1342,14 @@ class EllipticalArc(GeometryObject):
         object.__setattr__(self, "rx", round(self.rx, ROUNDING))
         object.__setattr__(self, "ry", round(self.ry, ROUNDING))
 
+    def _is_degenerate_line(self) -> bool:
+        """Return `True` if the arc degenerates to a straight `p1 -> p2` line.
+
+        Per SVG (Implementation Notes F.6.2), an arc with a zero radius and
+        distinct endpoints is drawn as a straight line joining the endpoints.
+        """
+        return (self.rx == 0 or self.ry == 0) and self.p1 != self.p2
+
     def get_intersection_with_line(self, line: Line) -> list[Point]:
         """Get intersection with a line.
 
@@ -1354,6 +1362,8 @@ class EllipticalArc(GeometryObject):
         Returns:
             List of intersection points.
         """
+        if self._is_degenerate_line():
+            return Segment(self.p1, self.p2).get_intersection_with_line(line)
         cx, cy, rx, ry, sigma, theta1, theta2, delta_theta = (
             self.get_center_parameterization()
         )
@@ -1416,6 +1426,11 @@ class EllipticalArc(GeometryObject):
             # derivative/length well-defined (position p1, derivative 0,
             # length 0) instead of dividing by zero below.
             return (self.p1.x, self.p1.y, 0.0, 0.0, sigma, 0.0, 0.0, 0.0)
+        if self.rx == 0 or self.ry == 0:
+            raise ValueError(
+                "elliptical arc with a zero radius and distinct endpoints "
+                "has no center parameterization"
+            )
         x1, y1 = self.p1.x, self.p1.y
         x2, y2 = self.p2.x, self.p2.y
         rx = self.rx
@@ -1457,8 +1472,12 @@ class EllipticalArc(GeometryObject):
         """Get the center point of the ellipse.
 
         Returns:
-            The center point.
+            The center point. For a degenerate zero-radius arc (a straight
+            line) there is no ellipse center, so the midpoint of the endpoints
+            is returned.
         """
+        if self._is_degenerate_line():
+            return Point((self.p1.x + self.p2.x) / 2, (self.p1.y + self.p2.y) / 2)
         cx, cy, *_ = self.get_center_parameterization()
         return Point(cx, cy)
 
@@ -1471,6 +1490,11 @@ class EllipticalArc(GeometryObject):
         Returns:
             The point at parameter t.
         """
+        if self._is_degenerate_line():
+            return Point(
+                self.p1.x + t * (self.p2.x - self.p1.x),
+                self.p1.y + t * (self.p2.y - self.p1.y),
+            )
         cx, cy, rx, ry, sigma, theta1, theta2, delta_theta = (
             self.get_center_parameterization()
         )
@@ -1492,6 +1516,8 @@ class EllipticalArc(GeometryObject):
         Returns:
             Tuple of (dx, dy) derivatives.
         """
+        if self._is_degenerate_line():
+            return (self.p2.x - self.p1.x, self.p2.y - self.p1.y)
         cx, cy, rx, ry, sigma, theta1, theta2, delta_theta = (
             self.get_center_parameterization()
         )
@@ -1575,6 +1601,8 @@ class EllipticalArc(GeometryObject):
         Returns:
             A Bbox enclosing the arc.
         """
+        if self._is_degenerate_line():
+            return Bbox.around_points([self.p1, self.p2])
         cx, cy, rx, ry, sigma, theta1, theta2, delta_theta = (
             self.get_center_parameterization()
         )
