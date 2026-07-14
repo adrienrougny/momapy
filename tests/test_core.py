@@ -283,6 +283,43 @@ class TestGroupLayoutOwnBbox:
         assert full_bbox.height == pytest.approx(1020.0)
 
 
+class TestMapIsSubmap:
+    """Map.is_submap guards incomplete maps on both sides."""
+
+    def _complete_map(self):
+        import momapy.core.mapping
+        import momapy.sbgn.pd
+
+        return momapy.sbgn.pd.SBGNPDMap(
+            model=momapy.sbgn.pd.SBGNPDModel(),
+            layout=momapy.core.layout.Layout(
+                position=momapy.geometry.Point(0, 0), width=10, height=10
+            ),
+            layout_model_mapping=momapy.core.mapping.LayoutModelMapping(),
+        )
+
+    def test_complete_is_submap_of_itself(self):
+        """A complete (empty) map is a submap of itself."""
+        complete = self._complete_map()
+        assert complete.is_submap(complete) is True
+
+    def test_complete_is_not_submap_of_incomplete_other(self):
+        """A complete map is not a submap of an incomplete other (no crash)."""
+        import momapy.sbgn.pd
+
+        complete = self._complete_map()
+        incomplete = momapy.sbgn.pd.SBGNPDMap()
+        assert complete.is_submap(incomplete) is False
+
+    def test_incomplete_self_is_not_submap(self):
+        """An incomplete self is not a submap of a complete map."""
+        import momapy.sbgn.pd
+
+        complete = self._complete_map()
+        incomplete = momapy.sbgn.pd.SBGNPDMap()
+        assert incomplete.is_submap(complete) is False
+
+
 class TestDoubleHeadedArcOwnGroupId:
     """DoubleHeadedArc own group must not collide with the outer group id."""
 

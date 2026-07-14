@@ -29,11 +29,19 @@ class Map(MapElement):
     )
 
     def is_submap(self, other: "Map") -> bool:
-        """Return `True` if the `Map` is a submap of another given map, `False` otherwise."""
+        """Return `True` if the `Map` is a submap of another given map, `False` otherwise.
+
+        A complete map is never a submap of an incomplete one: if either `self`
+        or `other` has a `None` model, layout, or layout-model mapping, this
+        returns `False`.
+        """
         if (
             self.model is None
             or self.layout is None
             or self.layout_model_mapping is None
+            or other.model is None
+            or other.layout is None
+            or other.layout_model_mapping is None
         ):
             return False
         return (
