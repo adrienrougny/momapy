@@ -287,7 +287,7 @@ _MODIFICATION_STATE_TO_CD = {
     "PALMITOYLATED": "palmitoylated",
     "PRENYLATED": "prenylated",
     "PROTONATED": "protonated",
-    "SUMOYLATED": "sumoylated",
+    "SULFATED": "sulfated",
     "DON_T_CARE": "don't care",
     "UNKNOWN": "unknown",
     "none": "empty",

@@ -245,3 +245,31 @@ class TestSubunitToComplexUsesIdentity:
             "layout even though its model species is content-equal to a "
             "subunit of a kept complex"
         )
+
+
+class TestModificationStateString:
+    """Regression tests for ``modification_state_string``."""
+
+    def test_every_member_serializes_without_silent_data_loss(self):
+        from momapy.celldesigner.io.celldesigner._writing import (
+            modification_state_string,
+        )
+        from momapy.celldesigner.model import ModificationState
+
+        for member in ModificationState:
+            assert modification_state_string(member) != "empty", (
+                f"{member.name} must not serialize to 'empty' (silent data loss)"
+            )
+
+    def test_sulfated_round_trips_through_the_reader(self):
+        from momapy.celldesigner.io.celldesigner._writing import (
+            modification_state_string,
+        )
+        from momapy.celldesigner.model import ModificationState
+
+        cd_string = modification_state_string(ModificationState.SULFATED)
+        assert cd_string == "sulfated"
+        recovered = ModificationState[
+            cd_string.upper().replace(" ", "_").replace("'", "_")
+        ]
+        assert recovered is ModificationState.SULFATED
