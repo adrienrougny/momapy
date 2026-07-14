@@ -388,7 +388,15 @@ class Renderer(abc.ABC):
 
         Args:
             map_: The map to render.
+
+        Raises:
+            ValueError: If the map has no layout to render.
         """
+        if map_.layout is None:
+            raise ValueError(
+                "map has no layout to render (its layout is None); "
+                "a layout-less map (e.g. an SBML map) cannot be rendered"
+            )
         self.render_layout_element(map_.layout)
 
     @abc.abstractmethod

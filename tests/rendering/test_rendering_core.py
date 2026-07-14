@@ -71,6 +71,52 @@ def test_render_map_rejects_layout_less_map(temp_dir):
         momapy.rendering.core.render_maps([layout_less_map], output_file)
 
 
+def test_renderer_render_map_rejects_layout_less_map():
+    """Renderer.render_map raises a clear ValueError, like the module-level one.
+
+    Regression (finding 15): the convenience method previously called
+    render_layout_element(None) and raised a raw AttributeError.
+    """
+    import momapy.builder
+    import momapy.core
+
+    class DummyRenderer(momapy.rendering.core.Renderer):
+        supported_formats = ["svg"]
+
+        def begin_session(self):
+            pass
+
+        def end_session(self):
+            pass
+
+        def new_page(self, width, height):
+            pass
+
+        def render_layout_element(self, layout_element):
+            pass
+
+        def render_drawing_element(self, drawing_element):
+            pass
+
+        @classmethod
+        def from_file(cls, file_path, width, height, format_):
+            pass
+
+        def self_save(self):
+            pass
+
+        def self_restore(self):
+            pass
+
+    builder = momapy.builder.builder_from_object(momapy.core.Map())
+    builder.layout = None
+    layout_less_map = builder.build()
+
+    renderer = DummyRenderer()
+    with pytest.raises(ValueError, match="no layout"):
+        renderer.render_map(layout_less_map)
+
+
 def test_render_layout_elements_rejects_non_file_renderer(sample_map, temp_dir):
     """A renderer without from_file raises a clear error on file output."""
     import os
