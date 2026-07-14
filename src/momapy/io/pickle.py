@@ -15,7 +15,9 @@ from momapy.builder import builder_from_object
 from momapy.builder import object_from_builder
 from momapy.core.elements import LayoutElement
 from momapy.core.elements import ModelElement
+from momapy.core.layout import Layout
 from momapy.core.map import Map
+from momapy.core.model import Model
 from momapy.io.core import Reader
 from momapy.io.core import ReaderResult
 from momapy.io.core import Writer
@@ -102,6 +104,12 @@ class PickleReader(Reader):
     ) -> ReaderResult:
         """Load a pickled `ReaderResult` and project it per the flags.
 
+        Pickle is shape-agnostic: the pickled `obj` may be a `Map`, a bare
+        `Model`, or a bare `Layout`. When `obj` is a `Map` it is projected as
+        requested; when `obj` is already a bare `Model`/`Layout` it is returned
+        as-is if it matches `return_type`. A mismatch (e.g. `return_type="map"`
+        on a bare `Model`) raises `ValueError`.
+
         Args:
             file_path: Path of the pickle file to read.
             return_type: Shape of `result.obj`: `"map"` (default) returns the
@@ -119,6 +127,10 @@ class PickleReader(Reader):
 
         Returns:
             The unpickled `ReaderResult`, projected per the flags.
+
+        Raises:
+            ValueError: If `return_type` is incompatible with the pickled
+                object's shape (e.g. a bare `Model` requested as a `"map"`).
         """
         with open(file_path, "rb") as f:
             reader_result = pickle.load(f)
@@ -128,33 +140,48 @@ class PickleReader(Reader):
             reader_result.element_to_notes = None
         obj = reader_result.obj
         if return_type == "model":
-            obj = obj.model
+            if isinstance(obj, Map):
+                obj = obj.model
+            elif not isinstance(obj, Model):
+                raise ValueError(
+                    f"cannot return a model from a pickled {type(obj).__name__}"
+                )
             _filter_annotation_mappings(
                 reader_result,
                 include_classes=[ModelElement],
             )
         elif return_type == "layout":
-            obj = obj.layout
+            if isinstance(obj, Map):
+                obj = obj.layout
+            elif not isinstance(obj, Layout):
+                raise ValueError(
+                    f"cannot return a layout from a pickled {type(obj).__name__}"
+                )
             _filter_annotation_mappings(
                 reader_result,
                 include_classes=[LayoutElement],
             )
-        elif not with_model or not with_layout:
-            map_builder = builder_from_object(obj)
-            if not with_model:
-                map_builder.model = None
-                _filter_annotation_mappings(
-                    reader_result,
-                    exclude_classes=[ModelElement],
+        else:
+            if not isinstance(obj, Map):
+                raise ValueError(
+                    f"cannot return a map from a pickled {type(obj).__name__}"
                 )
-            if not with_layout:
-                map_builder.layout = None
-                _filter_annotation_mappings(
-                    reader_result,
-                    exclude_classes=[LayoutElement],
-                )
-            map_builder.layout_model_mapping = None
-            obj = object_from_builder(map_builder)
+            if not with_model or not with_layout:
+                map_builder = builder_from_object(obj)
+                if not with_model:
+                    map_builder.model = None
+                    _filter_annotation_mappings(
+                        reader_result,
+                        exclude_classes=[ModelElement],
+                    )
+                if not with_layout:
+                    map_builder.layout = None
+                    _filter_annotation_mappings(
+                        reader_result,
+                        exclude_classes=[LayoutElement],
+                    )
+                map_builder.layout_model_mapping = None
+                obj = object_from_builder(map_builder)
         reader_result.obj = obj
         return reader_result
 
