@@ -1583,6 +1583,10 @@ class _SBGNMLReader(Reader):
             ]
             sbgnml_source_id = sbgnml_source_element.get("id")
             sbgnml_target_id = sbgnml_modulation.get("target")
+            sbgnml_target_element = reading_context.xml_id_to_xml_element[
+                sbgnml_target_id
+            ]
+            sbgnml_target_id = sbgnml_target_element.get("id")
             if reading_context.model is not None:
                 source_model_element = next(
                     iter(

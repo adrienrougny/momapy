@@ -396,3 +396,67 @@ class TestIsProcessLeftToRight:
         process = self._StubProcess("p")
         result = parsing.is_process_left_to_right(process, {"p": []})
         assert result is True
+
+
+_MODULATION_TARGETS_PORT_SBGN = """\
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sbgn xmlns="http://sbgn.org/libsbgn/0.3">
+    <map language="process description" id="map_port_target">
+        <glyph id="glyph1" class="macromolecule">
+            <label text="A"/>
+            <bbox y="100.0" x="100.0" h="60.0" w="120.0"/>
+        </glyph>
+        <glyph id="glyph2" class="macromolecule">
+            <label text="B"/>
+            <bbox y="100.0" x="300.0" h="60.0" w="120.0"/>
+        </glyph>
+        <glyph id="glyph3" class="process">
+            <bbox y="120.0" x="250.0" h="20.0" w="20.0"/>
+            <port id="glyph3.1" y="130.0" x="240.0"/>
+            <port id="glyph3.2" y="130.0" x="280.0"/>
+        </glyph>
+        <glyph id="glyph4" class="macromolecule">
+            <label text="Cat"/>
+            <bbox y="300.0" x="240.0" h="60.0" w="120.0"/>
+        </glyph>
+        <arc id="arc1" target="glyph3.1" source="glyph1" class="consumption">
+            <start y="130.0" x="220.0"/>
+            <end y="130.0" x="240.0"/>
+        </arc>
+        <arc id="arc2" target="glyph2" source="glyph3.2" class="production">
+            <start y="130.0" x="280.0"/>
+            <end y="130.0" x="300.0"/>
+        </arc>
+        <arc id="arc3" target="glyph3.1" source="glyph4" class="catalysis">
+            <start y="300.0" x="260.0"/>
+            <end y="145.0" x="260.0"/>
+        </arc>
+    </map>
+</sbgn>
+"""
+
+
+class TestModulationTargetsPort:
+    """Regression: a modulation arc whose target is a process port.
+
+    Previously the reader port-resolved the arc source but not the target,
+    so ``return_type="map"``/``"layout"`` raised ``KeyError`` at the layout
+    lookup and ``return_type="model"`` silently produced ``target=None``.
+    """
+
+    @pytest.fixture
+    def sbgn_file(self, tmp_path):
+        path = tmp_path / "modulation_targets_port.sbgn"
+        path.write_text(_MODULATION_TARGETS_PORT_SBGN)
+        return str(path)
+
+    @pytest.mark.parametrize("return_type", ["map", "model", "layout"])
+    def test_read_does_not_crash(self, sbgn_file, return_type):
+        result = momapy.io.core.read(sbgn_file, return_type=return_type)
+        assert result.obj is not None
+
+    def test_model_target_resolves_to_process(self, sbgn_file):
+        model = momapy.io.core.read(sbgn_file, return_type="model").obj
+        (modulation,) = tuple(model.modulations)
+        assert modulation.target is not None
+        assert modulation.target in model.processes
