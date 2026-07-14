@@ -1908,6 +1908,9 @@ def main() -> None:
         devnull = os.open(os.devnull, os.O_WRONLY)
         os.dup2(devnull, sys.stdout.fileno())
         sys.exit(141)
+    except (FileNotFoundError, ValueError) as error:
+        print(f"error: {error}", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

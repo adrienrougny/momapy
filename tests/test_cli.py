@@ -31,43 +31,62 @@ class TestCLIArgumentParsing:
 class TestCLIRenderCommand:
     """Tests for CLI render command."""
 
-    def test_render_with_missing_input_file(self):
-        """Test render with non-existent input file."""
+    SBGN_MAP_PATH = os.path.join(
+        os.path.dirname(__file__), "sbgn", "maps", "pd", "glycolysis.sbgn"
+    )
+
+    def test_render_with_missing_input_file(self, tmp_path, capsys):
+        """A missing input file exits cleanly instead of dumping a traceback."""
         with mock.patch(
             "sys.argv",
             [
                 "momapy",
                 "render",
-                "--input",
                 "/nonexistent/file.sbgn",
-                "--output",
-                "/tmp/output.svg",
+                "-o",
+                str(tmp_path / "output.svg"),
             ],
         ):
-            with pytest.raises((SystemExit, FileNotFoundError)):
+            with pytest.raises(SystemExit) as exc_info:
                 momapy.cli.main()
+        assert exc_info.value.code == 1
+        assert "error:" in capsys.readouterr().err
 
-    def test_render_with_unsupported_format(self, tmp_path):
-        """Test render with unsupported format."""
-        # Create a dummy input file
-        input_file = tmp_path / "test.sbgn"
-        input_file.write_text("<sbgn></sbgn>")
-        output_file = tmp_path / "output.unsupported"
-
+    def test_render_with_unsupported_format(self, tmp_path, capsys):
+        """An unresolvable output format exits cleanly instead of a traceback."""
         with mock.patch(
             "sys.argv",
             [
                 "momapy",
                 "render",
-                "--input",
-                str(input_file),
-                "--output",
-                str(output_file),
+                self.SBGN_MAP_PATH,
+                "-o",
+                str(tmp_path / "output.unsupported"),
             ],
         ):
-            # Should raise an error for unsupported format
-            with pytest.raises((SystemExit, ValueError, Exception)):
+            with pytest.raises(SystemExit) as exc_info:
                 momapy.cli.main()
+        assert exc_info.value.code == 1
+        assert "error:" in capsys.readouterr().err
+
+    def test_render_with_unknown_renderer(self, tmp_path, capsys):
+        """An unknown --renderer exits cleanly instead of a traceback."""
+        with mock.patch(
+            "sys.argv",
+            [
+                "momapy",
+                "render",
+                self.SBGN_MAP_PATH,
+                "-o",
+                str(tmp_path / "output.svg"),
+                "-r",
+                "nosuch",
+            ],
+        ):
+            with pytest.raises(SystemExit) as exc_info:
+                momapy.cli.main()
+        assert exc_info.value.code == 1
+        assert "error:" in capsys.readouterr().err
 
 
 class TestCLIInfoCommand:
