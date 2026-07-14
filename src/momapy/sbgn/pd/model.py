@@ -44,7 +44,7 @@ class UnitOfInformation(SBGNAuxiliaryUnit):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Subunit(SBGNAuxiliaryUnit):
-    """Subunit."""
+    """Abstract base class for subunits."""
 
     label: str | None = dataclasses.field(
         default=None, metadata={"description": "The label of the subunit"}
@@ -128,7 +128,7 @@ class ComplexSubunit(Subunit):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class MultimerSubunit(ComplexSubunit):
-    """Multimer subunit."""
+    """Abstract base class for multimer subunits."""
 
     cardinality: int | None = dataclasses.field(
         default=None,
@@ -183,7 +183,7 @@ class Compartment(SBGNModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class EntityPool(SBGNModelElement):
-    """Entity pool."""
+    """Abstract base class for entity pools."""
 
     compartment: Compartment | None = dataclasses.field(
         default=None, metadata={"description": "The compartment of the entity pool"}
@@ -284,7 +284,7 @@ class Complex(EntityPool):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Multimer(Complex):
-    """Multimer."""
+    """Abstract base class for multimers."""
 
     cardinality: int | None = dataclasses.field(
         default=None, metadata={"description": "The cardinality of the multimer"}
@@ -321,7 +321,7 @@ class ComplexMultimer(Multimer):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class FluxRole(SBGNRole):
-    """Flux role."""
+    """Abstract base class for flux roles."""
 
     referred_element: EntityPool = dataclasses.field(
         metadata={"description": "The entity pool of the flux role"}
@@ -377,14 +377,14 @@ class EquivalenceOperatorOutput(SBGNRole):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Process(SBGNModelElement):
-    """Process."""
+    """Abstract base class for processes."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class StoichiometricProcess(Process):
-    """Stoichiometric process.
+    """Abstract base class for stoichiometric processes.
 
     SBGN PD's empty-set glyph (used as a source-and-sink for unspecified
     external flux) is *not* represented as a member of ``reactants`` or
@@ -473,7 +473,7 @@ class Phenotype(Process):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class LogicalOperator(SBGNModelElement):
-    """Logical operator."""
+    """Abstract base class for logical operators."""
 
     inputs: frozenset[LogicalOperatorInput] = dataclasses.field(
         default_factory=frozenset,

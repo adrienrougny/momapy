@@ -7,7 +7,7 @@ from momapy.core.elements import ModelElement
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBMLModelElement(ModelElement):
-    """SBML model element."""
+    """Abstract base class for SBML model elements."""
 
     name: str | None = dataclasses.field(
         default=None,

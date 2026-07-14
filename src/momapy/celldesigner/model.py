@@ -151,12 +151,11 @@ class ProteinBindingDomain(Region):
     pass
 
 
-# abstract
 # changed name from reference to template to distinguish from SBML's
 # species reference which has a different meaning (reference to a species)
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SpeciesTemplate(CellDesignerModelElement):
-    """Species template."""
+    """Abstract base class for species templates."""
 
     name: str = dataclasses.field(
         metadata={"description": "The name of the species template"}
@@ -165,7 +164,7 @@ class SpeciesTemplate(CellDesignerModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ProteinTemplate(SpeciesTemplate):
-    """Protein template."""
+    """Abstract base class for protein templates."""
 
     modification_residues: frozenset[ModificationResidue] = dataclasses.field(
         default_factory=frozenset,
@@ -271,10 +270,9 @@ class Compartment(SBMLCompartment, CellDesignerModelElement):
     pass
 
 
-# abstract
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Species(SBMLSpecies, CellDesignerModelElement):
-    """Species."""
+    """Abstract base class for species."""
 
     hypothetical: bool = dataclasses.field(
         default=False,
@@ -290,10 +288,9 @@ class Species(SBMLSpecies, CellDesignerModelElement):
     )
 
 
-# abstract
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Protein(Species):
-    """Protein."""
+    """Abstract base class for proteins."""
 
     template: ProteinTemplate = dataclasses.field(
         metadata={"description": "The template of the species"}
@@ -459,10 +456,9 @@ class BooleanLogicGateInput(SimpleSpeciesReference, CellDesignerModelElement):
     pass
 
 
-# abstract
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class BooleanLogicGate(CellDesignerModelElement):
-    """Boolean logic gate."""
+    """Abstract base class for boolean logic gates."""
 
     inputs: frozenset[BooleanLogicGateInput] = dataclasses.field(
         default_factory=frozenset,
@@ -498,10 +494,9 @@ class UnknownGate(BooleanLogicGate):
     pass
 
 
-# abstract
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class KnownOrUnknownModulator(ModifierSpeciesReference, CellDesignerModelElement):
-    """Known OR unknown modulator."""
+    """Abstract base class for known or unknown modulators."""
 
     # redefined because can be BooleanLogicGate
     referred_element: Species | BooleanLogicGate = dataclasses.field(
@@ -565,10 +560,9 @@ class UnknownInhibitor(UnknownModulator):
     pass
 
 
-# abstract
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Reaction(SBMLReaction, CellDesignerModelElement):
-    """Reaction.
+    """Abstract base class for reactions.
 
     CellDesigner's degraded glyph (a ``<species class="DEGRADED">`` used
     as a source-and-sink for unspecified external flux) is *not*
@@ -672,10 +666,9 @@ class Truncation(Reaction):
     pass
 
 
-# abstract
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class KnownOrUnknownModulation(CellDesignerModelElement):
-    """Known OR unknown modulation."""
+    """Abstract base class for known or unknown modulations."""
 
     source: Species | BooleanLogicGate = dataclasses.field(
         metadata={"description": "The source of the influence"}

@@ -23,24 +23,23 @@ from momapy.drawing import DrawingElement, NoneValue, NoneValueType
 from momapy.sbgn.elements import SBGNNode, _MultiMixin, _SBGNMixin, _SimpleMixin
 
 
-# abstract
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CellDesignerModelElement(ModelElement):
-    """CellDesigner model element."""
+    """Abstract base class for CellDesigner model elements."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CellDesignerNode(SBGNNode):
-    """CellDesigner node."""
+    """Abstract base class for CellDesigner nodes."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CellDesignerSingleHeadedArc(SingleHeadedArc):
-    """CellDesigner single headed arc."""
+    """Abstract base class for CellDesigner single-headed arcs."""
 
     arrowhead_stroke: NoneValueType | Color | None = black
     arrowhead_stroke_width: float | None = 1.0
@@ -67,7 +66,7 @@ class CellDesignerSingleHeadedArc(SingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CellDesignerDoubleHeadedArc(DoubleHeadedArc):
-    """CellDesigner double headed arc."""
+    """Abstract base class for CellDesigner double-headed arcs."""
 
     path_fill: NoneValueType | Color | None = NoneValue
     path_stroke: NoneValueType | Color | None = black

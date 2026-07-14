@@ -9,7 +9,7 @@ from momapy.sbgn.model import SBGNModel
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNMap(Map):
-    """Base class for SBGN maps.
+    """Abstract base class for SBGN maps.
 
     SBGN maps combine a model and its visual layout into a complete
     diagram representation.

@@ -41,21 +41,21 @@ from momapy.geometry import Transformation
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNModelElement(ModelElement):
-    """SBGN model element."""
+    """Abstract base class for SBGN model elements."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNAuxiliaryUnit(SBGNModelElement):
-    """SBGN auxiliary unit."""
+    """Abstract base class for SBGN auxiliary units."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNRole(SBGNModelElement):
-    """SBGN role."""
+    """Abstract base class for SBGN roles."""
 
     referred_element: SBGNModelElement = dataclasses.field(
         metadata={"description": "The SBGN model element that has this role."}
@@ -64,7 +64,7 @@ class SBGNRole(SBGNModelElement):
 
 @dataclasses.dataclass(frozen=True)
 class SBGNNode(Node):
-    """SBGN node."""
+    """Abstract base class for SBGN nodes."""
 
     fill: NoneValueType | Color | None = white
     stroke: NoneValueType | Color | None = black
@@ -91,7 +91,7 @@ class SBGNNode(Node):
 
 @dataclasses.dataclass(frozen=True)
 class SBGNSingleHeadedArc(SingleHeadedArc):
-    """SBGN single headed arc."""
+    """Abstract base class for SBGN single-headed arcs."""
 
     arrowhead_fill: NoneValueType | Color | None = white
     arrowhead_stroke: NoneValueType | Color | None = black
@@ -103,7 +103,7 @@ class SBGNSingleHeadedArc(SingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True)
 class SBGNDoubleHeadedArc(DoubleHeadedArc):
-    """SBGN double headed arc."""
+    """Abstract base class for SBGN double-headed arcs."""
 
     end_arrowhead_fill: NoneValueType | Color | None = white
     end_arrowhead_stroke: NoneValueType | Color | None = black

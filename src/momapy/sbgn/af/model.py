@@ -13,7 +13,7 @@ from momapy.sbgn.model import SBGNModel
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnitOfInformation(SBGNAuxiliaryUnit):
-    """Unit of information."""
+    """Abstract base class for units of information."""
 
     label: str | None = dataclasses.field(
         default=None,
@@ -77,7 +77,7 @@ class PerturbationUnitOfInformation(UnitOfInformation):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Activity(SBGNModelElement):
-    """Activity."""
+    """Abstract base class for activities."""
 
     label: str | None = dataclasses.field(
         default=None, metadata={"description": "The label of the activity."}
@@ -121,7 +121,7 @@ class LogicalOperatorInput(SBGNRole):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class LogicalOperator(SBGNModelElement):
-    """Logical operator."""
+    """Abstract base class for logical operators."""
 
     inputs: frozenset[LogicalOperatorInput] = dataclasses.field(
         default_factory=frozenset,
@@ -159,7 +159,7 @@ class DelayOperator(LogicalOperator):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Influence(SBGNModelElement):
-    """Influence."""
+    """Abstract base class for influences."""
 
     source: BiologicalActivity | LogicalOperator = dataclasses.field(
         metadata={"description": "The source activity or logical operator."}

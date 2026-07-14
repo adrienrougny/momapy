@@ -99,7 +99,7 @@ class Species(SBMLModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SimpleSpeciesReference(SBMLModelElement):
-    """Simple species reference."""
+    """Abstract base class for simple species references."""
 
     referred_element: Species = dataclasses.field(
         metadata={"description": "The species being referenced."}
