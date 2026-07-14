@@ -1436,9 +1436,9 @@ class DoubleHeadedArc(Arc):
         )
 
         group = Group(
-            class_=type(self).__name__,
+            class_=f"{type(self).__name__}_own",
             elements=tuple(drawing_elements),
-            id_=self.id_,
+            id_=f"{self.id_}_own",
             fill=self.fill,
             filter=self.filter,
             stroke=self.stroke,

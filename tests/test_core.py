@@ -281,3 +281,36 @@ class TestGroupLayoutOwnBbox:
         full_bbox = parent.bbox()
         assert full_bbox.width == pytest.approx(1020.0)
         assert full_bbox.height == pytest.approx(1020.0)
+
+
+class TestDoubleHeadedArcOwnGroupId:
+    """DoubleHeadedArc own group must not collide with the outer group id."""
+
+    def _collect_group_ids(self, drawing_element):
+        ids = []
+        import momapy.drawing
+
+        if isinstance(drawing_element, momapy.drawing.Group):
+            ids.append(drawing_element.id_)
+            for element in drawing_element.elements:
+                ids.extend(self._collect_group_ids(element))
+        return ids
+
+    def test_nested_group_ids_are_unique(self):
+        """The outer and own groups of a DoubleTriangle carry distinct ids."""
+        import momapy.meta.arcs
+
+        arc = momapy.meta.arcs.DoubleTriangle(
+            id_="arc0",
+            segments=(
+                momapy.geometry.Segment(
+                    momapy.geometry.Point(0, 0),
+                    momapy.geometry.Point(20, 0),
+                ),
+            ),
+        )
+        group_ids = []
+        for drawing_element in arc.drawing_elements():
+            group_ids.extend(self._collect_group_ids(drawing_element))
+        assert len(group_ids) == len(set(group_ids))
+        assert "arc0_own" in group_ids
