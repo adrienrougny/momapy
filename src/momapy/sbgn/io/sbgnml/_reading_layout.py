@@ -104,7 +104,7 @@ def make_stoichiometry_layout(
             text=sbgnml_label.get("text"),
             position=stoichiometry_layout_element.position,
         )
-        layout_element.layout_elements.append(stoichiometry_layout_element)
+    layout_element.layout_elements.append(stoichiometry_layout_element)
 
 
 def set_connector_lengths(

@@ -436,6 +436,66 @@ _MODULATION_TARGETS_PORT_SBGN = """\
 """
 
 
+_LABELLESS_STOICHIOMETRY_SBGN = """\
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sbgn xmlns="http://sbgn.org/libsbgn/0.3">
+    <map language="process description" id="map_stoich">
+        <glyph id="glyph1" class="macromolecule">
+            <label text="A"/>
+            <bbox y="100.0" x="100.0" h="60.0" w="120.0"/>
+        </glyph>
+        <glyph id="glyph2" class="macromolecule">
+            <label text="B"/>
+            <bbox y="100.0" x="300.0" h="60.0" w="120.0"/>
+        </glyph>
+        <glyph id="glyph3" class="process">
+            <bbox y="120.0" x="250.0" h="20.0" w="20.0"/>
+            <port id="glyph3.1" y="130.0" x="240.0"/>
+            <port id="glyph3.2" y="130.0" x="280.0"/>
+        </glyph>
+        <arc id="arc1" target="glyph3.1" source="glyph1" class="consumption">
+            <start y="130.0" x="220.0"/>
+            <end y="130.0" x="240.0"/>
+            <glyph id="stoich1" class="stoichiometry">
+                <bbox y="118.0" x="222.0" h="16.0" w="16.0"/>
+            </glyph>
+        </arc>
+        <arc id="arc2" target="glyph2" source="glyph3.2" class="production">
+            <start y="130.0" x="280.0"/>
+            <end y="130.0" x="300.0"/>
+        </arc>
+    </map>
+</sbgn>
+"""
+
+
+class TestLabellessStoichiometry:
+    """Regression (finding 14): a label-less stoichiometry glyph is kept.
+
+    The ``layout_elements.append`` was nested in the label guard, so a
+    ``<glyph class="stoichiometry">`` with no ``<label>`` was positioned then
+    silently discarded from the layout.
+    """
+
+    @pytest.fixture
+    def sbgn_file(self, tmp_path):
+        path = tmp_path / "labelless_stoichiometry.sbgn"
+        path.write_text(_LABELLESS_STOICHIOMETRY_SBGN)
+        return str(path)
+
+    def test_labelless_stoichiometry_is_attached(self, sbgn_file):
+        import momapy.sbgn.pd
+
+        layout = momapy.io.core.read(sbgn_file, return_type="layout").obj
+        cardinalities = [
+            descendant
+            for descendant in layout.descendants()
+            if isinstance(descendant, momapy.sbgn.pd.CardinalityLayout)
+        ]
+        assert len(cardinalities) == 1
+        assert cardinalities[0].label is None
+
+
 class TestModulationTargetsPort:
     """Regression: a modulation arc whose target is a process port.
 
