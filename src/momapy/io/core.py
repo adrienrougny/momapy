@@ -24,27 +24,6 @@ from momapy.utils import FrozenSurjectionDict
 from momapy.utils import check_file_exists
 
 
-__all__ = [
-    "get_reader",
-    "get_writer",
-    "IOResult",
-    "list_readers",
-    "list_writers",
-    "read",
-    "Reader",
-    "reader_registry",
-    "ReaderResult",
-    "register_lazy_reader",
-    "register_lazy_writer",
-    "register_reader",
-    "register_writer",
-    "write",
-    "Writer",
-    "writer_registry",
-    "WriterResult",
-]
-
-
 reader_registry: "PluginRegistry[type[Reader]]" = PluginRegistry(
     entry_point_group="momapy.readers"
 )
