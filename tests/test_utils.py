@@ -180,6 +180,34 @@ def test_pretty_print_iterable_with_point():
     momapy.utils.pretty_print([momapy.geometry.Point(1, 2), 3])
 
 
+def test_pretty_print_max_depth_none_is_unlimited(capsys):
+    """max_depth=None recurses the whole structure; 0 stops at direct fields."""
+    import dataclasses
+
+    @dataclasses.dataclass
+    class Leaf:
+        value: int
+
+    @dataclasses.dataclass
+    class Mid:
+        leaf: Leaf
+
+    @dataclasses.dataclass
+    class Root:
+        mid: Mid
+
+    root = Root(mid=Mid(leaf=Leaf(value=42)))
+
+    momapy.utils.pretty_print(root, max_depth=0)
+    shallow = capsys.readouterr().out
+    assert "leaf" not in shallow
+
+    momapy.utils.pretty_print(root, max_depth=None)
+    unlimited = capsys.readouterr().out
+    assert "leaf" in unlimited
+    assert "value" in unlimited
+
+
 class TestIdentityMultiDict:
     def test_empty_construction(self):
         d = momapy.utils.IdentityMultiDict()

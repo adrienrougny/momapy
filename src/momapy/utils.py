@@ -500,7 +500,7 @@ class FrozenIdentitySurjectionDict(frozendict.frozendict):
 
 def pretty_print(
     obj: typing.Any,
-    max_depth: int = 0,
+    max_depth: int | None = 0,
     exclude_cls: list[type] | None = None,
     _depth: int = 0,
     _indent: int = 0,
@@ -512,7 +512,9 @@ def pretty_print(
 
     Args:
         obj: The object to print (dataclass, iterable, or other).
-        max_depth: Maximum recursion depth. 0 means unlimited. Defaults to 0.
+        max_depth: Maximum recursion depth. `0` (the default) prints the object
+            and its direct fields only; higher values recurse that many levels
+            deeper. `None` means unlimited (print the whole structure).
         exclude_cls: List of classes to exclude from recursive printing.
         _depth: Internal parameter for tracking current depth.
         _indent: Internal parameter for tracking current indentation.
@@ -542,7 +544,7 @@ def pretty_print(
             s = f"{s[:max_len]}..."
         return s
 
-    if _depth > max_depth:
+    if max_depth is not None and _depth > max_depth:
         return
     if exclude_cls is None:
         exclude_cls = []

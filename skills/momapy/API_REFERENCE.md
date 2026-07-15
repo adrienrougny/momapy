@@ -116,7 +116,7 @@ Purpose: CSS-like style sheets.
 - `FrozenIdentitySurjectionDict(frozendict.frozendict)` — immutable surjection, inverse keyed by `id()`; `.inverse` precomputed O(1).
 - `IdentityMultiDict(mapping=None)` — mutable, identity-keyed n-to-m multidict; a read-only `Mapping[str, frozenset]` (`[]`/`.get`/`.keys`/`.items`/`.values`) plus `add(key, value)`/`remove(key, value)`/`replace_value(old, new)` mutators and `.inverse` (snapshot). Not a `dict` subclass: `d[k]=v` raises. `mapping` seeds it from a `str -> Iterable` mapping.
 - `FrozenIdentityMultiDict(frozendict.frozendict, mapping=None)` — immutable identity multidict; already a `Mapping[str, frozenset]` via `frozendict`, plus `.inverse` (precomputed O(1)). `mapping` is a `str -> Iterable` mapping.
-- `pretty_print(obj, max_depth=0, exclude_cls=None)`
+- `pretty_print(obj, max_depth=0, exclude_cls=None)` — `max_depth=None` prints the whole structure (unlimited).
 - `get_element_from_collection(element: _T, collection: Iterable[_T]) -> _T | None`, `get_or_return_element_from_collection(element: _T, collection: Iterable[_T]) -> _T`, `add_or_replace_element_in_set(element: _T, set_: set[_T], func: Callable[[_T, _T], bool] | None = None, cache: dict[_T, _T] | None = None) -> _T` — match by equality (`==`), not identity
 - `make_uuid4_as_str() -> str`
 - `check_file_exists(file_path: str | os.PathLike) -> None` — input-side existence check; raises `FileNotFoundError`. Used by `read()` and every reader.
