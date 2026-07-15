@@ -558,7 +558,7 @@ def get_height(cd_model: lxml.objectify.ObjectifiedElement) -> str | None:
     return extension.modelDisplay.get("sizeY")
 
 
-def make_name(name: str | None) -> str | None:
+def get_name(name: str | None) -> str | None:
     if name is None:
         return name
     for s, char in TEXT_TO_CHARACTER.items():
@@ -590,7 +590,7 @@ def get_rdf(
     return getattr(annotation, f"{{{_RDF_NAMESPACE}}}RDF", None)
 
 
-def make_id_to_element_mapping(
+def get_id_to_element_mapping(
     cd_model: lxml.objectify.ObjectifiedElement,
 ) -> dict[str, lxml.objectify.ObjectifiedElement]:
     cd_id_to_cd_element = {}
@@ -636,7 +636,7 @@ def make_id_to_element_mapping(
     return cd_id_to_cd_element
 
 
-def make_complex_alias_to_included_ids_mapping(
+def get_complex_alias_to_included_ids_mapping(
     cd_model: lxml.objectify.ObjectifiedElement,
 ) -> dict[str, list[str]]:
     cd_complex_alias_id_to_cd_included_species_ids = collections.defaultdict(list)

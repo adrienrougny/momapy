@@ -14,7 +14,7 @@ from momapy.celldesigner.io.celldesigner._reading_parsing import (
     get_rdf_from_notes,
     get_reactants,
     get_template_from_species,
-    make_name,
+    get_name,
 )
 
 from momapy.sbml.io.sbml._reading_model import make_annotations, make_notes
@@ -177,7 +177,7 @@ def make_compartment(
         return None
     model_element = new_builder_object(Compartment)
     model_element.id_ = cd_compartment.get("id")
-    model_element.name = make_name(cd_compartment.get("name"))
+    model_element.name = get_name(cd_compartment.get("name"))
     model_element.metaid = cd_compartment.get("metaid")
     return model_element
 
@@ -201,7 +201,7 @@ def make_species_template(
         return None
     model_element = new_builder_object(model_element_cls)
     model_element.id_ = cd_species_template.get("id")
-    model_element.name = make_name(cd_species_template.get("name"))
+    model_element.name = get_name(cd_species_template.get("name"))
     return model_element
 
 
@@ -230,7 +230,7 @@ def make_modification_residue(
         f"{super_cd_element.get('id')}_{cd_modification_residue.get('id')}"
     )
     model_element.id_ = cd_modification_residue_id
-    model_element.name = make_name(cd_modification_residue.get("name"))
+    model_element.name = get_name(cd_modification_residue.get("name"))
     model_element.order = order
     return model_element
 
@@ -260,7 +260,7 @@ def make_region(
     model_element = new_builder_object(model_element_cls)
     cd_region_id = f"{super_cd_element.get('id')}_{cd_region.get('id')}"
     model_element.id_ = cd_region_id
-    model_element.name = make_name(cd_region.get("name"))
+    model_element.name = get_name(cd_region.get("name"))
     active = cd_region.get("active")
     if active is not None:
         model_element.active = True if active == "true" else False

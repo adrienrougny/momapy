@@ -316,7 +316,7 @@ def ensure_sbml_sid(id_str: str | None) -> str:
 
 
 def encode_name(name: str | None) -> str | None:
-    """Reverse of _parsing.make_name(): replace special chars with CD tokens.
+    """Reverse of _parsing.get_name(): replace special chars with CD tokens.
 
     Args:
         name: Human-readable name string.

@@ -26,7 +26,7 @@ from momapy.celldesigner.io.celldesigner._reading_parsing import (
     get_rectangle_index,
     get_t_shape_index,
     get_width,
-    make_name,
+    get_name,
 )
 from momapy.celldesigner.io.celldesigner._writing import are_collinear
 from momapy.celldesigner.layout import (
@@ -518,7 +518,7 @@ def make_compartment_from_alias(
     layout_element.fill = element_color.with_alpha(0.5)
     if hasattr(layout_element, "inner_fill"):
         layout_element.inner_fill = white
-    text = make_name(cd_compartment.get("name"))
+    text = get_name(cd_compartment.get("name"))
     text_position = Point(
         float(cd_compartment_alias.namePoint.get("x")),
         float(cd_compartment_alias.namePoint.get("y")),

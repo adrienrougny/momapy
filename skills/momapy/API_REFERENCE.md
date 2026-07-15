@@ -468,9 +468,9 @@ Functions (accept `CellDesignerMap | Builder`, return same):
 - Shared CellDesigner format constants (internal module, public-named content), imported by the reader and writer: `CD_NAMESPACE: str`, `TEXT_TO_CHARACTER: dict[str, str]` (special-character decoding table), `LINK_ANCHOR_POSITION_TO_ANCHOR_NAME: dict[str, str]` (link-anchor position codes -> momapy anchor names). `celldesigner.utils` no longer imports any of these — it uses `momapy.geometry.COMPASS_ANCHOR_NAMES` for its anchor list.
 
 ### `src/momapy/celldesigner/io/celldesigner/_reading_parsing.py`
-- `make_name(name: str|None) -> str|None` — handles CellDesigner name encoding.
-- `make_id_to_element_mapping(cd_model) -> dict`
-- `make_complex_alias_to_included_ids_mapping(cd_model) -> dict`
+- `get_name(name: str|None) -> str|None` — handles CellDesigner name encoding.
+- `get_id_to_element_mapping(cd_model) -> dict`
+- `get_complex_alias_to_included_ids_mapping(cd_model) -> dict`
 - XML traversal helpers: `get_annotation`, `get_extension`, `get_species`, `get_reactions`, `get_species_aliases`, `get_included_species_aliases`, `get_complex_species_aliases`, `get_compartments`, `get_compartment_aliases`, `get_protein_templates`, `get_gene_templates`, `get_rna_templates`, `get_antisense_rna_templates`, `get_notes`, `get_rdf`, `get_rdf_from_notes`, `get_width`, `get_height`, `get_bounds`, `get_edit_points_from_participant_link`, `get_edit_points_from_reaction`, etc.
 - Participant-id helpers: `get_reactant_id(cd_base_reactant_or_link, cd_reaction) -> str`, `get_product_id(cd_base_product_or_link, cd_reaction) -> str`, `get_modifier_metaid(cd_reaction_modification, cd_reaction) -> str|None`.
 - Constants: `CD_NAMESPACE`, `TEXT_TO_CHARACTER`, and `LINK_ANCHOR_POSITION_TO_ANCHOR_NAME` are imported from the shared `_constants` module (above), not defined here.

@@ -128,9 +128,9 @@ from momapy.celldesigner.io.celldesigner._reading_parsing import (
     get_width,
     has_boolean_input_from_modification,
     has_boolean_input_from_reaction,
-    make_complex_alias_to_included_ids_mapping,
-    make_id_to_element_mapping,
-    make_name,
+    get_complex_alias_to_included_ids_mapping,
+    get_id_to_element_mapping,
+    get_name,
 )
 from momapy.celldesigner.io.celldesigner import _reading_model
 from momapy.celldesigner.io.celldesigner import _reading_layout
@@ -162,9 +162,9 @@ class CellDesignerReader(Reader):
             reading_context: The reading context to populate.
         """
         cd_model = reading_context.xml_root
-        reading_context.xml_id_to_xml_element = make_id_to_element_mapping(cd_model)
+        reading_context.xml_id_to_xml_element = get_id_to_element_mapping(cd_model)
         reading_context.cd_complex_alias_id_to_cd_included_species_ids = (
-            make_complex_alias_to_included_ids_mapping(cd_model)
+            get_complex_alias_to_included_ids_mapping(cd_model)
         )
         reading_context.cd_compartment_aliases = get_ordered_compartment_aliases(
             cd_model, reading_context.xml_id_to_xml_element
@@ -722,7 +722,7 @@ class CellDesignerReader(Reader):
                 cd_species, reading_context.xml_id_to_xml_element
             )
             model_element_cls, layout_element_cls = KEY_TO_CLASS[key]
-            name = make_name(cd_species.get("name"))
+            name = get_name(cd_species.get("name"))
             cd_species_homodimer = get_homodimer(cd_species)
             if cd_species_homodimer is not None:
                 homomultimer = int(cd_species_homodimer)
