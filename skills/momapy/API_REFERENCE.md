@@ -506,7 +506,7 @@ Purpose: concrete SBML model classes and BioModels qualifier enums.
 - **Model**: `SBMLModel(Model)` — **does NOT inherit `SBMLModelElement`**; declares its own `name`, `sbo_term`, `metaid`, plus `compartments`, `species`, `reactions`. `is_submodel(other) -> bool`.
 
 ### `src/momapy/sbml/io/sbml/_reading_context.py`
-- `SBMLReadingContext(momapy.io._utils.ReadingContext)` — adds `sbml_model`, `sbml_id_to_model_element` (SBML id -> frozen model element, for cross-ref resolution), `sbml_id_to_sbml_element`.
+- `SBMLReadingContext(momapy.io._utils.ReadingContext)` — adds `sbml_model`, `sbml_id_to_model_element` (SBML id -> frozen model element, for cross-ref resolution).
 
 ### `src/momapy/sbml/io/sbml/reader.py`
 - `SBMLReader(Reader)` — `check_file(file_path) -> bool`, `read(file_path, return_type="map", with_model=True, with_layout=True, with_annotations=True, with_notes=True, **options) -> ReaderResult`. `return_type="map"` returns an `SBMLMap` (layout `None`), `"model"` returns the `SBMLModel`, `"layout"` raises `NotImplementedError`. Also `_make_empty_map`/`_make_empty_model` and `_make_and_add_*` orchestration classmethods (mirroring SBGN-ML/CellDesigner).
@@ -526,7 +526,6 @@ Purpose: concrete SBML model classes and BioModels qualifier enums.
 - `_RDF_NAMESPACE` constant.
 - `get_prefix_and_name(tag)`, `get_description(rdf)`, `get_bags(bq_element)`, `get_list_items(bag)`
 - `get_annotation(sbml_element)`, `get_species(sbml_model)`, `get_reactions(sbml_model)`, `get_compartments(sbml_model)`, `get_reactants(sbml_reaction)`, `get_products(sbml_reaction)`, `get_modifiers(sbml_reaction)`, `get_notes(sbml_element)`, `get_rdf(sbml_element)`
-- `make_id_to_element_mapping(sbml_model) -> dict`
 
 ### `src/momapy/sbml/io/sbml/_qualifiers.py`
 - `QUALIFIER_MEMBER_TO_QUALIFIER_ATTRIBUTE` — `BQBiol | BQModel` → `(namespace_url, local_name)` (18 entries).

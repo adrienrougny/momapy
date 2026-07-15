@@ -29,7 +29,3 @@ class SBMLReadingContext(ReadingContext):
     )
     """SBML XML id -> frozen model element, used to resolve compartment and
     species cross-references while building."""
-    sbml_id_to_sbml_element: dict[str, typing.Any] = dataclasses.field(
-        default_factory=dict
-    )
-    """SBML XML id -> source SBML lxml element."""

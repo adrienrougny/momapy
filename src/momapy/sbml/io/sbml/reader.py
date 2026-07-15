@@ -28,7 +28,6 @@ from momapy.sbml.io.sbml._reading_parsing import get_products
 from momapy.sbml.io.sbml._reading_parsing import get_reactants
 from momapy.sbml.io.sbml._reading_parsing import get_reactions
 from momapy.sbml.io.sbml._reading_parsing import get_species
-from momapy.sbml.io.sbml._reading_parsing import make_id_to_element_mapping
 from momapy.sbml.io.sbml._reading_model import make_and_add_annotations_and_notes
 from momapy.sbml.io.sbml._reading_model import make_compartment
 from momapy.sbml.io.sbml._reading_model import make_modifier_species_reference
@@ -163,7 +162,6 @@ class SBMLReader(Reader):
             xml_root=sbml_model,
             model=model,
             sbml_model=sbml_model,
-            sbml_id_to_sbml_element=make_id_to_element_mapping(sbml_model),
             element_to_annotations=collections.defaultdict(set),
             element_to_notes=collections.defaultdict(set),
             source_id_to_annotations=collections.defaultdict(set),

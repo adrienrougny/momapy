@@ -85,12 +85,3 @@ def get_rdf(sbml_element: typing.Any) -> typing.Any:
     if annotation is None:
         return None
     return getattr(annotation, f"{{{_RDF_NAMESPACE}}}RDF", None)
-
-
-def make_id_to_element_mapping(sbml_model: typing.Any) -> dict[str, typing.Any]:
-    sbml_id_to_sbml_element = {}
-    for sbml_compartment in get_compartments(sbml_model):
-        sbml_id_to_sbml_element[sbml_compartment.get("id")] = sbml_compartment
-    for sbml_species in get_species(sbml_model):
-        sbml_id_to_sbml_element[sbml_species.get("id")] = sbml_species
-    return sbml_id_to_sbml_element
