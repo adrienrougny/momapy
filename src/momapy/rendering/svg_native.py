@@ -394,7 +394,7 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
                         attr_value = self._make_color_value(attr_value)
                     elif attr_name == "transform":
                         attr_value = self._make_transform_value(attr_value)
-                    elif attr_name == "filter":
+                    elif attr_name == "filter_":
                         filter_element = self._make_filter_element(attr_value)
                         if filter_element not in self._filter_elements:
                             self._filter_elements.append(filter_element)
@@ -415,7 +415,7 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
                                 for attr_value_element in attr_value
                             ]
                         )
-                attr_name = attr_name.replace("_", "-")
+                attr_name = attr_name.rstrip("_").replace("_", "-")
                 attributes[attr_name] = attr_value
         return attributes
 

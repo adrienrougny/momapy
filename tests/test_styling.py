@@ -712,6 +712,26 @@ class TestStyleApplication:
         # Check that attributes were applied
         assert result.font_size == 20.0
 
+    def test_css_filter_property_round_trips_to_filter_field(self):
+        """A CSS `filter` rule reaches the reserved-word `filter_` field.
+
+        Regression (finding 35): `filter` shadows the builtin, so the field is
+        named `filter_`; the CSS property name stays `filter` and must resolve
+        back to `filter_` through the attribute-name parse action.
+        """
+        import momapy.core
+        import momapy.drawing
+        import momapy.geometry
+
+        text_layout = momapy.core.layout.TextLayout(
+            text="Test",
+            position=momapy.geometry.Point(0, 0),
+        )
+        css = "TextLayout {\n    filter: none;\n}\n"
+        style_sheet = momapy.styling.StyleSheet.from_string(css)
+        result = momapy.styling.apply_style_sheet(text_layout, style_sheet)
+        assert result.filter_ is momapy.drawing.NoneValue
+
     def test_apply_style_sheet_with_type_selector(self):
         """Test apply_style_sheet with TypeSelector-based stylesheet."""
         import momapy.core
@@ -768,9 +788,12 @@ class TestStylableAttributes:
 
         Regression (finding 16): the emitted names must round-trip through the
         attribute-name parse action (replace('-', '_')); the old rstrip('_')
-        emitted an unusable 'id'.
+        emitted an unusable 'id'. A reserved-word presentation attribute (e.g.
+        the CSS ``filter`` -> field ``filter_``) round-trips via the resolver's
+        trailing-underscore reconstruction.
         """
         import dataclasses
+        import momapy.drawing
         import momapy.meta.nodes
 
         cls = momapy.meta.nodes.Rectangle
@@ -778,4 +801,12 @@ class TestStylableAttributes:
         assert "id" not in attributes
         field_names = {field.name for field in dataclasses.fields(cls)}
         for name in attributes:
-            assert name.replace("-", "_") in field_names
+            resolved = name.replace("-", "_")
+            # Reserved-word presentation attributes reconstruct the trailing
+            # underscore (CSS ``filter`` -> field ``filter_``).
+            if (
+                resolved not in momapy.drawing.PRESENTATION_ATTRIBUTES
+                and f"{resolved}_" in momapy.drawing.PRESENTATION_ATTRIBUTES
+            ):
+                resolved = f"{resolved}_"
+            assert resolved in field_names

@@ -102,7 +102,7 @@ class TextLayout(LayoutElement):
         default=None,
         metadata={"description": "The text fill color of the text layout"},
     )
-    filter: NoneValueType | Filter | None = dataclasses.field(
+    filter_: NoneValueType | Filter | None = dataclasses.field(
         default=None,
         metadata={"description": "The filter of the text layout"},
     )  # should be a tuple of filters to follow SVG (to be implemented)
@@ -236,7 +236,7 @@ class TextLayout(LayoutElement):
             elements=tuple(drawing_elements),
             id_=f"{self.id_}",
             fill=self.fill,
-            filter=self.filter,
+            filter_=self.filter_,
             font_family=self.font_family,
             font_size=self.font_size,
             font_style=self.font_style,
@@ -523,7 +523,7 @@ class GroupLayout(LayoutElement):
             id_=f"{self.id_}",
             fill=self.group_fill,
             fill_rule=self.group_fill_rule,
-            filter=self.group_filter,
+            filter_=self.group_filter,
             font_family=self.group_font_family,
             font_size=self.group_font_size,
             font_style=self.group_font_style,
@@ -557,7 +557,7 @@ class Node(GroupLayout):
         default=None,
         metadata={"description": "The fill color of the node"},
     )
-    filter: NoneValueType | Filter | None = dataclasses.field(
+    filter_: NoneValueType | Filter | None = dataclasses.field(
         default=None, metadata={"description": "The filter of the node"}
     )
     height: float = dataclasses.field(
@@ -610,7 +610,7 @@ class Node(GroupLayout):
             class_=f"{type(self).__name__}_own",
             elements=tuple(drawing_elements),
             fill=self.fill,
-            filter=self.filter,
+            filter_=self.filter_,
             id_=f"{self.id_}_own",
             stroke=self.stroke,
             stroke_dasharray=self.stroke_dasharray,
@@ -794,9 +794,9 @@ class Arc(GroupLayout):
     fill: NoneValueType | Color | None = dataclasses.field(
         default=None, metadata={"description": "The fill color of the arc"}
     )
-    filter: NoneValueType | Filter | None = dataclasses.field(
+    filter_: NoneValueType | Filter | None = dataclasses.field(
         default=None,
-        metadata={"description": "The fill filter of the arc"},
+        metadata={"description": "The filter of the arc"},
     )
     path_fill: NoneValueType | Color | None = dataclasses.field(
         default=None,
@@ -1070,7 +1070,7 @@ class SingleHeadedArc(Arc):
             class_=f"{type(self).__name__}_arrowhead",
             elements=tuple(drawing_elements),
             fill=self.arrowhead_fill,
-            filter=self.arrowhead_filter,
+            filter_=self.arrowhead_filter,
             id_=f"{self.id_}_arrowhead",
             stroke=self.arrowhead_stroke,
             stroke_dasharray=self.arrowhead_stroke_dasharray,
@@ -1112,7 +1112,7 @@ class SingleHeadedArc(Arc):
             actions=tuple(actions),
             class_=f"{type(self).__name__}_path",
             fill=self.path_fill,
-            filter=self.path_filter,
+            filter_=self.path_filter,
             id_=f"{self.id_}_path",
             stroke=self.path_stroke,
             stroke_dasharray=self.path_stroke_dasharray,
@@ -1131,7 +1131,7 @@ class SingleHeadedArc(Arc):
             class_=f"{type(self).__name__}_own",
             elements=tuple(drawing_elements),
             fill=self.fill,
-            filter=self.filter,
+            filter_=self.filter_,
             id_=f"{self.id_}_own",
             stroke=self.stroke,
             stroke_dasharray=self.stroke_dasharray,
@@ -1351,7 +1351,7 @@ class DoubleHeadedArc(Arc):
             elements=tuple(drawing_elements),
             id_=f"{self.id_}_start_arrowhead",
             fill=self.start_arrowhead_fill,
-            filter=self.start_arrowhead_filter,
+            filter_=self.start_arrowhead_filter,
             stroke=self.start_arrowhead_stroke,
             stroke_dasharray=self.start_arrowhead_stroke_dasharray,
             stroke_dashoffset=self.start_arrowhead_stroke_dashoffset,
@@ -1390,7 +1390,7 @@ class DoubleHeadedArc(Arc):
             class_=f"{type(self).__name__}_end_arrowhead",
             elements=tuple(drawing_elements),
             fill=self.end_arrowhead_fill,
-            filter=self.end_arrowhead_filter,
+            filter_=self.end_arrowhead_filter,
             id_=f"{self.id_}_end_arrowhead",
             stroke=self.end_arrowhead_stroke,
             stroke_width=self.end_arrowhead_stroke_width,
@@ -1435,7 +1435,7 @@ class DoubleHeadedArc(Arc):
             actions=tuple(actions),
             class_=f"{type(self).__name__}_path",
             fill=self.path_fill,
-            filter=self.path_filter,
+            filter_=self.path_filter,
             id_=f"{self.id_}_path",
             stroke=self.path_stroke,
             stroke_dasharray=self.path_stroke_dasharray,
@@ -1458,7 +1458,7 @@ class DoubleHeadedArc(Arc):
             elements=tuple(drawing_elements),
             id_=f"{self.id_}_own",
             fill=self.fill,
-            filter=self.filter,
+            filter_=self.filter_,
             stroke=self.stroke,
             stroke_dasharray=self.stroke_dasharray,
             stroke_dashoffset=self.stroke_dashoffset,

@@ -489,7 +489,7 @@ PRESENTATION_ATTRIBUTES: dict[str, dict[str, typing.Any]] = {
         "initial": FillRule.NONZERO,
         "inherited": True,
     },
-    "filter": {
+    "filter_": {
         "initial": NoneValue,
         "inherited": False,
     },
@@ -583,7 +583,7 @@ class DrawingElement(abc.ABC):
         default=None,
         metadata={"description": "The fill rule of the drawing element"},
     )
-    filter: NoneValueType | Filter | None = dataclasses.field(
+    filter_: NoneValueType | Filter | None = dataclasses.field(
         default=None,
         metadata={"description": "The filter of the drawing element"},
     )
@@ -667,14 +667,14 @@ class DrawingElement(abc.ABC):
 
         Returns:
             The filter region bbox, or `None` when the element has no
-            filter (`filter` is `None` or `NoneValue`).
+            filter (`filter_` is `None` or `NoneValue`).
         """
-        if self.filter is None or self.filter is NoneValue:
+        if self.filter_ is None or self.filter_ is NoneValue:
             return None
         bbox = self.bbox()
         north_west = bbox.north_west()
         object_bounding_box = (
-            self.filter.filter_units == FilterUnits.OBJECT_BOUNDING_BOX
+            self.filter_.filter_units == FilterUnits.OBJECT_BOUNDING_BOX
         )
 
         def resolve_position(value: float | str, origin: float, extent: float) -> float:
@@ -691,10 +691,10 @@ class DrawingElement(abc.ABC):
                 return extent * value
             return value
 
-        px = resolve_position(self.filter.x, north_west.x, bbox.width)
-        py = resolve_position(self.filter.y, north_west.y, bbox.height)
-        width = resolve_size(self.filter.width, bbox.width)
-        height = resolve_size(self.filter.height, bbox.height)
+        px = resolve_position(self.filter_.x, north_west.x, bbox.width)
+        py = resolve_position(self.filter_.y, north_west.y, bbox.height)
+        width = resolve_size(self.filter_.width, bbox.width)
+        height = resolve_size(self.filter_.height, bbox.height)
         return Bbox(
             Point(px + width / 2, py + height / 2),
             width,
@@ -1267,7 +1267,7 @@ class Ellipse(DrawingElement):
             stroke=self.stroke,
             fill=self.fill,
             transform=self.transform,
-            filter=self.filter,
+            filter_=self.filter_,
             actions=actions,
         )
         return path
@@ -1379,7 +1379,7 @@ class Rectangle(DrawingElement):
             stroke=self.stroke,
             fill=self.fill,
             transform=self.transform,
-            filter=self.filter,
+            filter_=self.filter_,
             actions=actions,
         )
         return path

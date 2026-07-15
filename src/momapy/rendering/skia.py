@@ -285,8 +285,8 @@ class SkiaRenderer(
         if issubclass(class_, Builder):
             class_ = class_._cls_to_build
         de_func = getattr(self, self._de_class_func_mapping[class_])
-        filter = self.get_current_value("filter")
-        if filter is not NoneValue:
+        filter_ = self.get_current_value("filter_")
+        if filter_ is not NoneValue:
             bbox = drawing_element.bbox()
             saved_canvas = self.canvas
             recorder = skia.PictureRecorder()
@@ -302,7 +302,7 @@ class SkiaRenderer(
             de_func(drawing_element)
             picture = recorder.finishRecordingAsPicture()
             skia_paint = self._make_filter_paint(
-                filter, drawing_element.get_filter_region()
+                filter_, drawing_element.get_filter_region()
             )
             self.canvas = saved_canvas
             self.canvas.drawPicture(picture, paint=skia_paint)

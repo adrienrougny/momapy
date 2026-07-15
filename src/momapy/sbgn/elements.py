@@ -342,7 +342,7 @@ class _ConnectorsMixin(_SBGNMixin):
             stroke_dashoffset=obj.left_connector_stroke_dashoffset,
             fill=obj.left_connector_fill,
             transform=obj.left_connector_transform,
-            filter=obj.left_connector_filter,
+            filter_=obj.left_connector_filter,
             actions=left_actions,
         )
         path_right = Path(
@@ -352,7 +352,7 @@ class _ConnectorsMixin(_SBGNMixin):
             stroke_dashoffset=obj.right_connector_stroke_dashoffset,
             fill=obj.right_connector_fill,
             transform=obj.right_connector_transform,
-            filter=obj.right_connector_filter,
+            filter_=obj.right_connector_filter,
             actions=right_actions,
         )
         return [path_left, path_right]
@@ -477,7 +477,8 @@ class _MultiMixin(_SBGNMixin):
             ]:
                 attr_value = getattr(obj, f"subunits_{attr_name}")
                 if attr_value is not None and len(attr_value) > i:
-                    kwargs[f"{attr_name}"] = attr_value[i]
+                    kwarg_name = "filter_" if attr_name == "filter" else attr_name
+                    kwargs[kwarg_name] = attr_value[i]
             subunit_shape = obj._make_subunit_shape(position, width, height)
             kwargs["elements"] = subunit_shape.drawing_elements()
             group = Group(**kwargs)

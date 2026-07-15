@@ -242,7 +242,7 @@ class TestFilterRegion:
             height=50,
             rx=0.0,
             ry=0.0,
-            filter=filter_,
+            filter_=filter_,
         )
 
     def test_object_bounding_box_default_percentages(self):

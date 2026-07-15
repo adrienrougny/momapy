@@ -2824,7 +2824,7 @@ class _ReactionNodeMixin(_SBGNMixin):
             stroke_dashoffset=self.reaction_node_stroke_dashoffset,
             fill=self.reaction_node_fill,
             transform=self.reaction_node_transform,
-            filter=self.reaction_node_filter,
+            filter_=self.reaction_node_filter,
             label=label,
         )
         return reaction_node

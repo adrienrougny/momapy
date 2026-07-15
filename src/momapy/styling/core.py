@@ -732,7 +732,15 @@ def _make_document_parser(base_dir: pathlib.Path) -> pyparsing.ParserElement:
 
 @_css_attribute_name.set_parse_action
 def _resolve_css_attribute_name(results: pyparsing.ParseResults) -> str:
-    return results[0].replace("-", "_")
+    attribute_name = results[0].replace("-", "_")
+    # A reserved-word presentation attribute is stored with a trailing
+    # underscore (e.g. the CSS ``filter`` maps to the field ``filter_``).
+    if (
+        attribute_name not in PRESENTATION_ATTRIBUTES
+        and f"{attribute_name}_" in PRESENTATION_ATTRIBUTES
+    ):
+        attribute_name = f"{attribute_name}_"
+    return attribute_name
 
 
 @_css_style.set_parse_action
@@ -828,7 +836,11 @@ def _is_presentation_attribute(field_name: str) -> bool:
         True if the field is a presentation attribute.
     """
     for attribute_name in PRESENTATION_ATTRIBUTES:
-        if field_name == attribute_name or field_name.endswith(f"_{attribute_name}"):
+        # A reserved-word attribute carries a trailing underscore (e.g.
+        # ``filter_``); its prefixed variants do not (``group_filter``), so
+        # match the suffix against the bare name.
+        bare_name = attribute_name.rstrip("_")
+        if field_name == attribute_name or field_name.endswith(f"_{bare_name}"):
             return True
     return False
 
