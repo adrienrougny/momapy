@@ -129,6 +129,29 @@ def test_combine_style_sheets():
     assert "key2" in combined
 
 
+def test_ior_merges_in_place():
+    """``a |= b`` mutates ``a`` in place and returns the same object."""
+    style1 = momapy.styling.StyleSheet()
+    style2 = momapy.styling.StyleSheet()
+    style1["key1"] = momapy.styling.StyleCollection({"fill": momapy.coloring.black})
+    style2["key2"] = momapy.styling.StyleCollection({"stroke": momapy.coloring.white})
+    alias = style1
+    style1 |= style2
+    assert style1 is alias
+    assert "key1" in style1
+    assert "key2" in style1
+
+
+def test_combine_style_sheets_does_not_mutate_inputs():
+    """combine_style_sheets must not mutate its first argument in place."""
+    style1 = momapy.styling.StyleSheet()
+    style2 = momapy.styling.StyleSheet()
+    style1["key1"] = momapy.styling.StyleCollection({"fill": momapy.coloring.black})
+    style2["key2"] = momapy.styling.StyleCollection({"stroke": momapy.coloring.white})
+    momapy.styling.combine_style_sheets([style1, style2])
+    assert "key2" not in style1
+
+
 def test_combine_style_sheets_empty():
     """Test combine_style_sheets with empty list."""
     result = momapy.styling.combine_style_sheets([])

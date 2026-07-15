@@ -65,17 +65,18 @@ class StyleSheet(dict):
 
     def __or__(self, other: "StyleSheet") -> "StyleSheet":
         """Return a new stylesheet merging this one with another stylesheet."""
-        d = copy.deepcopy(self)
-        for key, value in other.items():
-            if key in d:
-                d[key] |= value
-            else:
-                d[key] = value
-        return StyleSheet(d)
+        merged = copy.deepcopy(self)
+        merged |= other
+        return merged
 
     def __ior__(self, other: "StyleSheet") -> "StyleSheet":
-        """Merge another stylesheet into this one in place."""
-        return self.__or__(other)
+        """Merge another stylesheet into this one in place and return it."""
+        for key, value in other.items():
+            if key in self:
+                self[key] |= value
+            else:
+                self[key] = value
+        return self
 
     @classmethod
     def from_file(cls, file_path: str | os.PathLike) -> "StyleSheet":
@@ -156,7 +157,7 @@ def combine_style_sheets(
     """
     if not style_sheets:
         return None
-    output_style_sheet = style_sheets[0]
+    output_style_sheet = copy.deepcopy(style_sheets[0])
     for style_sheet in style_sheets[1:]:
         output_style_sheet |= style_sheet
     return output_style_sheet
