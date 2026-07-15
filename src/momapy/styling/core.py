@@ -134,13 +134,12 @@ class StyleSheet(dict):
             file_paths: Collection of paths to CSS files.
 
         Returns:
-            A merged StyleSheet containing all parsed styles.
+            A merged StyleSheet containing all parsed styles; an empty
+            StyleSheet when ``file_paths`` is empty.
         """
-        style_sheets = []
+        style_sheet = cls()
         for file_path in file_paths:
-            style_sheet = StyleSheet.from_file(file_path)
-            style_sheets.append(style_sheet)
-        style_sheet = combine_style_sheets(style_sheets)
+            style_sheet |= StyleSheet.from_file(file_path)
         return style_sheet
 
 

@@ -135,6 +135,13 @@ def test_combine_style_sheets_empty():
     assert result is None
 
 
+def test_from_files_empty():
+    """StyleSheet.from_files([]) returns an empty StyleSheet, not None."""
+    result = momapy.styling.StyleSheet.from_files([])
+    assert isinstance(result, momapy.styling.StyleSheet)
+    assert len(result) == 0
+
+
 # Tests for selectors
 def test_type_selector_matches_exact_type():
     """Test TypeSelector matches exact type name."""
