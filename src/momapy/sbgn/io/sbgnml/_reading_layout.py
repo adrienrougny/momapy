@@ -39,7 +39,6 @@ if typing.TYPE_CHECKING:
     import lxml.objectify
 
     from momapy.core.elements import LayoutElement
-    from momapy.core.layout import Layout
     from momapy.sbgn.io.sbgnml._reading_context import SBGNMLReadingContext
 
 
@@ -91,7 +90,6 @@ def make_arc_segments(
 
 def make_stoichiometry_layout(
     sbgnml_stoichiometry: "lxml.objectify.ObjectifiedElement | None",
-    layout: "Layout",
     layout_element: typing.Any,
 ) -> None:
     if sbgnml_stoichiometry is None:
@@ -440,9 +438,7 @@ def make_reactant(
     layout_element.source = super_layout_element
     source_layout_element = reading_context.xml_id_to_layout_element[sbgnml_source_id]
     layout_element.target = source_layout_element
-    make_stoichiometry_layout(
-        sbgnml_stoichiometry, reading_context.layout, layout_element
-    )
+    make_stoichiometry_layout(sbgnml_stoichiometry, layout_element)
     layout_element = object_from_builder(layout_element)
     return layout_element
 
@@ -473,9 +469,7 @@ def make_product(
         layout_element.segments.append(segment)
     target_layout_element = reading_context.xml_id_to_layout_element[sbgnml_target_id]
     layout_element.target = target_layout_element
-    make_stoichiometry_layout(
-        sbgnml_stoichiometry, reading_context.layout, layout_element
-    )
+    make_stoichiometry_layout(sbgnml_stoichiometry, layout_element)
     layout_element = object_from_builder(layout_element)
     return layout_element
 

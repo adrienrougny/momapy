@@ -9,6 +9,8 @@ import typing
 
 from momapy.sbml.map import SBMLMap
 
+__all__ = ["get_info"]
+
 
 def get_info(map_: SBMLMap) -> dict[str, typing.Any]:
     """Get a summary of the contents of an SBML map.

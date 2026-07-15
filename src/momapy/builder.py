@@ -136,8 +136,6 @@ def _transform_type(
                     new_type = _immutable_collection_to_builder[type_]
                 else:
                     new_type = get_or_make_builder_cls(type_)
-                    if new_type is None:
-                        new_type = type_
             else:
                 new_type = type_
     if make_optional:
