@@ -6,7 +6,7 @@ The `momapy` command-line interface (CLI) allows you to work with molecular maps
 
 Available subcommands:
 
-- **`render`** — Render maps to image formats (SVG, PDF, PNG, JPEG, WebP)
+- **`render`** — Render maps to image formats (SVG, PDF, PNG, PS, JPEG, WebP)
 - **`export`** — Export maps back to their original format (useful for roundtrip testing)
 - **`info`** — Print a summary of a map file's contents
 - **`list`** — List available readers, writers, renderers, colors, styles, or stylable attributes
@@ -121,7 +121,7 @@ The CLI is installed automatically when you install momapy:
 pip install momapy
 ```
 
-To use PDF, PNG, JPEG, or WebP output formats, install the optional rendering dependencies:
+To use PDF, PNG, PS, JPEG, or WebP output formats, install the optional rendering dependencies:
 
 ```bash
 pip install momapy[skia]  # For skia renderer

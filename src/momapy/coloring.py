@@ -548,7 +548,7 @@ def print_colors() -> None:
         ```
     """
     for color_name, color in _NAME_TO_COLOR.items():
-        print(f"\x1b[38;2;{color.red};{color.green};{color.blue}m{color_name}")
+        print(f"\x1b[38;2;{color.red};{color.green};{color.blue}m{color_name}\x1b[0m")
 
 
 def has_color(color_name: str) -> bool:

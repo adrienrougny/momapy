@@ -290,7 +290,7 @@ Re-exports: default font-size constants (`DEFAULT_FONT_SIZE`, `DEFAULT_AUXILIARY
 ### `src/momapy/sbgn/af/model.py`
 Purpose: SBGN-AF model classes.
 
-- **Units of information**: `UnitOfInformation(SBGNModelElement)` (`label`) plus AF-specific subclasses: `MacromoleculeUnitOfInformation`, `NucleicAcidFeatureUnitOfInformation`, `ComplexUnitOfInformation`, `SimpleChemicalUnitOfInformation`, `UnspecifiedEntityUnitOfInformation`, `PerturbationUnitOfInformation`.
+- **Units of information**: `UnitOfInformation(SBGNAuxiliaryUnit)` (`label`) plus AF-specific subclasses: `MacromoleculeUnitOfInformation`, `NucleicAcidFeatureUnitOfInformation`, `ComplexUnitOfInformation`, `SimpleChemicalUnitOfInformation`, `UnspecifiedEntityUnitOfInformation`, `PerturbationUnitOfInformation`.
 - **Compartment**: `Compartment(SBGNModelElement)` — `label`, `units_of_information`.
 - **Activities**: `Activity(SBGNModelElement)` — `label`, `compartment`; `BiologicalActivity` (+ `units_of_information`), `Phenotype`.
 - **Logical operators**: `LogicalOperator` (`inputs`) → `OrOperator`, `AndOperator`, `NotOperator`, `DelayOperator`. `LogicalOperatorInput(SBGNRole)` — `referred_element: BiologicalActivity | LogicalOperator`.
@@ -428,7 +428,7 @@ Functions (accept `CellDesignerMap | Builder`, return same):
 - `CellDesignerReader(Reader)` — `read(file_path, return_type="map", with_model=True, with_layout=True, with_annotations=True, with_notes=True, **options)`. Also `_make_empty_map`/`_make_empty_model`/`_make_empty_layout` and `_make_and_add_*` orchestration classmethods (mirroring SBGN-ML/SBML).
 
 ### `src/momapy/celldesigner/io/celldesigner/_reading_classification.py`
-- `KEY_TO_CLASS: dict[tuple[str, str], type | tuple[type | None, type]]` — ~90 entries keyed by `(category, type)` (e.g. `("SPECIES", "GENERIC") -> (GenericProtein, GenericProteinLayout)`, `("TEMPLATE", "GENE") -> GeneTemplate`). Template/region keys map to a bare model class; species/reaction/modifier/gate keys map to a `(model, layout)` pair (model `None` for `DEGRADED`, whose layout is `DegradedLayout`). Mirrors the SBGN-ML reader's classification module.
+- `KEY_TO_CLASS: dict[tuple[str, str], type | tuple[type | None, type]]` — 66 entries keyed by `(category, type)` (e.g. `("SPECIES", "GENERIC") -> (GenericProtein, GenericProteinLayout)`, `("TEMPLATE", "GENE") -> GeneTemplate`). Template/region keys map to a bare model class; species/reaction/modifier/gate keys map to a `(model, layout)` pair (model `None` for `DEGRADED`, whose layout is `DegradedLayout`). Mirrors the SBGN-ML reader's classification module.
 
 ### `src/momapy/celldesigner/io/celldesigner/_writing_context.py`
 - `CellDesignerWritingContext(WritingContext)` — adds `subunit_to_complex`, `degraded_entries`.
@@ -463,7 +463,7 @@ Functions (accept `CellDesignerMap | Builder`, return same):
 - `make_modifier(reading_context, ...)`
 - `make_logic_gate(reading_context, cd_element, layout_element_cls)`, `make_logic_arc(reading_context, gate_layout_element, input_layout_element)`
 - `make_modulation(reading_context, ...)`
-- Internal constants: `_LAYOUT_TO_ACTIVE_LAYOUT`, `_DEFAULT_FONT_FAMILY`, `_DEFAULT_FONT_SIZE`, `_DEFAULT_MODIFICATION_FONT_SIZE`, `_DEFAULT_FONT_FILL`.
+- Internal constants: `_LAYOUT_TO_ACTIVE_LAYOUT`, `_CD_CLASS_TO_CORNER`, `_CD_CLASS_TO_SIDE`, `_TARGET_LINE_INDEX_TO_ANCHOR_NAME`.
 
 ### `src/momapy/celldesigner/io/celldesigner/_constants.py`
 - Shared CellDesigner format constants (internal module, public-named content), imported by the reader and writer: `CD_NAMESPACE: str`, `TEXT_TO_CHARACTER: dict[str, str]` (special-character decoding table), `LINK_ANCHOR_POSITION_TO_ANCHOR_NAME: dict[str, str]` (link-anchor position codes -> momapy anchor names). `celldesigner.utils` no longer imports any of these — it uses `momapy.geometry.COMPASS_ANCHOR_NAMES` for its anchor list.
