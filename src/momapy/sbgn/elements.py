@@ -62,7 +62,7 @@ class SBGNRole(SBGNModelElement):
     )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNNode(Node):
     """Abstract base class for SBGN nodes."""
 
@@ -89,7 +89,7 @@ class SBGNNode(Node):
         return drawing_elements
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNSingleHeadedArc(SingleHeadedArc):
     """Abstract base class for SBGN single-headed arcs."""
 
@@ -101,7 +101,7 @@ class SBGNSingleHeadedArc(SingleHeadedArc):
     path_stroke_width: float | None = 1.25
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNDoubleHeadedArc(DoubleHeadedArc):
     """Abstract base class for SBGN double-headed arcs."""
 
@@ -386,7 +386,7 @@ class _SimpleMixin(_SBGNMixin):
         return drawing_elements
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class _MultiMixin(_SBGNMixin):
     """Multi mixin."""
 

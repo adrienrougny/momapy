@@ -116,6 +116,34 @@ class TestSBGNAFBorderStrokeWidth:
         assert 2.25 in _collect_stroke_widths(layout_element.drawing_elements())
 
 
+class TestSBGNKeywordOnly:
+    """The SBGN layout bases must not leak positional style parameters."""
+
+    def test_sbgn_layout_bases_are_keyword_only(self):
+        """SBGNNode/arc bases and _MultiMixin expose no positional-or-keyword fields.
+
+        Regression (finding 29): these were `@dataclass(frozen=True)` without
+        `kw_only=True`, so style fields (fill/stroke/...) leaked as positional
+        parameters onto every concrete subclass.
+        """
+        import inspect
+
+        import momapy.sbgn.elements
+
+        bases = [
+            momapy.sbgn.elements.SBGNNode,
+            momapy.sbgn.elements.SBGNSingleHeadedArc,
+            momapy.sbgn.elements.SBGNDoubleHeadedArc,
+            momapy.sbgn.elements._MultiMixin,
+        ]
+        for base in bases:
+            for name, parameter in inspect.signature(base).parameters.items():
+                assert parameter.kind not in (
+                    parameter.POSITIONAL_ONLY,
+                    parameter.POSITIONAL_OR_KEYWORD,
+                ), f"{base.__name__}.{name} is positional"
+
+
 class TestSBGNUtils:
     """Tests for SBGN utility functions."""
 
