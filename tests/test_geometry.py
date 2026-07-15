@@ -89,6 +89,21 @@ class TestPoint:
         assert rounded.x == 10.1
         assert rounded.y == 21.0
 
+    def test_point_round_default_uses_module_rounding(self):
+        """round() with no argument keeps decimals (does not truncate to int)."""
+        p = momapy.geometry.Point(10.12345, 20.98765)
+        rounded = p.round()
+        assert rounded.x == 10.1235
+        assert rounded.y == 20.9876
+        assert isinstance(rounded.x, float)
+
+    def test_point_round_none_truncates_to_int(self):
+        """round(None) still truncates coordinates to int, as documented."""
+        p = momapy.geometry.Point(10.4, 20.6)
+        rounded = p.round(None)
+        assert rounded.x == 10
+        assert rounded.y == 21
+
     def test_point_isnan(self):
         """Test point isnan method."""
         p1 = momapy.geometry.Point(10.0, 20.0)

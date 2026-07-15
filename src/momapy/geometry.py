@@ -205,11 +205,13 @@ class Point(GeometryObject):
         """
         return Point(self.x, self.y)
 
-    def round(self, ndigits: int | None = None) -> "Point":
+    def round(self, ndigits: int | None = ROUNDING) -> "Point":
         """Round coordinates to specified digits.
 
         Args:
-            ndigits: Number of decimal places.
+            ndigits: Number of decimal places. Defaults to the module
+                `ROUNDING`. Passing `None` truncates the coordinates to `int`
+                (the standard-library `round(x, None)` behavior).
 
         Returns:
             A new Point with rounded coordinates.
