@@ -102,6 +102,31 @@ def test_left_of_with_node():
     assert result.x < 10.0
 
 
+def test_directional_of_with_bbox():
+    """The eight directional *_of functions accept a Bbox (finding 38).
+
+    Previously they annotated Bbox support but raised TypeError on a Bbox.
+    Each uses the matching compass anchor, like a Node.
+    """
+    bbox = momapy.geometry.Bbox(momapy.geometry.Point(10.0, 10.0), 4.0, 2.0)
+    assert momapy.positioning.right_of(bbox, 5.0) == momapy.geometry.Point(17.0, 10.0)
+    assert momapy.positioning.left_of(bbox, 5.0) == momapy.geometry.Point(3.0, 10.0)
+    assert momapy.positioning.above_of(bbox, 5.0) == momapy.geometry.Point(10.0, 4.0)
+    assert momapy.positioning.below_of(bbox, 5.0) == momapy.geometry.Point(10.0, 16.0)
+    assert momapy.positioning.above_left_of(bbox, 5.0) == momapy.geometry.Point(
+        3.0, 4.0
+    )
+    assert momapy.positioning.above_right_of(bbox, 5.0) == momapy.geometry.Point(
+        17.0, 4.0
+    )
+    assert momapy.positioning.below_left_of(bbox, 5.0) == momapy.geometry.Point(
+        3.0, 16.0
+    )
+    assert momapy.positioning.below_right_of(bbox, 5.0) == momapy.geometry.Point(
+        17.0, 16.0
+    )
+
+
 def test_mid_of_two_points():
     """Test mid_of returns midpoint between two positions."""
     p1 = momapy.geometry.Point(0.0, 0.0)

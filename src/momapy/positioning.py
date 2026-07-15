@@ -59,13 +59,13 @@ __all__ = [
 
 
 def right_of(
-    obj: (Point | Bbox | LayoutElement | Builder),
+    obj: (Point | Bbox | Node | Builder),
     distance: float,
 ) -> Point:
     """Return a point to the right of the given object at the specified distance.
 
     Args:
-        obj: A Point, Bbox, LayoutElement, or their builder variants.
+        obj: A Point, Bbox, Node, or their builder variants.
             For Nodes, uses the east anchor point.
         distance: The horizontal distance from the object's reference point.
 
@@ -83,7 +83,7 @@ def right_of(
     """
     if isinstance_or_builder(obj, Point):
         source_point = obj
-    elif isinstance_or_builder(obj, Node):
+    elif isinstance_or_builder(obj, (Bbox, Node)):
         source_point = obj.east()
     else:
         raise TypeError(f"{type(obj).__name__} not supported")
@@ -91,13 +91,13 @@ def right_of(
 
 
 def left_of(
-    obj: (Point | Bbox | LayoutElement | Builder),
+    obj: (Point | Bbox | Node | Builder),
     distance: float,
 ) -> Point:
     """Return a point to the left of the given object at the specified distance.
 
     Args:
-        obj: A Point, Bbox, LayoutElement, or their builder variants.
+        obj: A Point, Bbox, Node, or their builder variants.
             For Nodes, uses the west anchor point.
         distance: The horizontal distance from the object's reference point.
 
@@ -115,7 +115,7 @@ def left_of(
     """
     if isinstance_or_builder(obj, Point):
         source_point = obj
-    elif isinstance_or_builder(obj, Node):
+    elif isinstance_or_builder(obj, (Bbox, Node)):
         source_point = obj.west()
     else:
         raise TypeError(f"{type(obj).__name__} not supported")
@@ -123,13 +123,13 @@ def left_of(
 
 
 def above_of(
-    obj: (Point | Bbox | LayoutElement | Builder),
+    obj: (Point | Bbox | Node | Builder),
     distance: float,
 ) -> Point:
     """Return a point above the given object at the specified distance.
 
     Args:
-        obj: A Point, Bbox, LayoutElement, or their builder variants.
+        obj: A Point, Bbox, Node, or their builder variants.
             For Nodes, uses the north anchor point.
         distance: The vertical distance from the object's reference point.
 
@@ -147,7 +147,7 @@ def above_of(
     """
     if isinstance_or_builder(obj, Point):
         source_point = obj
-    elif isinstance_or_builder(obj, Node):
+    elif isinstance_or_builder(obj, (Bbox, Node)):
         source_point = obj.north()
     else:
         raise TypeError(f"{type(obj).__name__} not supported")
@@ -155,13 +155,13 @@ def above_of(
 
 
 def below_of(
-    obj: (Point | Bbox | LayoutElement | Builder),
+    obj: (Point | Bbox | Node | Builder),
     distance: float,
 ) -> Point:
     """Return a point below the given object at the specified distance.
 
     Args:
-        obj: A Point, Bbox, LayoutElement, or their builder variants.
+        obj: A Point, Bbox, Node, or their builder variants.
             For Nodes, uses the south anchor point.
         distance: The vertical distance from the object's reference point.
 
@@ -179,7 +179,7 @@ def below_of(
     """
     if isinstance_or_builder(obj, Point):
         source_point = obj
-    elif isinstance_or_builder(obj, Node):
+    elif isinstance_or_builder(obj, (Bbox, Node)):
         source_point = obj.south()
     else:
         raise TypeError(f"{type(obj).__name__} not supported")
@@ -187,14 +187,14 @@ def below_of(
 
 
 def above_left_of(
-    obj: (Point | Bbox | LayoutElement | Builder),
+    obj: (Point | Bbox | Node | Builder),
     distance_y: float,
     distance_x: float | None = None,
 ) -> Point:
     """Return a point above and to the left of the given object.
 
     Args:
-        obj: A Point, Bbox, LayoutElement, or their builder variants.
+        obj: A Point, Bbox, Node, or their builder variants.
             For Nodes, uses the north-west anchor point.
         distance_y: The vertical distance (northward) from the object.
         distance_x: The horizontal distance (westward) from the object.
@@ -216,7 +216,7 @@ def above_left_of(
         distance_x = distance_y
     if isinstance_or_builder(obj, Point):
         source_point = obj
-    elif isinstance_or_builder(obj, Node):
+    elif isinstance_or_builder(obj, (Bbox, Node)):
         source_point = obj.north_west()
     else:
         raise TypeError(f"{type(obj).__name__} not supported")
@@ -224,14 +224,14 @@ def above_left_of(
 
 
 def above_right_of(
-    obj: (Point | Bbox | LayoutElement | Builder),
+    obj: (Point | Bbox | Node | Builder),
     distance_y: float,
     distance_x: float | None = None,
 ) -> Point:
     """Return a point above and to the right of the given object.
 
     Args:
-        obj: A Point, Bbox, LayoutElement, or their builder variants.
+        obj: A Point, Bbox, Node, or their builder variants.
             For Nodes, uses the north-east anchor point.
         distance_y: The vertical distance (northward) from the object.
         distance_x: The horizontal distance (eastward) from the object.
@@ -253,7 +253,7 @@ def above_right_of(
         distance_x = distance_y
     if isinstance_or_builder(obj, Point):
         source_point = obj
-    elif isinstance_or_builder(obj, Node):
+    elif isinstance_or_builder(obj, (Bbox, Node)):
         source_point = obj.north_east()
     else:
         raise TypeError(f"{type(obj).__name__} not supported")
@@ -261,14 +261,14 @@ def above_right_of(
 
 
 def below_left_of(
-    obj: (Point | Bbox | LayoutElement | Builder),
+    obj: (Point | Bbox | Node | Builder),
     distance_y: float,
     distance_x: float | None = None,
 ) -> Point:
     """Return a point below and to the left of the given object.
 
     Args:
-        obj: A Point, Bbox, LayoutElement, or their builder variants.
+        obj: A Point, Bbox, Node, or their builder variants.
             For Nodes, uses the south-west anchor point.
         distance_y: The vertical distance (southward) from the object.
         distance_x: The horizontal distance (westward) from the object.
@@ -290,7 +290,7 @@ def below_left_of(
         distance_x = distance_y
     if isinstance_or_builder(obj, Point):
         source_point = obj
-    elif isinstance_or_builder(obj, Node):
+    elif isinstance_or_builder(obj, (Bbox, Node)):
         source_point = obj.south_west()
     else:
         raise TypeError(f"{type(obj).__name__} not supported")
@@ -298,14 +298,14 @@ def below_left_of(
 
 
 def below_right_of(
-    obj: (Point | Bbox | LayoutElement | Builder),
+    obj: (Point | Bbox | Node | Builder),
     distance_y: float,
     distance_x: float | None = None,
 ) -> Point:
     """Return a point below and to the right of the given object.
 
     Args:
-        obj: A Point, Bbox, LayoutElement, or their builder variants.
+        obj: A Point, Bbox, Node, or their builder variants.
             For Nodes, uses the south-east anchor point.
         distance_y: The vertical distance (southward) from the object.
         distance_x: The horizontal distance (eastward) from the object.
@@ -327,7 +327,7 @@ def below_right_of(
         distance_x = distance_y
     if isinstance_or_builder(obj, Point):
         source_point = obj
-    elif isinstance_or_builder(obj, Node):
+    elif isinstance_or_builder(obj, (Bbox, Node)):
         source_point = obj.south_east()
     else:
         raise TypeError(f"{type(obj).__name__} not supported")
@@ -534,7 +534,7 @@ def set_position(
 
 def set_right_of(
     obj1: Builder,
-    obj2: (Point | Bbox | LayoutElement | Builder),
+    obj2: (Point | Bbox | Node | Builder),
     distance: float,
     anchor: str | None = None,
 ) -> None:
@@ -552,7 +552,7 @@ def set_right_of(
 
 def set_left_of(
     obj1: Builder,
-    obj2: (Point | Bbox | LayoutElement | Builder),
+    obj2: (Point | Bbox | Node | Builder),
     distance: float,
     anchor: str | None = None,
 ) -> None:
@@ -570,7 +570,7 @@ def set_left_of(
 
 def set_above_of(
     obj1: Builder,
-    obj2: (Point | Bbox | LayoutElement | Builder),
+    obj2: (Point | Bbox | Node | Builder),
     distance: float,
     anchor: str | None = None,
 ) -> None:
@@ -588,7 +588,7 @@ def set_above_of(
 
 def set_below_of(
     obj1: Builder,
-    obj2: (Point | Bbox | LayoutElement | Builder),
+    obj2: (Point | Bbox | Node | Builder),
     distance: float,
     anchor: str | None = None,
 ) -> None:
@@ -606,7 +606,7 @@ def set_below_of(
 
 def set_above_left_of(
     obj1: Builder,
-    obj2: (Point | Bbox | LayoutElement | Builder),
+    obj2: (Point | Bbox | Node | Builder),
     distance_y: float,
     distance_x: float | None = None,
     anchor: str | None = None,
@@ -626,7 +626,7 @@ def set_above_left_of(
 
 def set_above_right_of(
     obj1: Builder,
-    obj2: (Point | Bbox | LayoutElement | Builder),
+    obj2: (Point | Bbox | Node | Builder),
     distance_y: float,
     distance_x: float | None = None,
     anchor: str | None = None,
@@ -646,7 +646,7 @@ def set_above_right_of(
 
 def set_below_left_of(
     obj1: Builder,
-    obj2: (Point | Bbox | LayoutElement | Builder),
+    obj2: (Point | Bbox | Node | Builder),
     distance_y: float,
     distance_x: float | None = None,
     anchor: str | None = None,
@@ -666,7 +666,7 @@ def set_below_left_of(
 
 def set_below_right_of(
     obj1: Builder,
-    obj2: (Point | Bbox | LayoutElement | Builder),
+    obj2: (Point | Bbox | Node | Builder),
     distance_y: float,
     distance_x: float | None = None,
     anchor: str | None = None,
