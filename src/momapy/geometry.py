@@ -143,7 +143,7 @@ class Point(GeometryObject):
         yield self.x
         yield self.y
 
-    def to_matrix(self) -> numpy.ndarray:
+    def to_matrix(self) -> numpy.typing.NDArray:
         """Convert to a 3x1 numpy matrix for transformation operations.
 
         Returns:

@@ -652,7 +652,7 @@ class DrawingElement(abc.ABC):
         """
         primitives = self.to_geometry()
         if not primitives:
-            return Bbox(Point(0.0, 0.0), 0, 0)
+            return Bbox(Point(0.0, 0.0), 0.0, 0.0)
         bboxes = [p.bbox() for p in primitives]
         return Bbox.union(bboxes)
 
@@ -830,7 +830,7 @@ class MoveTo(PathAction):
         self,
         transformation: Transformation,
         current_point: Point,
-    ) -> "MoveTo":
+    ) -> typing_extensions.Self:
         """Apply a transformation.
 
         Args:
@@ -932,7 +932,7 @@ class EllipticalArc(PathAction):
         self,
         transformation: Transformation,
         current_point: Point,
-    ) -> "EllipticalArc":
+    ) -> typing_extensions.Self:
         """Apply a transformation.
 
         Args:
@@ -1018,7 +1018,7 @@ class CurveTo(PathAction):
         self,
         transformation: Transformation,
         current_point: Point,
-    ) -> "CurveTo":
+    ) -> typing_extensions.Self:
         """Apply a transformation.
 
         Args:
@@ -1079,7 +1079,7 @@ class QuadraticCurveTo(PathAction):
         self,
         transformation: Transformation,
         current_point: Point,
-    ) -> "QuadraticCurveTo":
+    ) -> typing_extensions.Self:
         """Apply a transformation.
 
         Args:
@@ -1136,7 +1136,7 @@ class ClosePath(PathAction):
         self,
         transformation: Transformation,
         current_point: Point,
-    ) -> "ClosePath":
+    ) -> typing_extensions.Self:
         """Apply a transformation.
 
         Args:

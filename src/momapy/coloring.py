@@ -375,7 +375,7 @@ class Color(object):
         green: float,
         blue: float,
         alpha: float,
-        rgb_range: tuple[float, float] | tuple[int, int] = (0, 255),
+        rgb_range: tuple[float, float] = (0, 255),
         alpha_range: tuple[float, float] = (0.0, 1.0),
     ) -> typing_extensions.Self:
         """Create a color from RGBA components.
@@ -418,7 +418,7 @@ class Color(object):
         red: float,
         green: float,
         blue: float,
-        rgb_range: tuple[float, float] | tuple[int, int] = (0, 255),
+        rgb_range: tuple[float, float] = (0, 255),
     ) -> typing_extensions.Self:
         """Create a color from RGB components.
 

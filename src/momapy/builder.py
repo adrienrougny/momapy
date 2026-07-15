@@ -295,7 +295,7 @@ def _make_builder_cls(
 
 
 def object_from_builder(
-    builder: Builder,
+    builder: typing.Any,
     builder_to_object: dict[int, typing.Any] | None = None,
 ) -> typing.Any:
     """Convert a builder (or collection of builders) to actual object(s).
@@ -558,9 +558,7 @@ def register_builder_cls(builder_cls: typing.Type) -> None:
     _builders[builder_cls._cls_to_build] = builder_cls
 
 
-def isinstance_or_builder(
-    obj: typing.Any, type_: typing.Type | tuple[typing.Type]
-) -> bool:
+def isinstance_or_builder(obj: typing.Any, type_: type | tuple[type, ...]) -> bool:
     """Check if object is instance of class or its builder class.
 
     Extends isinstance() to also check against registered builder classes.
@@ -591,9 +589,7 @@ def isinstance_or_builder(
     return isinstance(obj, type_)
 
 
-def issubclass_or_builder(
-    cls: typing.Type, type_: typing.Type | tuple[typing.Type]
-) -> bool:
+def issubclass_or_builder(cls: type, type_: type | tuple[type, ...]) -> bool:
     """Check if class is subclass of class or its builder class.
 
     Extends issubclass() to also check against registered builder classes.

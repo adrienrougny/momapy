@@ -428,11 +428,11 @@ class Renderer(abc.ABC):
                     f"font weight must be a float, {FontWeight.NORMAL}, or {FontWeight.BOLD}"
                 )
         if font_weight > 700:
-            new_font_weight = 700
+            new_font_weight = 700.0
         elif font_weight > 500:
-            new_font_weight = 400
+            new_font_weight = 400.0
         else:
-            new_font_weight = 100
+            new_font_weight = 100.0
         return new_font_weight
 
     @classmethod
@@ -445,11 +445,11 @@ class Renderer(abc.ABC):
                     f"font weight must be a float, {FontWeight.NORMAL}, or {FontWeight.BOLD}"
                 )
         if font_weight < 400:
-            new_font_weight = 400
+            new_font_weight = 400.0
         elif font_weight < 600:
-            new_font_weight = 700
+            new_font_weight = 700.0
         else:
-            new_font_weight = 900
+            new_font_weight = 900.0
         return new_font_weight
 
 
