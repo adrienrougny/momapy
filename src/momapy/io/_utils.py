@@ -197,6 +197,46 @@ class ReadingContext:
     alive to prevent Python from reusing their memory address."""
 
 
+def build_id_to_element(obj: MapElement) -> frozendict.frozendict:
+    """Build the ``id_to_element`` mapping from a frozen object.
+
+    Walks the model and/or layout descendants of a `Map`, `Model`, or
+    `Layout` and maps every element ``id_`` to the element. Requires no
+    reading context, so it is reusable both by native readers (through
+    `build_id_mappings`) and by the pickle reader, which has no context.
+
+    Args:
+        obj: The top-level frozen object — a `Map`, `Model`, or `Layout`.
+
+    Returns:
+        A frozen mapping of every element ``id_`` to its element.
+    """
+    if isinstance(obj, Map):
+        model = obj.model
+        layout = obj.layout
+    elif isinstance(obj, Model):
+        model = obj
+        layout = None
+    elif isinstance(obj, Layout):
+        model = None
+        layout = obj
+    else:
+        model = None
+        layout = None
+
+    id_to_element: dict[str, MapElement] = {}
+    if model is not None:
+        id_to_element[model.id_] = model
+        for element in model.descendants():
+            id_to_element[element.id_] = element
+    if layout is not None:
+        id_to_element[layout.id_] = layout
+        for layout_element in layout.descendants():
+            id_to_element[layout_element.id_] = layout_element
+    id_to_element[obj.id_] = obj
+    return frozendict.frozendict(id_to_element)
+
+
 def build_id_mappings(
     reading_context: "ReadingContext",
     obj: MapElement,
@@ -244,16 +284,7 @@ def build_id_mappings(
         model = None
         layout = None
 
-    id_to_element: dict[str, MapElement] = {}
-    if model is not None:
-        id_to_element[model.id_] = model
-        for element in model.descendants():
-            id_to_element[element.id_] = element
-    if layout is not None:
-        id_to_element[layout.id_] = layout
-        for layout_element in layout.descendants():
-            id_to_element[layout_element.id_] = layout_element
-    id_to_element[obj.id_] = obj
+    id_to_element = build_id_to_element(obj)
 
     if model is not None:
         source_id_to_model_element_set: dict[str, set[ModelElement]] = {}
@@ -297,7 +328,7 @@ def build_id_mappings(
         source_id_to_layout_element = None
 
     return (
-        frozendict.frozendict(id_to_element),
+        id_to_element,
         source_id_to_model_element,
         source_id_to_layout_element,
     )

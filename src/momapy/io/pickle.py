@@ -18,6 +18,7 @@ from momapy.core.elements import ModelElement
 from momapy.core.layout import Layout
 from momapy.core.map import Map
 from momapy.core.model import Model
+from momapy.io._utils import build_id_to_element
 from momapy.io.core import Reader
 from momapy.io.core import ReaderResult
 from momapy.io.core import Writer
@@ -183,6 +184,20 @@ class PickleReader(Reader):
                 map_builder.layout_model_mapping = None
                 obj = object_from_builder(map_builder)
         reader_result.obj = obj
+        # Match the native readers' ReaderResult contract for the projected obj:
+        # null out the source-id table for a side the result no longer carries,
+        # and rebuild id_to_element from the projected obj (findings 27, 28).
+        if isinstance(obj, Map):
+            has_model = obj.model is not None
+            has_layout = obj.layout is not None
+        else:
+            has_model = isinstance(obj, Model)
+            has_layout = isinstance(obj, Layout)
+        if not has_model:
+            reader_result.source_id_to_model_element = None
+        if not has_layout:
+            reader_result.source_id_to_layout_element = None
+        reader_result.id_to_element = build_id_to_element(obj)
         return reader_result
 
 
