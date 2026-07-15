@@ -2795,7 +2795,7 @@ def append_template_regions(elem: lxml.etree._Element, tmpl: typing.Any) -> None
 
 
 def all_species_recursive(writing_context: typing.Any) -> list[typing.Any]:
-    """Yield all species including subunits, sorted by id."""
+    """Return all species including subunits, sorted by id."""
     result = []
 
     def _collect(species: typing.Any) -> None:

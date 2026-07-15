@@ -9,7 +9,7 @@ Available shapes:
     - Rectangle: Rectangles with customizable rounded or cut corners
     - Ellipse: Ellipses and circles
     - Stadium: Rounded rectangles
-    - Hexagon: Regular hexagons with configurable orientation
+    - Hexagon: Hexagons with configurable left/right vertex angles
     - TurnedHexagon: Rotated hexagons
     - Parallelogram: Parallelograms with configurable angle
     - CrossPoint: Crossing-point shapes

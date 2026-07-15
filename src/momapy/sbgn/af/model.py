@@ -29,7 +29,8 @@ class Compartment(SBGNModelElement):
         default=None, metadata={"description": "The label of the compartment."}
     )
     units_of_information: frozenset[UnitOfInformation] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={"description": "The units of information of the compartment."},
     )
 
 
@@ -248,21 +249,40 @@ class Submap(SBGNModelElement):
     label: str | None = dataclasses.field(
         default=None, metadata={"description": "The label of the submap."}
     )
-    terminals: frozenset[Terminal] = dataclasses.field(default_factory=frozenset)
+    terminals: frozenset[Terminal] = dataclasses.field(
+        default_factory=frozenset,
+        metadata={"description": "The terminals of the submap."},
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNAFModel(SBGNModel):
     """SBGN AF model."""
 
-    activities: frozenset[Activity] = dataclasses.field(default_factory=frozenset)
-    compartments: frozenset[Compartment] = dataclasses.field(default_factory=frozenset)
-    influences: frozenset[Influence] = dataclasses.field(default_factory=frozenset)
-    logical_operators: frozenset[LogicalOperator] = dataclasses.field(
-        default_factory=frozenset
+    activities: frozenset[Activity] = dataclasses.field(
+        default_factory=frozenset,
+        metadata={"description": "The activities of the SBGN-AF model."},
     )
-    submaps: frozenset[Submap] = dataclasses.field(default_factory=frozenset)
-    tags: frozenset[Tag] = dataclasses.field(default_factory=frozenset)
+    compartments: frozenset[Compartment] = dataclasses.field(
+        default_factory=frozenset,
+        metadata={"description": "The compartments of the SBGN-AF model."},
+    )
+    influences: frozenset[Influence] = dataclasses.field(
+        default_factory=frozenset,
+        metadata={"description": "The influences of the SBGN-AF model."},
+    )
+    logical_operators: frozenset[LogicalOperator] = dataclasses.field(
+        default_factory=frozenset,
+        metadata={"description": "The logical operators of the SBGN-AF model."},
+    )
+    submaps: frozenset[Submap] = dataclasses.field(
+        default_factory=frozenset,
+        metadata={"description": "The submaps of the SBGN-AF model."},
+    )
+    tags: frozenset[Tag] = dataclasses.field(
+        default_factory=frozenset,
+        metadata={"description": "The tags of the SBGN-AF model."},
+    )
 
     def is_submodel(self, other: "SBGNAFModel") -> bool:
         """Check if this model is a submodel of another model.

@@ -321,6 +321,8 @@ class Bar(Node):
     """Bar node.
 
     A node drawn as a single vertical bar segment spanning the node's height.
+    The inherited ``width`` does not affect the drawn bar (it still affects
+    ``size()`` and the node's anchors).
     """
 
     def _border_drawing_elements(self) -> list[DrawingElement]:

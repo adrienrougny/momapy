@@ -663,8 +663,8 @@ def tidy(
             Defaults to 25.
         compartments_ysep: Vertical padding for compartments.
             Defaults to 25.
-        layout_xsep: Horizontal padding for overall layout.
-        layout_ysep: Vertical padding for overall layout.
+        layout_xsep: Horizontal padding for overall layout. Defaults to 0.
+        layout_ysep: Vertical padding for overall layout. Defaults to 0.
 
     Returns:
         The tidied map or map builder. If a frozen map was given,

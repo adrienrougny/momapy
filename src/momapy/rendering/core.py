@@ -1,4 +1,4 @@
-"""Bases classes and functions for rendering maps or layout elements."""
+"""Base classes and functions for rendering maps or layout elements."""
 
 import dataclasses
 import copy

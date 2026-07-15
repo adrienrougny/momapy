@@ -291,6 +291,8 @@ def read(
     Raises:
         FileNotFoundError: If no file exists at `file_path`.
         ValueError: If no suitable reader is found.
+        NotImplementedError: If `return_type="layout"` is requested for a
+            layout-less format (e.g. SBML).
 
     Examples:
         ```python

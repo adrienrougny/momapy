@@ -73,8 +73,8 @@ class WritingContext:
     element_to_xml_id: dict = dataclasses.field(default_factory=dict)
     """Memo of the unique, format-valid XML id assigned to each element,
     keyed by ``id(element)``.  Seeded with grammar-valid source ids in
-    the phase-1 reservation pass (``_reserve_source_xml_ids``) and
-    filled lazily for the rest in each format's ``_get_xml_id``.
+    the phase-1 reservation pass (``reserve_source_xml_ids``) and
+    filled lazily for the rest in each format's ``get_xml_id``.
     Identity-keyed for the same reason the format memos are: model
     elements use ``compare=False`` on ``id_``, so two content-equal
     objects must stay distinct."""
@@ -101,11 +101,11 @@ def make_unique_xml_id(candidate: str, used_xml_ids: set) -> str:
     ``candidate_2`` / ... until an unused string is found.  The result is
     added to ``used_xml_ids``.
 
-    This is internal to each format's ``_get_xml_id``.  Never call it
+    This is internal to each format's ``get_xml_id``.  Never call it
     from an emission site with a raw candidate string: an element whose
     id was already reserved in the phase-1 pass (e.g. a metaid) is in
     ``used_xml_ids``, so a second call would bump it to ``_1``.  Emission
-    must go through ``_get_xml_id``, which checks the element memo first.
+    must go through ``get_xml_id``, which checks the element memo first.
 
     Args:
         candidate: The desired id (already projected to the format

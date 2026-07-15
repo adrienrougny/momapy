@@ -5,7 +5,7 @@ meta.shapes module. These arcs can be used directly in map layouts to
 connect nodes with various arrowhead styles.
 
 Available arc types:
-    Single-headed (one arrowhead):
+    Single-headed (at most one arrowhead):
     - PolyLine: Straight lines without arrowheads
     - Triangle: Lines with triangular arrowheads
     - ReversedTriangle: Lines with reversed triangular arrowheads

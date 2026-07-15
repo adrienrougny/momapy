@@ -225,8 +225,9 @@ class IdentityMultiDict(collections.abc.Mapping):
     Inverse: ``frozendict[int, frozenset[str]]`` keyed by ``id(value)``.
 
     The class is a read-only ``Mapping[str, frozenset]`` on the forward
-    side (``[]`` / ``.get`` / ``.keys`` / ``.items`` / ``.values`` all
-    yield ``frozenset`` buckets) plus the ``add`` / ``remove`` /
+    side (``[]`` / ``.get`` / ``.values`` yield ``frozenset`` buckets,
+    ``.keys`` yields the ``str`` keys, ``.items`` yields
+    ``(key, frozenset)`` pairs) plus the ``add`` / ``remove`` /
     ``replace_value`` mutators and the ``.inverse`` index.
 
     It deliberately does **not** subclass ``dict``, so an accidental

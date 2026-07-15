@@ -500,7 +500,9 @@ class KnownOrUnknownModulator(ModifierSpeciesReference, CellDesignerModelElement
 
     # redefined because can be BooleanLogicGate
     referred_element: Species | BooleanLogicGate = dataclasses.field(
-        metadata={"description": "The species the modifier refers to"}
+        metadata={
+            "description": "The species or boolean logic gate the modifier refers to"
+        }
     )
 
 
@@ -671,10 +673,10 @@ class KnownOrUnknownModulation(CellDesignerModelElement):
     """Abstract base class for known or unknown modulations."""
 
     source: Species | BooleanLogicGate = dataclasses.field(
-        metadata={"description": "The source of the influence"}
+        metadata={"description": "The source of the modulation"}
     )
     target: Species | None = dataclasses.field(
-        metadata={"description": "The target of the influence"}
+        metadata={"description": "The target of the modulation"}
     )
 
 

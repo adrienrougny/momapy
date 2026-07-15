@@ -9,10 +9,7 @@ from momapy.sbgn.map import SBGNMap
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNAFMap(SBGNMap):
-    """SBGN-AF map.
-
-    Represents a complete SBGN Activity Flow map with model and layout.
-    """
+    """Class for SBGN-AF maps."""
 
     model: SBGNAFModel | None = None
     layout: SBGNAFLayout | None = None
