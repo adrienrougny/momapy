@@ -117,6 +117,31 @@ def test_renderer_render_map_rejects_layout_less_map():
         renderer.render_map(layout_less_map)
 
 
+def test_render_layout_elements_rejects_empty_input(temp_dir):
+    """Empty input raises a clear ValueError for both multi_pages branches.
+
+    Regression (finding 16): multi_pages=False previously leaked the low-level
+    fit([]) message and multi_pages=True silently wrote an empty file.
+    """
+    import os
+
+    output_file = os.path.join(temp_dir, "out.svg")
+    for multi_pages in (False, True):
+        with pytest.raises(ValueError, match="no layout elements to render"):
+            momapy.rendering.core.render_layout_elements(
+                [], output_file, multi_pages=multi_pages
+            )
+
+
+def test_render_maps_rejects_empty_input(temp_dir):
+    """render_maps([]) raises its own clear ValueError (finding 16)."""
+    import os
+
+    output_file = os.path.join(temp_dir, "out.svg")
+    with pytest.raises(ValueError, match="no maps to render"):
+        momapy.rendering.core.render_maps([], output_file)
+
+
 def test_render_layout_elements_rejects_non_file_renderer(sample_map, temp_dir):
     """A renderer without from_file raises a clear error on file output."""
     import os

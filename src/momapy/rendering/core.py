@@ -153,6 +153,8 @@ def render_layout_elements(
             )
     if renderer is None:
         renderer = _detect_renderer(format_)
+    if not layout_elements:
+        raise ValueError("no layout elements to render")
 
     def _prepare_layout_elements(
         layout_elements: list[LayoutElement],
@@ -222,22 +224,19 @@ def render_layout_elements(
             renderer_instance.render_layout_element(prepared_layout_element)
         renderer_instance.end_session()
     else:
-        if layout_elements:
-            layout_element = layout_elements[0]
+        layout_element = layout_elements[0]
+        prepared_layout_elements, max_x, max_y = _prepare_layout_elements(
+            [layout_element], style_sheet, to_top_left
+        )
+        renderer_instance = renderer_cls.from_file(file_path, max_x, max_y, format_)
+        renderer_instance.begin_session()
+        renderer_instance.render_layout_element(prepared_layout_elements[0])
+        for layout_element in layout_elements[1:]:
             prepared_layout_elements, max_x, max_y = _prepare_layout_elements(
                 [layout_element], style_sheet, to_top_left
             )
-            renderer_instance = renderer_cls.from_file(file_path, max_x, max_y, format_)
-            renderer_instance.begin_session()
+            renderer_instance.new_page(max_x, max_y)
             renderer_instance.render_layout_element(prepared_layout_elements[0])
-            for layout_element in layout_elements[1:]:
-                prepared_layout_elements, max_x, max_y = _prepare_layout_elements(
-                    [layout_element], style_sheet, to_top_left
-                )
-                renderer_instance.new_page(max_x, max_y)
-                renderer_instance.render_layout_element(prepared_layout_elements[0])
-        else:
-            renderer_instance = renderer_cls.from_file(file_path, 0, 0, format_)
         renderer_instance.end_session()
 
 
@@ -311,6 +310,8 @@ def render_maps(
         render_maps([first_map, second_map], "output.pdf", multi_pages=True)
         ```
     """
+    if not maps:
+        raise ValueError("no maps to render")
     layout_elements = []
     for map_ in maps:
         if map_.layout is None:
