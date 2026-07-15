@@ -222,7 +222,7 @@ Output:
 
 ```
 File:      my_map.sbgn
-Map type:  SBGN Process Description
+Map type:  SBGN PD
 
 Model:
   compartments:             0
@@ -249,7 +249,7 @@ Output:
 
 ```json
 {
-  "map_type": "SBGN Process Description",
+  "map_type": "SBGN PD",
   "model": {
     "compartments": 0,
     "entity_pools": 28,

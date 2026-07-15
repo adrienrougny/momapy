@@ -112,7 +112,7 @@ class TestCLIInfoCommand:
         with mock.patch("sys.argv", ["momapy", "info", self.SBGN_MAP_PATH]):
             momapy.cli.main()
         captured = capsys.readouterr()
-        assert "SBGN Process Description" in captured.out
+        assert "SBGN PD" in captured.out
         assert "entity pools:" in captured.out
         assert "dimensions:" in captured.out
 
@@ -125,7 +125,7 @@ class TestCLIInfoCommand:
             momapy.cli.main()
         captured = capsys.readouterr()
         data = json.loads(captured.out)
-        assert data["map_type"] == "SBGN Process Description"
+        assert data["map_type"] == "SBGN PD"
         assert "model" in data
         assert "layout" in data
         assert "entity_pools" in data["model"]
@@ -171,7 +171,7 @@ class TestCLIInfoCommand:
         ):
             momapy.cli.main()
         content = output_file.read_text()
-        assert "SBGN Process Description" in content
+        assert "SBGN PD" in content
         assert "entity pools:" in content
 
 

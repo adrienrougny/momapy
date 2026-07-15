@@ -51,6 +51,7 @@ from momapy.sbgn.af import NucleicAcidFeatureUnitOfInformationLayout
 from momapy.sbgn.af import OrOperatorLayout as AFOrOperatorLayout
 from momapy.sbgn.af import PerturbationUnitOfInformationLayout
 from momapy.sbgn.af import PositiveInfluenceLayout
+from momapy.sbgn.af import SBGNAFMap
 from momapy.sbgn.af import SBGNAFModel
 from momapy.sbgn.af import SimpleChemicalUnitOfInformationLayout
 from momapy.sbgn.af import UnitOfInformationLayout as AFUnitOfInformationLayout
@@ -786,15 +787,20 @@ def get_info(map_: SBGNMap) -> dict[str, typing.Any]:
         no model or no layout, respectively.
 
     Raises:
-        ValueError: If the model is not None and its type is not recognized.
+        ValueError: If the map type, or a non-None model type, is not
+            recognized.
     """
     model = map_.model
     layout = map_.layout
+    if isinstance(map_, SBGNPDMap):
+        map_type = "SBGN PD"
+    elif isinstance(map_, SBGNAFMap):
+        map_type = "SBGN AF"
+    else:
+        raise ValueError(f"unknown SBGN map type: {type(map_).__name__}")
     if model is None:
-        map_type = "SBGN"
         model_info = None
     elif isinstance(model, SBGNPDModel):
-        map_type = "SBGN Process Description"
         model_info = {
             "compartments": len(model.compartments),
             "entity_pools": len(model.entity_pools),
@@ -806,7 +812,6 @@ def get_info(map_: SBGNMap) -> dict[str, typing.Any]:
             "tags": len(model.tags),
         }
     elif isinstance(model, SBGNAFModel):
-        map_type = "SBGN Activity Flow"
         model_info = {
             "compartments": len(model.compartments),
             "activities": len(model.activities),
