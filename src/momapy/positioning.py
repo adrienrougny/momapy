@@ -363,20 +363,17 @@ def fit(
     """
     if not elements:
         raise ValueError("elements must contain at least one element")
-    points = []
+    bboxes = []
     for element in elements:
         if isinstance_or_builder(element, Point):
-            points.append(element)
+            bboxes.append(Bbox.around_points([element]))
         elif isinstance_or_builder(element, Bbox):
-            points.append(element.north_west())
-            points.append(element.south_east())
+            bboxes.append(element)
         elif isinstance_or_builder(element, LayoutElement):
-            bbox = element.bbox()
-            points.append(bbox.north_west())
-            points.append(bbox.south_east())
+            bboxes.append(element.bbox())
         else:
             raise TypeError(f"{type(element)} not supported")
-    bbox = Bbox.around_points(points)
+    bbox = Bbox.union(bboxes)
     if xsep or ysep:
         bbox = Bbox(
             bbox.position,
