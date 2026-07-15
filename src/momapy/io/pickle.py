@@ -207,7 +207,7 @@ class PickleWriter(Writer):
     @classmethod
     def write(
         cls,
-        obj: Map,
+        obj: typing.Any,
         file_path: str | os.PathLike,
         element_to_annotations: dict | None = None,
         element_to_notes: dict | None = None,
@@ -222,7 +222,9 @@ class PickleWriter(Writer):
         """Pickle a `ReaderResult` holding `obj` and its side-tables.
 
         Args:
-            obj: The map to pickle.
+            obj: The object to pickle. Pickle is format-agnostic, so this may
+                be a `Map` or a bare `Model`/`Layout` (matching the reader's
+                shape-agnostic contract).
             file_path: Destination file path.
             element_to_annotations: Optional per-element annotation dict.
             element_to_notes: Optional per-element notes dict.
