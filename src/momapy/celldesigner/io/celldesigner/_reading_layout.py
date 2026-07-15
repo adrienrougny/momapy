@@ -28,7 +28,10 @@ from momapy.celldesigner.io.celldesigner._reading_parsing import (
     get_width,
     get_name,
 )
-from momapy.celldesigner.io.celldesigner._writing import are_collinear
+from momapy.celldesigner.io.celldesigner._writing import (
+    are_collinear,
+    make_non_degenerate_frame,
+)
 from momapy.celldesigner.layout import (
     AntisenseRNAActiveLayout,
     AntisenseRNALayout,
@@ -563,6 +566,11 @@ def make_segments_non_t_shape(
     origin = reactant_layout_element.anchor_point(reactant_anchor_name)
     unit_x = product_layout_element.anchor_point(product_anchor_name)
     unit_y = unit_x.transformed(Rotation(math.radians(90), origin))
+    # For a self-loop the reactant and product coincide, so this frame is
+    # degenerate. The writer perturbs such a frame with make_non_degenerate_frame
+    # before inverse-transforming the edit points; mirror it here so the edit
+    # points round-trip exactly instead of collapsing onto the species center.
+    origin, unit_x, unit_y = make_non_degenerate_frame(origin, unit_x, unit_y)
     transformation = get_transformation_for_frame(origin, unit_x, unit_y)
     intermediate_points = []
     cd_edit_points = get_edit_points_from_reaction(cd_reaction)
@@ -1249,6 +1257,11 @@ def make_modulation(
     origin = source_layout_element.anchor_point(source_anchor_name)
     unit_x = target_layout_element.anchor_point(target_anchor_name)
     unit_y = unit_x.transformed(Rotation(math.radians(90), origin))
+    # For a self-modulation the source and target coincide, so this frame is
+    # degenerate. The writer perturbs such a frame with make_non_degenerate_frame
+    # before inverse-transforming the edit points; mirror it here so the edit
+    # points round-trip exactly instead of collapsing onto the species center.
+    origin, unit_x, unit_y = make_non_degenerate_frame(origin, unit_x, unit_y)
     transformation = get_transformation_for_frame(origin, unit_x, unit_y)
     intermediate_points = [
         edit_point.transformed(transformation) for edit_point in edit_points

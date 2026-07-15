@@ -1,0 +1,105 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<sbml xmlns="http://www.sbml.org/sbml/level2/version4" xmlns:celldesigner="http://www.sbml.org/2001/ns/celldesigner" level="2" version="4">
+  <model metaid="m1" id="m1">
+    <annotation>
+      <celldesigner:extension>
+        <celldesigner:modelVersion>4.0</celldesigner:modelVersion>
+        <celldesigner:modelDisplay sizeX="600" sizeY="600"/>
+        <celldesigner:listOfIncludedSpecies/>
+        <celldesigner:listOfCompartmentAliases>
+          <celldesigner:compartmentAlias id="ca_default" compartment="default">
+            <celldesigner:class>SQUARE</celldesigner:class>
+            <celldesigner:bounds x="10.0" y="10.0" w="560.0" h="560.0"/>
+            <celldesigner:namePoint x="20.0" y="20.0"/>
+            <celldesigner:doubleLine thickness="12.0" outerWidth="2.0" innerWidth="1.0"/>
+            <celldesigner:paint color="ffcccc00" scheme="Color"/>
+            <celldesigner:info state="empty" angle="0.0"/>
+          </celldesigner:compartmentAlias>
+        </celldesigner:listOfCompartmentAliases>
+        <celldesigner:listOfSpeciesAliases>
+          <celldesigner:speciesAlias id="csa1" species="s1" compartmentAlias="ca_default">
+            <celldesigner:activity>inactive</celldesigner:activity>
+            <celldesigner:bounds x="250.0" y="250.0" w="100.0" h="40.0"/>
+            <celldesigner:font size="12"/>
+            <celldesigner:view state="usual"/>
+            <celldesigner:usualView>
+              <celldesigner:innerPosition x="0.0" y="0.0"/>
+              <celldesigner:boxSize width="100.0" height="40.0"/>
+              <celldesigner:singleLine width="1.0"/>
+              <celldesigner:paint color="ffccffcc" scheme="Color"/>
+            </celldesigner:usualView>
+            <celldesigner:briefView>
+              <celldesigner:innerPosition x="0.0" y="0.0"/>
+              <celldesigner:boxSize width="100.0" height="40.0"/>
+              <celldesigner:singleLine width="1.0"/>
+              <celldesigner:paint color="ffccffcc" scheme="Color"/>
+            </celldesigner:briefView>
+            <celldesigner:info state="empty" angle="0.0"/>
+          </celldesigner:speciesAlias>
+        </celldesigner:listOfSpeciesAliases>
+        <celldesigner:listOfComplexSpeciesAliases/>
+        <celldesigner:listOfProteins>
+          <celldesigner:protein id="p_0" name="X" type="GENERIC"/>
+        </celldesigner:listOfProteins>
+        <celldesigner:listOfGenes/>
+        <celldesigner:listOfRNAs/>
+        <celldesigner:listOfAntisenseRNAs/>
+      </celldesigner:extension>
+    </annotation>
+    <listOfCompartments>
+      <compartment id="default" metaid="default" size="1" units="volume" name="default">
+        <annotation>
+          <celldesigner:extension>
+            <celldesigner:name>default</celldesigner:name>
+          </celldesigner:extension>
+        </annotation>
+      </compartment>
+    </listOfCompartments>
+    <listOfSpecies>
+      <species metaid="s1" id="s1" name="X" compartment="default" initialAmount="0" hasOnlySubstanceUnits="false" constant="false" boundaryCondition="false">
+        <annotation>
+          <celldesigner:extension>
+            <celldesigner:positionToCompartment>inside</celldesigner:positionToCompartment>
+            <celldesigner:speciesIdentity>
+              <celldesigner:class>PROTEIN</celldesigner:class>
+              <celldesigner:proteinReference>p_0</celldesigner:proteinReference>
+              <celldesigner:name>X</celldesigner:name>
+            </celldesigner:speciesIdentity>
+          </celldesigner:extension>
+        </annotation>
+      </species>
+    </listOfSpecies>
+    <listOfReactions>
+      <reaction metaid="re1" id="re1" reversible="false">
+        <annotation>
+          <celldesigner:extension>
+            <celldesigner:reactionType>NEGATIVE_INFLUENCE</celldesigner:reactionType>
+            <celldesigner:baseReactants>
+              <celldesigner:baseReactant species="s1" alias="csa1"/>
+            </celldesigner:baseReactants>
+            <celldesigner:baseProducts>
+              <celldesigner:baseProduct species="s1" alias="csa1"/>
+            </celldesigner:baseProducts>
+            <celldesigner:listOfReactantLinks/>
+            <celldesigner:listOfProductLinks/>
+            <celldesigner:connectScheme connectPolicy="direct" rectangleIndex="2">
+              <celldesigner:listOfLineDirection>
+                <celldesigner:lineDirection index="0" value="unknown"/>
+                <celldesigner:lineDirection index="1" value="unknown"/>
+                <celldesigner:lineDirection index="2" value="unknown"/>
+              </celldesigner:listOfLineDirection>
+            </celldesigner:connectScheme>
+            <celldesigner:editPoints num0="1" num1="1">-51.6618,-90.4808 51.6618,-90.4808</celldesigner:editPoints>
+            <celldesigner:line width="1.0" color="ff000000" type="Straight"/>
+          </celldesigner:extension>
+        </annotation>
+        <listOfReactants>
+          <speciesReference species="s1"/>
+        </listOfReactants>
+        <listOfProducts>
+          <speciesReference species="s1"/>
+        </listOfProducts>
+      </reaction>
+    </listOfReactions>
+  </model>
+</sbml>
