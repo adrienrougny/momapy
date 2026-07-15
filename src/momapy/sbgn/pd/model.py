@@ -171,10 +171,6 @@ class Compartment(SBGNModelElement):
     label: str | None = dataclasses.field(
         default=None, metadata={"description": "The label of the compartment"}
     )
-    state_variables: frozenset[StateVariable] = dataclasses.field(
-        default_factory=frozenset,
-        metadata={"description": "The state variables of the compartment"},
-    )
     units_of_information: frozenset[UnitOfInformation] = dataclasses.field(
         default_factory=frozenset,
         metadata={"description": "The units of information of the compartment"},

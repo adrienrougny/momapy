@@ -267,7 +267,7 @@ Re-exports: default font-size constants (`DEFAULT_FONT_SIZE`, `DEFAULT_AUXILIARY
 Purpose: SBGN-PD model classes.
 
 - **Auxiliary units**: `StateVariable(SBGNAuxiliaryUnit)` — `variable`, `value`, `order`; `UnitOfInformation` — `value`, `prefix`; `Subunit` family with per-type subclasses (`UnspecifiedEntitySubunit`, `MacromoleculeSubunit`, `NucleicAcidFeatureSubunit`, `SimpleChemicalSubunit`, `ComplexSubunit`, `MultimerSubunit` (+ `cardinality`) and the four multimer variants).
-- **Compartment**: `Compartment(SBGNModelElement)` — `label`, `state_variables`, `units_of_information`.
+- **Compartment**: `Compartment(SBGNModelElement)` — `label`, `units_of_information`.
 - **Entity pools**: `EntityPool(SBGNModelElement)` (`compartment`); subclasses `PerturbingAgent`, `UnspecifiedEntity`, `Macromolecule`, `NucleicAcidFeature`, `SimpleChemical`, `Complex` (+ `subunits`), `Multimer(Complex)` (+ `cardinality`) and the four multimer variants. (The empty set has a layout only, `EmptySetLayout`; there is no `EmptySet` model class.)
 - **Flux roles**: `FluxRole(SBGNRole)` — `referred_element: EntityPool`, `stoichiometry`; `Reactant`, `Product`.
 - **Processes**: `Process(SBGNModelElement)` (no fields); `StoichiometricProcess(Process)` (`reactants`, `products`, `reversible`, `has_external_source`, `has_external_sink`) → `GenericProcess`, `UncertainProcess`; `GenericProcess` → `Association`, `Dissociation`, `OmittedProcess`; `Phenotype(Process)` (no `reactants`/`products`).
