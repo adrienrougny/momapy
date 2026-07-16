@@ -14,11 +14,11 @@ import lxml.etree
 from momapy.io.core import Writer, WriterResult
 from momapy.utils import check_parent_dir_exists
 from momapy.celldesigner.map import CellDesignerMap
-from momapy.celldesigner.model import Complex
 from momapy.celldesigner.io.celldesigner._writing_context import (
     CellDesignerWritingContext,
 )
 from momapy.celldesigner.io.celldesigner._writing import (
+    build_subunit_to_complex,
     collect_degraded_entries,
     make_sbml_document,
     reserve_source_xml_ids,
@@ -81,22 +81,7 @@ class CellDesignerWriter(Writer):
         if element_to_notes is None:
             element_to_notes = {}
 
-        subunit_to_complex: dict = {}
-
-        def _collect(species: typing.Any) -> None:
-            if isinstance(species, Complex):
-                for sub in species.subunits:
-                    # Map to top-level ancestor, not immediate parent.
-                    # If the parent is itself a subunit, its entry
-                    # was already set (parent before children).
-                    ancestor = species
-                    while id(ancestor) in subunit_to_complex:
-                        ancestor = subunit_to_complex[id(ancestor)]
-                    subunit_to_complex[id(sub)] = ancestor
-                    _collect(sub)
-
-        for species in obj.model.species:
-            _collect(species)
+        subunit_to_complex = build_subunit_to_complex(obj)
 
         writing_context = CellDesignerWritingContext(
             map_=obj,

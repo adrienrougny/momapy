@@ -2697,6 +2697,39 @@ def collect_subunits(species: typing.Any) -> list[typing.Any]:
     return result
 
 
+def build_subunit_to_complex(map_: typing.Any) -> dict[int, typing.Any]:
+    """Map each complex subunit to its top-level complex ancestor.
+
+    Subunits are not top-level SBML species; participant references to a
+    subunit must resolve to the enclosing top-level complex. The returned
+    dict is keyed by ``id(subunit)`` (subunits use ``compare=False`` on
+    ``id_``, so two content-equal ones must stay distinct).
+
+    Args:
+        map_: The CellDesigner map being written.
+
+    Returns:
+        A dict mapping ``id(subunit)`` to its top-level complex ancestor.
+    """
+    subunit_to_complex: dict[int, typing.Any] = {}
+
+    def _map_subunits(species: typing.Any) -> None:
+        if isinstance(species, Complex):
+            for subunit in species.subunits:
+                # Map to the top-level ancestor, not the immediate parent.
+                # If the parent is itself a subunit, its entry was already
+                # set (parent before children).
+                ancestor = species
+                while id(ancestor) in subunit_to_complex:
+                    ancestor = subunit_to_complex[id(ancestor)]
+                subunit_to_complex[id(subunit)] = ancestor
+                _map_subunits(subunit)
+
+    for species in map_.model.species:
+        _map_subunits(species)
+    return subunit_to_complex
+
+
 # --- Genes, RNAs, AntisenseRNAs (templates) ---
 
 
