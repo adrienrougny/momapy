@@ -253,7 +253,9 @@ class Rectangle(Shape):
                 )
         actions.append(LineTo(self.joint8()))
         if self.top_left_rx != 0 and self.top_left_ry != 0:
-            if self.top_left_rounded_or_cut == "rounded":
+            if self.top_left_rounded_or_cut == "cut":
+                actions.append(LineTo(self.joint1()))
+            elif self.top_left_rounded_or_cut == "rounded":
                 (
                     actions.append(
                         EllipticalArc(
