@@ -1375,9 +1375,10 @@ def _run(args: argparse.Namespace) -> None:
             lines.append(f"Map type:  {info['map_type']}")
             lines.append("")
             lines.append("Model:")
-            for key, value in info["model"].items():
-                label = key.replace("_", " ")
-                lines.append(f"  {label + ':':<26s}{value}")
+            if info["model"] is not None:
+                for key, value in info["model"].items():
+                    label = key.replace("_", " ")
+                    lines.append(f"  {label + ':':<26s}{value}")
             if info["layout"] is not None:
                 lines.append("")
                 lines.append("Layout:")
