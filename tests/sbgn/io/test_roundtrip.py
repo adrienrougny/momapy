@@ -4,6 +4,7 @@ import pytest
 import tempfile
 import os
 import momapy.io.core
+import momapy.sbml.model
 
 pytestmark = pytest.mark.slow
 
@@ -161,3 +162,78 @@ class TestSBGNAFUnitOfInformationRoundTrip:
 
         # Full structural equality is the strongest guarantee.
         assert map1 == map2
+
+
+_MAP_ANNOTATION_ID = "map_maplevel"
+_MAP_ANNOTATION_RESOURCE = "urn:miriam:reactome:R-HSA-109581"
+
+
+def _make_map_annotated_sbgnml():
+    """Build a minimal PD map carrying a ``<map>``-level RDF annotation."""
+    return (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<sbgn xmlns="http://sbgn.org/libsbgn/0.3">\n'
+        f'  <map language="process description" id="{_MAP_ANNOTATION_ID}">\n'
+        "    <extension>\n"
+        "      <annotation>\n"
+        '        <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"\n'
+        '                 xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">\n'
+        f'          <rdf:Description rdf:about="#{_MAP_ANNOTATION_ID}">\n'
+        "            <bqbiol:is>\n"
+        "              <rdf:Bag>\n"
+        f'                <rdf:li rdf:resource="{_MAP_ANNOTATION_RESOURCE}"/>\n'
+        "              </rdf:Bag>\n"
+        "            </bqbiol:is>\n"
+        "          </rdf:Description>\n"
+        "        </rdf:RDF>\n"
+        "      </annotation>\n"
+        "    </extension>\n"
+        '    <glyph id="glyph1" class="macromolecule">\n'
+        '      <label text="ERK"/>\n'
+        '      <bbox x="100" y="100" w="120" h="60"/>\n'
+        "    </glyph>\n"
+        "  </map>\n"
+        "</sbgn>\n"
+    )
+
+
+class TestSBGNMapAnnotationRoundTrip:
+    """Regression test for map-level annotation serialization.
+
+    Map-level RDF annotations were silently dropped on write: the reader
+    stored them on the ``Map`` object, but ``make_sbgnml_map`` never emitted
+    them onto the ``<map>`` element (unlike every glyph and arc).
+    """
+
+    def test_map_level_annotation_roundtrip(self, temp_dir):
+        input_file = os.path.join(temp_dir, "map_annotated.sbgn")
+        with open(input_file, "w", encoding="utf-8") as f:
+            f.write(_make_map_annotated_sbgnml())
+
+        expected = momapy.sbml.model.RDFAnnotation(
+            qualifier=momapy.sbml.model.BQBiol.IS,
+            resources=frozenset({_MAP_ANNOTATION_RESOURCE}),
+        )
+
+        # The reader attaches the map-level annotation to the Map object.
+        result1 = momapy.io.core.read(
+            input_file, reader="sbgnml", with_annotations=True
+        )
+        map1 = result1.obj
+        assert map1 in result1.element_to_annotations
+        assert expected in result1.element_to_annotations[map1]
+
+        # The writer must emit it again so a re-read recovers it.
+        output_file = os.path.join(temp_dir, "map_annotated_out.sbgn")
+        momapy.io.core.write(
+            map1,
+            output_file,
+            writer="sbgnml-0.3",
+            element_to_annotations=result1.element_to_annotations,
+        )
+        result2 = momapy.io.core.read(
+            output_file, reader="sbgnml", with_annotations=True
+        )
+        map2 = result2.obj
+        assert map2 in result2.element_to_annotations
+        assert expected in result2.element_to_annotations[map2]

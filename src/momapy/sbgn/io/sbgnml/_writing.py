@@ -784,6 +784,7 @@ def make_sbgnml_map(writing_context: "WritingContext") -> lxml.etree._Element:
     id_ = get_xml_id(writing_context, map_)
     attributes = {"id": id_, "language": language}
     sbgnml_map = make_lxml_element("map", attributes=attributes)
+    add_annotations_and_notes(writing_context, sbgnml_map, map_)
     sbgnml_bbox = make_sbgnml_bbox_from_node(map_.layout)
     sbgnml_map.append(sbgnml_bbox)
 
