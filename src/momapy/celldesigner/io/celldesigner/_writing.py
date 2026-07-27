@@ -276,6 +276,28 @@ _CLASS_TO_MODIFIER_TYPE = {
     Trigger: "TRIGGER",
 }
 
+# Reaction type per modulation class: (plain form, reduced-notation form).
+# `None` means the class has no reduced form and is always written plainly.
+CLASS_TO_MODULATION_REACTION_TYPES = {
+    Catalysis: ("CATALYSIS", None),
+    UnknownCatalysis: ("UNKNOWN_CATALYSIS", None),
+    Inhibition: ("INHIBITION", "NEGATIVE_INFLUENCE"),
+    UnknownInhibition: ("UNKNOWN_INHIBITION", "UNKNOWN_NEGATIVE_INFLUENCE"),
+    PhysicalStimulation: ("PHYSICAL_STIMULATION", "REDUCED_PHYSICAL_STIMULATION"),
+    UnknownPhysicalStimulation: (
+        "UNKNOWN_PHYSICAL_STIMULATION",
+        "UNKNOWN_REDUCED_PHYSICAL_STIMULATION",
+    ),
+    Modulation: ("MODULATION", "REDUCED_MODULATION"),
+    UnknownModulation: ("UNKNOWN_MODULATION", "UNKNOWN_REDUCED_MODULATION"),
+    Triggering: ("TRIGGER", "REDUCED_TRIGGER"),
+    UnknownTriggering: ("UNKNOWN_TRIGGER", "UNKNOWN_REDUCED_TRIGGER"),
+    PositiveInfluence: ("POSITIVE_INFLUENCE", None),
+    NegativeInfluence: ("NEGATIVE_INFLUENCE", None),
+    UnknownPositiveInfluence: ("UNKNOWN_POSITIVE_INFLUENCE", None),
+    UnknownNegativeInfluence: ("UNKNOWN_NEGATIVE_INFLUENCE", None),
+}
+
 _MODIFICATION_STATE_TO_CD = {
     "PHOSPHORYLATED": "phosphorylated",
     "UBIQUITINATED": "ubiquitinated",
@@ -970,61 +992,30 @@ NSMAP = {
 }
 
 
-def modulation_reaction_type(modulation: typing.Any) -> str:
-    """Determine the CellDesigner reaction type for a modulation.
+def get_modulation_reaction_type(modulation: typing.Any) -> str:
+    """Return the CellDesigner reaction type to write for a modulation.
 
-    Rules:
-    - Inhibition targeting a non-Phenotype species → NEGATIVE_INFLUENCE
-    - Modulation/Triggering/PhysicalStimulation targeting a non-Phenotype
-      species → REDUCED_ variant
-    - Otherwise → standard type
+    Inverse of ``normalize_modulation_class`` in ``_reading_classification.py``:
+    a modulation whose target is not a `Phenotype` is written in CellDesigner's
+    reduced notation where the class has one (`Inhibition` gives
+    ``NEGATIVE_INFLUENCE``, `Modulation` gives ``REDUCED_MODULATION``), and in
+    the plain form otherwise.
+
+    Args:
+        modulation: The modulation model element.
+
+    Returns:
+        The ``<celldesigner:reactionType>`` text.
     """
-    target = modulation.target
-    is_reduced = target is not None and not isinstance(target, Phenotype)
-    _MAP = {
-        Catalysis: ("CATALYSIS", None),
-        UnknownCatalysis: ("UNKNOWN_CATALYSIS", None),
-        Inhibition: ("INHIBITION", "NEGATIVE_INFLUENCE"),
-        UnknownInhibition: (
-            "UNKNOWN_INHIBITION",
-            "UNKNOWN_NEGATIVE_INFLUENCE",
-        ),
-        PhysicalStimulation: (
-            "PHYSICAL_STIMULATION",
-            "REDUCED_PHYSICAL_STIMULATION",
-        ),
-        UnknownPhysicalStimulation: (
-            "UNKNOWN_PHYSICAL_STIMULATION",
-            "UNKNOWN_REDUCED_PHYSICAL_STIMULATION",
-        ),
-        Modulation: ("MODULATION", "REDUCED_MODULATION"),
-        UnknownModulation: (
-            "UNKNOWN_MODULATION",
-            "UNKNOWN_REDUCED_MODULATION",
-        ),
-        Triggering: ("TRIGGER", "REDUCED_TRIGGER"),
-        UnknownTriggering: (
-            "UNKNOWN_TRIGGER",
-            "UNKNOWN_REDUCED_TRIGGER",
-        ),
-        PositiveInfluence: ("POSITIVE_INFLUENCE", None),
-        NegativeInfluence: ("NEGATIVE_INFLUENCE", None),
-        UnknownPositiveInfluence: (
-            "UNKNOWN_POSITIVE_INFLUENCE",
-            None,
-        ),
-        UnknownNegativeInfluence: (
-            "UNKNOWN_NEGATIVE_INFLUENCE",
-            None,
-        ),
-    }
-    entry = _MAP.get(type(modulation))
-    if entry is None:
+    reaction_types = CLASS_TO_MODULATION_REACTION_TYPES.get(type(modulation))
+    if reaction_types is None:
         return "MODULATION"
-    normal, reduced = entry
-    if is_reduced and reduced is not None:
-        return reduced
-    return normal
+    plain_reaction_type, reduced_reaction_type = reaction_types
+    if reduced_reaction_type is not None and not isinstance(
+        modulation.target, Phenotype
+    ):
+        return reduced_reaction_type
+    return plain_reaction_type
 
 
 @dataclasses.dataclass
@@ -5059,7 +5050,7 @@ def make_celldesigner_modulation_reaction(
     # CD extension
     annotation = make_lxml_element("annotation")
     extension = make_celldesigner_element("extension")
-    reaction_type = modulation_reaction_type(modulation)
+    reaction_type = get_modulation_reaction_type(modulation)
     extension.append(make_celldesigner_element("reactionType", text=reaction_type))
 
     # Compute edit points for the modulation
@@ -5227,7 +5218,7 @@ def make_celldesigner_gate_modulation_reaction(
     gate_type = gate_type_map.get(type(gate), "BOOLEAN_LOGIC_GATE_AND")
 
     # Determine the modification type from the modulation type
-    modifier_type = modulation_reaction_type(modulation)
+    modifier_type = get_modulation_reaction_type(modulation)
 
     modulation_id = get_xml_id(writing_context, modulation)
     attrs = {

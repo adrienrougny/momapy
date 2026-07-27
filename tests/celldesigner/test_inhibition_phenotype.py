@@ -29,7 +29,7 @@ import momapy.io.core
 from momapy.celldesigner.io.celldesigner._reading_classification import (
     normalize_modulation_class,
 )
-from momapy.celldesigner.io.celldesigner._writing import modulation_reaction_type
+from momapy.celldesigner.io.celldesigner._writing import get_modulation_reaction_type
 from momapy.celldesigner.model import Inhibition
 from momapy.celldesigner.model import NegativeInfluence
 from momapy.celldesigner.model import Phenotype
@@ -91,7 +91,7 @@ def test_non_reduced_unknown_types_are_readable(
 ):
     """The writer emits these for a phenotype target; reading them once raised.
 
-    ``modulation_reaction_type`` returns the non-reduced spelling when the
+    ``get_modulation_reaction_type`` returns the non-reduced spelling when the
     target is a phenotype, but ``KEY_TO_CLASS`` only carried the
     ``UNKNOWN_REDUCED_*`` keys, so re-reading momapy's own output raised
     `KeyError`.
@@ -106,7 +106,7 @@ def test_non_reduced_unknown_types_are_readable(
 
 
 class TestReaderWriterAreInverse:
-    """`normalize_modulation_class` must undo `modulation_reaction_type`."""
+    """`normalize_modulation_class` must undo `get_modulation_reaction_type`."""
 
     @pytest.mark.parametrize(
         "model_element_cls",
@@ -151,7 +151,7 @@ class TestReaderWriterAreInverse:
             source=source_modulation.source,
             target=source_modulation.target,
         )
-        assert modulation_reaction_type(modulation) == expected_reaction_type
+        assert get_modulation_reaction_type(modulation) == expected_reaction_type
         assert (
             normalize_modulation_class(model_element_cls, modulation.target)
             is model_element_cls

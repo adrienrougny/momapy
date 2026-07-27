@@ -396,11 +396,6 @@ Purpose: CellDesigner model classes.
   `Phenotype`, `NegativeInfluence` / `UnknownNegativeInfluence` otherwise. CellDesigner
   itself rewrites a phenotype-targeting `INHIBITION` to `NEGATIVE_INFLUENCE` on save, so
   both spellings can name the same arc.
-  The CellDesigner reader picks the negative-modulation class from the target rather than
-  from the reaction type string: `Inhibition` / `UnknownInhibition` when the target is a
-  `Phenotype`, `NegativeInfluence` / `UnknownNegativeInfluence` otherwise. CellDesigner
-  itself rewrites a phenotype-targeting `INHIBITION` to `NEGATIVE_INFLUENCE` on save, so
-  both spellings can name the same arc.
 - **Model**: `CellDesignerModel(SBMLModel)` — `species_templates`, `boolean_logic_gates`, `modulations`; `is_submodel(other) -> bool`.
 
 ### `src/momapy/celldesigner/layout.py`

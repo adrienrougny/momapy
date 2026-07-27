@@ -407,7 +407,7 @@ def normalize_modulation_class(
     so either spelling can name the same arc. The target decides the class:
     ``Inhibition`` for a `Phenotype` target, ``NegativeInfluence`` otherwise
     (and likewise for the ``Unknown`` counterparts). This is the inverse of
-    ``modulation_reaction_type`` in ``_writing.py``.
+    ``get_modulation_reaction_type`` in ``_writing.py``.
 
     Args:
         model_element_cls: The class picked from `KEY_TO_CLASS`.
