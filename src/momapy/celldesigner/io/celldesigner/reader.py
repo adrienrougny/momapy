@@ -135,6 +135,9 @@ from momapy.celldesigner.io.celldesigner._reading_parsing import (
 from momapy.celldesigner.io.celldesigner import _reading_model
 from momapy.celldesigner.io.celldesigner import _reading_layout
 from momapy.celldesigner.io.celldesigner._reading_classification import KEY_TO_CLASS
+from momapy.celldesigner.io.celldesigner._reading_classification import (
+    normalize_modulation_class,
+)
 from momapy.celldesigner.io.celldesigner._reading_context import (
     CellDesignerReadingContext,
 )
@@ -1650,6 +1653,12 @@ class CellDesignerReader(Reader):
                         )
                     ),
                     None,
+                )
+                # CellDesigner rewrites a phenotype-targeting INHIBITION to
+                # NEGATIVE_INFLUENCE on its next save, so the reaction type
+                # alone does not identify the class; the target decides.
+                model_element_cls = normalize_modulation_class(
+                    model_element_cls, target_model_element
                 )
                 model_element = _reading_model.make_modulation(
                     reading_context,

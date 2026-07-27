@@ -5,6 +5,8 @@ classes.  Mirrors the SBGN-ML reader's ``_reading_classification`` module.
 Pure data — depends only on the model and layout classes.
 """
 
+import typing
+
 from momapy.celldesigner.model import AndGate
 from momapy.celldesigner.model import AntisenseRNA
 from momapy.celldesigner.model import AntisenseRNATemplate
@@ -286,6 +288,20 @@ KEY_TO_CLASS = {
         UnknownTriggering,
         UnknownTriggeringLayout,
     ),
+    # Non-reduced counterparts of the three keys above: the writer emits these
+    # when the modulation targets a Phenotype.
+    ("REACTION", "UNKNOWN_MODULATION"): (
+        UnknownModulation,
+        UnknownModulationLayout,
+    ),
+    ("REACTION", "UNKNOWN_PHYSICAL_STIMULATION"): (
+        UnknownPhysicalStimulation,
+        UnknownPhysicalStimulationLayout,
+    ),
+    ("REACTION", "UNKNOWN_TRIGGER"): (
+        UnknownTriggering,
+        UnknownTriggeringLayout,
+    ),
     ("MODIFIER", "CATALYSIS"): (
         Catalyzer,
         CatalysisLayout,
@@ -366,3 +382,45 @@ KEY_TO_CLASS = {
         "proteinBindingDomain",
     ): ProteinBindingDomain,
 }
+
+# Each table only lists the classes it rewrites; every other class falls
+# through `.get(cls, cls)` untouched.
+PHENOTYPE_TARGETING_MODULATION_CLASS_TO_NORMALIZED_CLASS = {
+    NegativeInfluence: Inhibition,
+    UnknownNegativeInfluence: UnknownInhibition,
+}
+
+NON_PHENOTYPE_TARGETING_MODULATION_CLASS_TO_NORMALIZED_CLASS = {
+    Inhibition: NegativeInfluence,
+    UnknownInhibition: UnknownNegativeInfluence,
+}
+
+
+def normalize_modulation_class(
+    model_element_cls: type,
+    target_model_element: typing.Any,
+) -> type:
+    """Normalize a negative-modulation class against its target.
+
+    CellDesigner writes a freshly drawn inhibition onto a phenotype as
+    ``INHIBITION`` but rewrites it to ``NEGATIVE_INFLUENCE`` on its next save,
+    so either spelling can name the same arc. The target decides the class:
+    ``Inhibition`` for a `Phenotype` target, ``NegativeInfluence`` otherwise
+    (and likewise for the ``Unknown`` counterparts). This is the inverse of
+    ``modulation_reaction_type`` in ``_writing.py``.
+
+    Args:
+        model_element_cls: The class picked from `KEY_TO_CLASS`.
+        target_model_element: The modulation's target model element.
+
+    Returns:
+        The normalized class, or `model_element_cls` unchanged when it is not
+        one of the negative-modulation classes.
+    """
+    if isinstance(target_model_element, Phenotype):
+        return PHENOTYPE_TARGETING_MODULATION_CLASS_TO_NORMALIZED_CLASS.get(
+            model_element_cls, model_element_cls
+        )
+    return NON_PHENOTYPE_TARGETING_MODULATION_CLASS_TO_NORMALIZED_CLASS.get(
+        model_element_cls, model_element_cls
+    )

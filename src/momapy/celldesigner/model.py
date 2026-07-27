@@ -50,6 +50,19 @@ Notes:
   references: the modulation cluster above is what is stored in the
   mapping. Modulator metadata lives on the source side of that
   cluster.
+- [Inhibition][momapy.celldesigner.Inhibition] and
+  [NegativeInfluence][momapy.celldesigner.NegativeInfluence] (likewise
+  [UnknownInhibition][momapy.celldesigner.UnknownInhibition] and
+  [UnknownNegativeInfluence][momapy.celldesigner.UnknownNegativeInfluence])
+  are distinguished by their target, not by the reaction type read from
+  the file: the reader builds an
+  [Inhibition][momapy.celldesigner.Inhibition] when the target is a
+  [Phenotype][momapy.celldesigner.Phenotype] and a
+  [NegativeInfluence][momapy.celldesigner.NegativeInfluence] otherwise,
+  and the writer emits the matching reaction type. CellDesigner rewrites
+  a phenotype-targeting ``INHIBITION`` to ``NEGATIVE_INFLUENCE`` when it
+  saves, so both spellings can name the same arc. Both classes share
+  [InhibitionLayout][momapy.celldesigner.InhibitionLayout].
 """
 
 import dataclasses

@@ -391,6 +391,16 @@ Purpose: CellDesigner model classes.
 - **Modulators**: `KnownOrUnknownModulator(ModifierSpeciesReference, CellDesignerModelElement)` (`referred_element: Species | BooleanLogicGate`) → `Modulator`, `UnknownModulator`; `Modulator` → `Inhibitor`, `PhysicalStimulator`, `Trigger`; `PhysicalStimulator` → `Catalyzer`; `UnknownModulator` → `UnknownCatalyzer`, `UnknownInhibitor`.
 - **Reactions**: `Reaction(SBMLReaction, CellDesignerModelElement)` (`reactants`, `products`, `modifiers`) → `StateTransition`, `KnownTransitionOmitted`, `UnknownTransition`, `Transcription`, `Translation`, `Transport`, `HeterodimerAssociation`, `Dissociation`, `Truncation`.
 - **Modulations**: `KnownOrUnknownModulation` (`source`, `target`) → `Modulation` → `Catalysis`, `Inhibition`, `PhysicalStimulation`, `Triggering`, `PositiveInfluence`, `NegativeInfluence`; `UnknownModulation` → `UnknownCatalysis`, `UnknownInhibition`, `UnknownPositiveInfluence`, `UnknownNegativeInfluence`, `UnknownPhysicalStimulation`, `UnknownTriggering`.
+  The CellDesigner reader picks the negative-modulation class from the target rather than
+  from the reaction type string: `Inhibition` / `UnknownInhibition` when the target is a
+  `Phenotype`, `NegativeInfluence` / `UnknownNegativeInfluence` otherwise. CellDesigner
+  itself rewrites a phenotype-targeting `INHIBITION` to `NEGATIVE_INFLUENCE` on save, so
+  both spellings can name the same arc.
+  The CellDesigner reader picks the negative-modulation class from the target rather than
+  from the reaction type string: `Inhibition` / `UnknownInhibition` when the target is a
+  `Phenotype`, `NegativeInfluence` / `UnknownNegativeInfluence` otherwise. CellDesigner
+  itself rewrites a phenotype-targeting `INHIBITION` to `NEGATIVE_INFLUENCE` on save, so
+  both spellings can name the same arc.
 - **Model**: `CellDesignerModel(SBMLModel)` — `species_templates`, `boolean_logic_gates`, `modulations`; `is_submodel(other) -> bool`.
 
 ### `src/momapy/celldesigner/layout.py`
