@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="assets/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -27,7 +27,7 @@
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="assets/stylesheets/main.ec1eaa64.min.css">
       
       
 
@@ -979,6 +979,34 @@
   
   
     <li class="md-nav__item">
+      <a href="api_reference/rendering/cairo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cairo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="api_reference/rendering/svg_native/" class="md-nav__link">
         
   
@@ -1778,6 +1806,7 @@ This definition is borrowed from <a href="https://www.sbml.org">SBML</a> and its
 <p>Features of <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> include the following:</p>
 <ul>
 <li>support for SBGN PD and AF maps (read/write SBGN-ML with annotations, rendering information, and notes) and CellDesigner (read/write, with annotations and notes)</li>
+<li>read-only support for SBML (model only, no layout)</li>
 <li>decomposition of a map object into:<ul>
 <li>a model object;</li>
 <li>a layout object;</li>
@@ -1785,7 +1814,7 @@ This definition is borrowed from <a href="https://www.sbml.org">SBML</a> and its
 </ul>
 </li>
 <li>map, model, layout and mapping objects comparison; fast object in set checking</li>
-<li>rendering of maps to images (SVG, PDF, JPEG, PNG, WebP) and other surfaces (e.g. GLFW window)</li>
+<li>rendering of maps to images (SVG, PDF, JPEG, PNG, WebP), or onto a Skia canvas for live rendering (via the <code>skia</code> renderer)</li>
 <li>support for styling and CSS-like stylesheets (including effects such as shadows)</li>
 <li>automatic geometry and anchors (for arcs, shape borders)</li>
 <li>local positioning (e.g. right of shape, fit set of shapes)</li>
@@ -1823,9 +1852,11 @@ This definition is borrowed from <a href="https://www.sbml.org">SBML</a> and its
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>
 </span></code></pre></div>
 <p>Or rendering its layout:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">momapy.rendering</span><span class="w"> </span><span class="kn">import</span> <span class="n">render_map</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">render_map</span><span class="p">(</span><span class="n">map_</span><span class="p">,</span> <span class="s2">&quot;my_file.svg&quot;</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">momapy.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">read</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">momapy.rendering</span><span class="w"> </span><span class="kn">import</span> <span class="n">render_map</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">map_</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="s2">&quot;my_map.sbgn&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">obj</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">render_map</span><span class="p">(</span><span class="n">map_</span><span class="p">,</span> <span class="s2">&quot;my_file.svg&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 <p><span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> also provides a command-line interface:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>momapy<span class="w"> </span>render<span class="w"> </span>my_map.sbgn<span class="w"> </span>-o<span class="w"> </span>output.pdf
@@ -1836,7 +1867,7 @@ This definition is borrowed from <a href="https://www.sbml.org">SBML</a> and its
 <div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">momapy.styling</span><span class="w"> </span><span class="kn">import</span> <span class="n">StyleSheet</span><span class="p">,</span> <span class="n">apply_style_sheet</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">style_sheet</span> <span class="o">=</span> <span class="n">StyleSheet</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;my_style.css&quot;</span><span class="p">)</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">apply_style_sheet</span><span class="p">(</span><span class="n">map_</span><span class="o">.</span><span class="n">layout</span><span class="p">,</span> <span class="n">style_sheet</span><span class="p">)</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">styled_map</span> <span class="o">=</span> <span class="n">apply_style_sheet</span><span class="p">(</span><span class="n">map_</span><span class="p">,</span> <span class="n">style_sheet</span><span class="p">)</span>
 </span></code></pre></div>
 <h2 id="user-manual">User manual</h2>
 <p>A user manual showcasing the main feature of <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> is available here: <a href="user_manual/main/">User manual</a>.</p>
@@ -1894,7 +1925,7 @@ This definition is borrowed from <a href="https://www.sbml.org">SBML</a> and its
       <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.instant", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"alias": true, "default": "stable", "provider": "mike"}}</script>
     
     
-      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

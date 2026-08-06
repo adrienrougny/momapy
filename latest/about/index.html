@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -27,7 +27,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
       
       
 
@@ -871,6 +871,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../api_reference/rendering/cairo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cairo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../api_reference/rendering/svg_native/" class="md-nav__link">
         
   
@@ -1630,6 +1658,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#versioning-and-deprecation-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Versioning and deprecation policy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#license" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1708,6 +1747,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#versioning-and-deprecation-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Versioning and deprecation policy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#license" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1754,6 +1804,16 @@
 <li>Open a pull request against <code>main</code>.</li>
 </ol>
 <p>All commits must follow <a href="https://www.conventionalcommits.org/">Conventional Commits</a> (enforced via commitlint). See <code>CLAUDE.md</code> for the list of valid types and examples.</p>
+<h2 id="versioning-and-deprecation-policy">Versioning and deprecation policy</h2>
+<p>momapy loosely follows <a href="https://semver.org/">semantic versioning</a> as a
+guideline, not a strict contract.</p>
+<p>Below <code>1.0</code> the public API is not stable and may change in a breaking way in any
+release.</p>
+<p>From <code>1.0</code> onward, breaking changes are introduced gradually where practical: a
+deprecated API keeps working and emits a <code>DeprecationWarning</code> for at least one
+release before removal, naming a replacement when one exists.</p>
+<p>The public API is what the documentation and each subpackage's <code>__all__</code>
+describe. Underscore-prefixed names are not public and may change at any time.</p>
 <h2 id="license">License</h2>
 <p>This code is distributed under the <a href="https://www.gnu.org/licenses/gpl-3.0.html">GPLv3 license</a>.</p>
 
@@ -1808,7 +1868,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"alias": true, "default": "stable", "provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

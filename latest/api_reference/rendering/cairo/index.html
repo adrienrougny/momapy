@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://adrienrougny.github.io/momapy/latest/api_reference/rendering/skia/">
+        <link rel="canonical" href="https://adrienrougny.github.io/momapy/latest/api_reference/rendering/cairo/">
       
       
-        <link rel="prev" href="../core/">
+        <link rel="prev" href="../skia/">
       
       
-        <link rel="next" href="../cairo/">
+        <link rel="next" href="../svg_native/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Skia - momapy</title>
+        <title>Cairo - momapy</title>
       
     
     
@@ -68,7 +68,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#momapy.rendering.skia" class="md-skip">
+        <a href="#momapy.rendering.cairo" class="md-skip">
           Skip to content
         </a>
       
@@ -107,7 +107,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Skia
+              Cairo
             
           </span>
         </div>
@@ -848,6 +848,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../skia/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -865,7 +893,7 @@
   <span class="md-ellipsis">
     
   
-    Skia
+    Cairo
   
 
     
@@ -883,7 +911,7 @@
   <span class="md-ellipsis">
     
   
-    Skia
+    Cairo
   
 
     
@@ -907,22 +935,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#momapy.rendering.skia" class="md-nav__link">
+  <a href="#momapy.rendering.cairo" class="md-nav__link">
     <span class="md-ellipsis">
       
-        <code class="doc-symbol doc-symbol-toc doc-symbol-module"></code>&nbsp;skia
+        <code class="doc-symbol doc-symbol-toc doc-symbol-module"></code>&nbsp;cairo
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label=" skia">
+    <nav class="md-nav" aria-label=" cairo">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#momapy.rendering.skia.SkiaRenderer" class="md-nav__link">
+  <a href="#momapy.rendering.cairo.CairoRenderer" class="md-nav__link">
     <span class="md-ellipsis">
       
-        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;SkiaRenderer
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;CairoRenderer
       
     </span>
   </a>
@@ -938,34 +966,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../cairo/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Cairo
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -1698,22 +1698,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#momapy.rendering.skia" class="md-nav__link">
+  <a href="#momapy.rendering.cairo" class="md-nav__link">
     <span class="md-ellipsis">
       
-        <code class="doc-symbol doc-symbol-toc doc-symbol-module"></code>&nbsp;skia
+        <code class="doc-symbol doc-symbol-toc doc-symbol-module"></code>&nbsp;cairo
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label=" skia">
+    <nav class="md-nav" aria-label=" cairo">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#momapy.rendering.skia.SkiaRenderer" class="md-nav__link">
+  <a href="#momapy.rendering.cairo.CairoRenderer" class="md-nav__link">
     <span class="md-ellipsis">
       
-        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;SkiaRenderer
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;CairoRenderer
       
     </span>
   </a>
@@ -1742,22 +1742,30 @@
 
 
 
-  <h1>Skia</h1>
+  <h1>Cairo</h1>
 
 <div class="doc doc-object doc-module">
 
 
 
-<h2 id="momapy.rendering.skia" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-module"></code>            <span class="doc doc-object-name doc-module-name">momapy.rendering.skia</span>
+<h2 id="momapy.rendering.cairo" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-module"></code>            <span class="doc doc-object-name doc-module-name">momapy.rendering.cairo</span>
 
 
 </h2>
 
     <div class="doc doc-contents first">
 
-        <p>Class for rendering with Skia.</p>
+        <p>Class for rendering with Cairo.</p>
 
+
+<details class="note" open>
+  <summary>Note</summary>
+  <p>SVG filter effects (e.g. drop shadow, Gaussian blur) are not supported
+by this backend. Cairo has no native filter primitives, so any
+<code>filter</code> attribute on drawing elements is ignored. Use the skia or
+svg-native backend if you need filter effects.</p>
+</details>
 
 
 
@@ -1777,15 +1785,15 @@
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code><a class="autorefs autorefs-internal" title="            SkiaRenderer
+            <td><code><a class="autorefs autorefs-internal" title="            CairoRenderer
 
 
   
       dataclass
-   (momapy.rendering.skia.SkiaRenderer)" href="#momapy.rendering.skia.SkiaRenderer">SkiaRenderer</a></code></td>
+   (momapy.rendering.cairo.CairoRenderer)" href="#momapy.rendering.cairo.CairoRenderer">CairoRenderer</a></code></td>
             <td>
               <div class="doc-md-description">
-                <p>Renderer implementation using the Skia graphics library.</p>
+                <p>Renderer implementation using the Cairo graphics library.</p>
               </div>
             </td>
           </tr>
@@ -1810,124 +1818,12 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 <div class="doc doc-object doc-class">
 
 
 
-<h3 id="momapy.rendering.skia.SkiaRenderer" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">SkiaRenderer</span>
+<h3 id="momapy.rendering.cairo.CairoRenderer" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">CairoRenderer</span>
 
 
   <span class="doc doc-labels">
@@ -1935,7 +1831,7 @@
   </span>
 
 </h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">SkiaRenderer</span><span class="p">(</span><span class="n">_current_state</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">]</span> <span class="o">=</span> <span class="n"><span title="dict">dict</span></span><span class="p">(),</span> <span class="n">_states</span><span class="p">:</span> <span class="n"><span title="list">list</span></span><span class="p">[</span><span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">]]</span> <span class="o">=</span> <span class="n"><span title="list">list</span></span><span class="p">(),</span> <span class="o">*</span><span class="p">,</span> <span class="n">canvas</span><span class="p">:</span> <span class="n"><span title="skia.Canvas">Canvas</span></span><span class="p">,</span> <span class="n">_config</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">]</span> <span class="o">=</span> <span class="n"><span title="dict">dict</span></span><span class="p">(),</span> <span class="n">_skia_typefaces</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="tuple">tuple</span></span><span class="p">,</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">]</span> <span class="o">=</span> <span class="n"><span title="dict">dict</span></span><span class="p">(),</span> <span class="n">_skia_fonts</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="tuple">tuple</span></span><span class="p">,</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">]</span> <span class="o">=</span> <span class="n"><span title="dict">dict</span></span><span class="p">())</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">CairoRenderer</span><span class="p">(</span><span class="n">_current_state</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">]</span> <span class="o">=</span> <span class="n"><span title="dict">dict</span></span><span class="p">(),</span> <span class="n">_states</span><span class="p">:</span> <span class="n"><span title="list">list</span></span><span class="p">[</span><span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">]]</span> <span class="o">=</span> <span class="n"><span title="list">list</span></span><span class="p">(),</span> <span class="o">*</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n"><span title="cairo.Context">Context</span></span><span class="p">,</span> <span class="n">_config</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">]</span> <span class="o">=</span> <span class="n"><span title="dict">dict</span></span><span class="p">(),</span> <span class="n">_pango_font_descriptions</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="tuple">tuple</span></span><span class="p">,</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">]</span> <span class="o">=</span> <span class="n"><span title="dict">dict</span></span><span class="p">())</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -1949,10 +1845,12 @@
 
 
 
-        <p>Renderer implementation using the Skia graphics library.</p>
+        <p>Renderer implementation using the Cairo graphics library.</p>
 <p>This renderer supports multiple output formats including PDF, SVG, PNG,
-JPEG, and WebP. It provides hardware-accelerated rendering capabilities
-and advanced features like filters and effects.</p>
+and PostScript. It uses Pango for text rendering.</p>
+<p>SVG filter effects (drop shadow, Gaussian blur, etc.) are not supported:
+Cairo has no native filter primitives, so the <code>filter</code> attribute on
+drawing elements is ignored.</p>
 
 
 <p><span class="doc-section-title">Attributes:</span></p>
@@ -1966,13 +1864,13 @@ and advanced features like filters and effects.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code><span title="momapy.rendering.skia.SkiaRenderer.canvas">canvas</span></code></td>
+            <td><code><span title="momapy.rendering.cairo.CairoRenderer.context">context</span></code></td>
             <td>
-                  <code><span title="skia.Canvas">Canvas</span></code>
+                  <code><span title="cairo.Context">Context</span></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The Skia canvas used for rendering</p>
+                <p>The Cairo context used for rendering</p>
               </div>
             </td>
           </tr>
@@ -1992,7 +1890,7 @@ and advanced features like filters and effects.</p>
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">)</span>
 </span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
 </span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="c1"># Create renderer and render the element</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="n">renderer</span> <span class="o">=</span> <span class="n">SkiaRenderer</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;output.pdf&quot;</span><span class="p">,</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">600</span><span class="p">,</span> <span class="s2">&quot;pdf&quot;</span><span class="p">)</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="n">renderer</span> <span class="o">=</span> <span class="n">CairoRenderer</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;output.pdf&quot;</span><span class="p">,</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">600</span><span class="p">,</span> <span class="s2">&quot;pdf&quot;</span><span class="p">)</span>
 </span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="n">renderer</span><span class="o">.</span><span class="n">begin_session</span><span class="p">()</span>
 </span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="n">renderer</span><span class="o">.</span><span class="n">render_layout_element</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
 </span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="n">renderer</span><span class="o">.</span><span class="n">end_session</span><span class="p">()</span>
@@ -2019,7 +1917,7 @@ and advanced features like filters and effects.</p>
       </thead>
       <tbody>
             <tr class="doc-section-item">
-              <td><code><a class="autorefs autorefs-internal" title="            __post_init__ (momapy.rendering.skia.SkiaRenderer.__post_init__)" href="#momapy.rendering.skia.SkiaRenderer.__post_init__">__post_init__</a></code></td>
+              <td><code><a class="autorefs autorefs-internal" title="            __post_init__ (momapy.rendering.cairo.CairoRenderer.__post_init__)" href="#momapy.rendering.cairo.CairoRenderer.__post_init__">__post_init__</a></code></td>
               <td>
                 <div class="doc-md-description">
                   <p>Initialize the renderer's current state after initialization.</p>
@@ -2027,7 +1925,7 @@ and advanced features like filters and effects.</p>
               </td>
             </tr>
             <tr class="doc-section-item">
-              <td><code><a class="autorefs autorefs-internal" title="            begin_session (momapy.rendering.skia.SkiaRenderer.begin_session)" href="#momapy.rendering.skia.SkiaRenderer.begin_session">begin_session</a></code></td>
+              <td><code><a class="autorefs autorefs-internal" title="            begin_session (momapy.rendering.cairo.CairoRenderer.begin_session)" href="#momapy.rendering.cairo.CairoRenderer.begin_session">begin_session</a></code></td>
               <td>
                 <div class="doc-md-description">
                   <p>Begin a rendering session.</p>
@@ -2035,7 +1933,7 @@ and advanced features like filters and effects.</p>
               </td>
             </tr>
             <tr class="doc-section-item">
-              <td><code><a class="autorefs autorefs-internal" title="            end_session (momapy.rendering.skia.SkiaRenderer.end_session)" href="#momapy.rendering.skia.SkiaRenderer.end_session">end_session</a></code></td>
+              <td><code><a class="autorefs autorefs-internal" title="            end_session (momapy.rendering.cairo.CairoRenderer.end_session)" href="#momapy.rendering.cairo.CairoRenderer.end_session">end_session</a></code></td>
               <td>
                 <div class="doc-md-description">
                   <p>End the rendering session and save the output.</p>
@@ -2048,10 +1946,10 @@ and advanced features like filters and effects.</p>
 
   
       classmethod
-   (momapy.rendering.skia.SkiaRenderer.from_file)" href="#momapy.rendering.skia.SkiaRenderer.from_file">from_file</a></code></td>
+   (momapy.rendering.cairo.CairoRenderer.from_file)" href="#momapy.rendering.cairo.CairoRenderer.from_file">from_file</a></code></td>
               <td>
                 <div class="doc-md-description">
-                  <p>Create a SkiaRenderer instance from a file path.</p>
+                  <p>Create a CairoRenderer instance from a file path.</p>
                 </div>
               </td>
             </tr>
@@ -2061,7 +1959,7 @@ and advanced features like filters and effects.</p>
 
   
       classmethod
-   (momapy.rendering.skia.SkiaRenderer.get_bolder_font_weight)" href="#momapy.rendering.skia.SkiaRenderer.get_bolder_font_weight">get_bolder_font_weight</a></code></td>
+   (momapy.rendering.cairo.CairoRenderer.get_bolder_font_weight)" href="#momapy.rendering.cairo.CairoRenderer.get_bolder_font_weight">get_bolder_font_weight</a></code></td>
               <td>
                 <div class="doc-md-description">
                   <p>Return the lightest font weight bolder than the given font weight.</p>
@@ -2069,7 +1967,7 @@ and advanced features like filters and effects.</p>
               </td>
             </tr>
             <tr class="doc-section-item">
-              <td><code><a class="autorefs autorefs-internal" title="            get_current_state (momapy.rendering.skia.SkiaRenderer.get_current_state)" href="#momapy.rendering.skia.SkiaRenderer.get_current_state">get_current_state</a></code></td>
+              <td><code><a class="autorefs autorefs-internal" title="            get_current_state (momapy.rendering.cairo.CairoRenderer.get_current_state)" href="#momapy.rendering.cairo.CairoRenderer.get_current_state">get_current_state</a></code></td>
               <td>
                 <div class="doc-md-description">
                   <p>Return the current state.</p>
@@ -2077,7 +1975,7 @@ and advanced features like filters and effects.</p>
               </td>
             </tr>
             <tr class="doc-section-item">
-              <td><code><a class="autorefs autorefs-internal" title="            get_current_value (momapy.rendering.skia.SkiaRenderer.get_current_value)" href="#momapy.rendering.skia.SkiaRenderer.get_current_value">get_current_value</a></code></td>
+              <td><code><a class="autorefs autorefs-internal" title="            get_current_value (momapy.rendering.cairo.CairoRenderer.get_current_value)" href="#momapy.rendering.cairo.CairoRenderer.get_current_value">get_current_value</a></code></td>
               <td>
                 <div class="doc-md-description">
                   <p>Return the current value for an attribute.</p>
@@ -2085,7 +1983,7 @@ and advanced features like filters and effects.</p>
               </td>
             </tr>
             <tr class="doc-section-item">
-              <td><code><a class="autorefs autorefs-internal" title="            get_initial_value (momapy.rendering.skia.SkiaRenderer.get_initial_value)" href="#momapy.rendering.skia.SkiaRenderer.get_initial_value">get_initial_value</a></code></td>
+              <td><code><a class="autorefs autorefs-internal" title="            get_initial_value (momapy.rendering.cairo.CairoRenderer.get_initial_value)" href="#momapy.rendering.cairo.CairoRenderer.get_initial_value">get_initial_value</a></code></td>
               <td>
                 <div class="doc-md-description">
                   <p>Return the initial value for an attribute.</p>
@@ -2098,7 +1996,7 @@ and advanced features like filters and effects.</p>
 
   
       classmethod
-   (momapy.rendering.skia.SkiaRenderer.get_lighter_font_weight)" href="#momapy.rendering.skia.SkiaRenderer.get_lighter_font_weight">get_lighter_font_weight</a></code></td>
+   (momapy.rendering.cairo.CairoRenderer.get_lighter_font_weight)" href="#momapy.rendering.cairo.CairoRenderer.get_lighter_font_weight">get_lighter_font_weight</a></code></td>
               <td>
                 <div class="doc-md-description">
                   <p>Return the boldest font weight lighter than the given font weight.</p>
@@ -2106,7 +2004,7 @@ and advanced features like filters and effects.</p>
               </td>
             </tr>
             <tr class="doc-section-item">
-              <td><code><a class="autorefs autorefs-internal" title="            new_page (momapy.rendering.skia.SkiaRenderer.new_page)" href="#momapy.rendering.skia.SkiaRenderer.new_page">new_page</a></code></td>
+              <td><code><a class="autorefs autorefs-internal" title="            new_page (momapy.rendering.cairo.CairoRenderer.new_page)" href="#momapy.rendering.cairo.CairoRenderer.new_page">new_page</a></code></td>
               <td>
                 <div class="doc-md-description">
                   <p>Create a new page in the output document.</p>
@@ -2114,7 +2012,7 @@ and advanced features like filters and effects.</p>
               </td>
             </tr>
             <tr class="doc-section-item">
-              <td><code><a class="autorefs autorefs-internal" title="            render_drawing_element (momapy.rendering.skia.SkiaRenderer.render_drawing_element)" href="#momapy.rendering.skia.SkiaRenderer.render_drawing_element">render_drawing_element</a></code></td>
+              <td><code><a class="autorefs autorefs-internal" title="            render_drawing_element (momapy.rendering.cairo.CairoRenderer.render_drawing_element)" href="#momapy.rendering.cairo.CairoRenderer.render_drawing_element">render_drawing_element</a></code></td>
               <td>
                 <div class="doc-md-description">
                   <p>Render a drawing element to the output.</p>
@@ -2122,7 +2020,7 @@ and advanced features like filters and effects.</p>
               </td>
             </tr>
             <tr class="doc-section-item">
-              <td><code><a class="autorefs autorefs-internal" title="            render_layout_element (momapy.rendering.skia.SkiaRenderer.render_layout_element)" href="#momapy.rendering.skia.SkiaRenderer.render_layout_element">render_layout_element</a></code></td>
+              <td><code><a class="autorefs autorefs-internal" title="            render_layout_element (momapy.rendering.cairo.CairoRenderer.render_layout_element)" href="#momapy.rendering.cairo.CairoRenderer.render_layout_element">render_layout_element</a></code></td>
               <td>
                 <div class="doc-md-description">
                   <p>Render a layout element to the output.</p>
@@ -2130,7 +2028,7 @@ and advanced features like filters and effects.</p>
               </td>
             </tr>
             <tr class="doc-section-item">
-              <td><code><a class="autorefs autorefs-internal" title="            render_map (momapy.rendering.skia.SkiaRenderer.render_map)" href="#momapy.rendering.skia.SkiaRenderer.render_map">render_map</a></code></td>
+              <td><code><a class="autorefs autorefs-internal" title="            render_map (momapy.rendering.cairo.CairoRenderer.render_map)" href="#momapy.rendering.cairo.CairoRenderer.render_map">render_map</a></code></td>
               <td>
                 <div class="doc-md-description">
                   <p>Render a map.</p>
@@ -2138,7 +2036,7 @@ and advanced features like filters and effects.</p>
               </td>
             </tr>
             <tr class="doc-section-item">
-              <td><code><a class="autorefs autorefs-internal" title="            restore (momapy.rendering.skia.SkiaRenderer.restore)" href="#momapy.rendering.skia.SkiaRenderer.restore">restore</a></code></td>
+              <td><code><a class="autorefs autorefs-internal" title="            restore (momapy.rendering.cairo.CairoRenderer.restore)" href="#momapy.rendering.cairo.CairoRenderer.restore">restore</a></code></td>
               <td>
                 <div class="doc-md-description">
                   <p>Set the current state to the last saved state.</p>
@@ -2146,7 +2044,7 @@ and advanced features like filters and effects.</p>
               </td>
             </tr>
             <tr class="doc-section-item">
-              <td><code><a class="autorefs autorefs-internal" title="            save (momapy.rendering.skia.SkiaRenderer.save)" href="#momapy.rendering.skia.SkiaRenderer.save">save</a></code></td>
+              <td><code><a class="autorefs autorefs-internal" title="            save (momapy.rendering.cairo.CairoRenderer.save)" href="#momapy.rendering.cairo.CairoRenderer.save">save</a></code></td>
               <td>
                 <div class="doc-md-description">
                   <p>Save the current state.</p>
@@ -2154,23 +2052,23 @@ and advanced features like filters and effects.</p>
               </td>
             </tr>
             <tr class="doc-section-item">
-              <td><code><a class="autorefs autorefs-internal" title="            self_restore (momapy.rendering.skia.SkiaRenderer.self_restore)" href="#momapy.rendering.skia.SkiaRenderer.self_restore">self_restore</a></code></td>
+              <td><code><a class="autorefs autorefs-internal" title="            self_restore (momapy.rendering.cairo.CairoRenderer.self_restore)" href="#momapy.rendering.cairo.CairoRenderer.self_restore">self_restore</a></code></td>
               <td>
                 <div class="doc-md-description">
-                  <p>Restore the Skia canvas state.</p>
+                  <p>Restore the Cairo context state.</p>
                 </div>
               </td>
             </tr>
             <tr class="doc-section-item">
-              <td><code><a class="autorefs autorefs-internal" title="            self_save (momapy.rendering.skia.SkiaRenderer.self_save)" href="#momapy.rendering.skia.SkiaRenderer.self_save">self_save</a></code></td>
+              <td><code><a class="autorefs autorefs-internal" title="            self_save (momapy.rendering.cairo.CairoRenderer.self_save)" href="#momapy.rendering.cairo.CairoRenderer.self_save">self_save</a></code></td>
               <td>
                 <div class="doc-md-description">
-                  <p>Save the Skia canvas state.</p>
+                  <p>Save the Cairo context state.</p>
                 </div>
               </td>
             </tr>
             <tr class="doc-section-item">
-              <td><code><a class="autorefs autorefs-internal" title="            set_current_state (momapy.rendering.skia.SkiaRenderer.set_current_state)" href="#momapy.rendering.skia.SkiaRenderer.set_current_state">set_current_state</a></code></td>
+              <td><code><a class="autorefs autorefs-internal" title="            set_current_state (momapy.rendering.cairo.CairoRenderer.set_current_state)" href="#momapy.rendering.cairo.CairoRenderer.set_current_state">set_current_state</a></code></td>
               <td>
                 <div class="doc-md-description">
                   <p>Set the current state to the given state.</p>
@@ -2178,7 +2076,7 @@ and advanced features like filters and effects.</p>
               </td>
             </tr>
             <tr class="doc-section-item">
-              <td><code><a class="autorefs autorefs-internal" title="            set_current_state_from_drawing_element (momapy.rendering.skia.SkiaRenderer.set_current_state_from_drawing_element)" href="#momapy.rendering.skia.SkiaRenderer.set_current_state_from_drawing_element">set_current_state_from_drawing_element</a></code></td>
+              <td><code><a class="autorefs autorefs-internal" title="            set_current_state_from_drawing_element (momapy.rendering.cairo.CairoRenderer.set_current_state_from_drawing_element)" href="#momapy.rendering.cairo.CairoRenderer.set_current_state_from_drawing_element">set_current_state_from_drawing_element</a></code></td>
               <td>
                 <div class="doc-md-description">
                   <p>Set the current state to a state given by a drawing element.</p>
@@ -2186,7 +2084,7 @@ and advanced features like filters and effects.</p>
               </td>
             </tr>
             <tr class="doc-section-item">
-              <td><code><a class="autorefs autorefs-internal" title="            set_current_value (momapy.rendering.skia.SkiaRenderer.set_current_value)" href="#momapy.rendering.skia.SkiaRenderer.set_current_value">set_current_value</a></code></td>
+              <td><code><a class="autorefs autorefs-internal" title="            set_current_value (momapy.rendering.cairo.CairoRenderer.set_current_value)" href="#momapy.rendering.cairo.CairoRenderer.set_current_value">set_current_value</a></code></td>
               <td>
                 <div class="doc-md-description">
                   <p>Set the current value for an attribute.</p>
@@ -2212,7 +2110,7 @@ and advanced features like filters and effects.</p>
 <div class="doc doc-object doc-function">
 
 
-<h4 id="momapy.rendering.skia.SkiaRenderer.__post_init__" class="doc doc-heading">
+<h4 id="momapy.rendering.cairo.CairoRenderer.__post_init__" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">__post_init__</span>
 
 
@@ -2246,7 +2144,7 @@ and advanced features like filters and effects.</p>
 <div class="doc doc-object doc-function">
 
 
-<h4 id="momapy.rendering.skia.SkiaRenderer.begin_session" class="doc doc-heading">
+<h4 id="momapy.rendering.cairo.CairoRenderer.begin_session" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">begin_session</span>
 
 
@@ -2257,25 +2155,25 @@ and advanced features like filters and effects.</p>
     <div class="doc doc-contents ">
 
         <p>Begin a rendering session.</p>
-<p>This method initializes the rendering context. For SkiaRenderer,
-no explicit initialization is needed beyond the canvas setup.</p>
+<p>This method initializes the rendering context. For CairoRenderer,
+no explicit initialization is needed beyond the context setup.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/momapy/rendering/skia.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-211">211</a></span>
-<span class="normal"><a href="#__codelineno-0-212">212</a></span>
-<span class="normal"><a href="#__codelineno-0-213">213</a></span>
-<span class="normal"><a href="#__codelineno-0-214">214</a></span>
-<span class="normal"><a href="#__codelineno-0-215">215</a></span>
-<span class="normal"><a href="#__codelineno-0-216">216</a></span>
-<span class="normal"><a href="#__codelineno-0-217">217</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-211"><a id="__codelineno-0-211" name="__codelineno-0-211"></a><span class="k">def</span><span class="w"> </span><span class="nf">begin_session</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-212"><a id="__codelineno-0-212" name="__codelineno-0-212"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Begin a rendering session.</span>
-</span><span id="__span-0-213"><a id="__codelineno-0-213" name="__codelineno-0-213"></a>
-</span><span id="__span-0-214"><a id="__codelineno-0-214" name="__codelineno-0-214"></a><span class="sd">    This method initializes the rendering context. For SkiaRenderer,</span>
-</span><span id="__span-0-215"><a id="__codelineno-0-215" name="__codelineno-0-215"></a><span class="sd">    no explicit initialization is needed beyond the canvas setup.</span>
-</span><span id="__span-0-216"><a id="__codelineno-0-216" name="__codelineno-0-216"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-217"><a id="__codelineno-0-217" name="__codelineno-0-217"></a>    <span class="k">pass</span>
+              <summary>Source code in <code>src/momapy/rendering/cairo.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-185">185</a></span>
+<span class="normal"><a href="#__codelineno-0-186">186</a></span>
+<span class="normal"><a href="#__codelineno-0-187">187</a></span>
+<span class="normal"><a href="#__codelineno-0-188">188</a></span>
+<span class="normal"><a href="#__codelineno-0-189">189</a></span>
+<span class="normal"><a href="#__codelineno-0-190">190</a></span>
+<span class="normal"><a href="#__codelineno-0-191">191</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-185"><a id="__codelineno-0-185" name="__codelineno-0-185"></a><span class="k">def</span><span class="w"> </span><span class="nf">begin_session</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-186"><a id="__codelineno-0-186" name="__codelineno-0-186"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Begin a rendering session.</span>
+</span><span id="__span-0-187"><a id="__codelineno-0-187" name="__codelineno-0-187"></a>
+</span><span id="__span-0-188"><a id="__codelineno-0-188" name="__codelineno-0-188"></a><span class="sd">    This method initializes the rendering context. For CairoRenderer,</span>
+</span><span id="__span-0-189"><a id="__codelineno-0-189" name="__codelineno-0-189"></a><span class="sd">    no explicit initialization is needed beyond the context setup.</span>
+</span><span id="__span-0-190"><a id="__codelineno-0-190" name="__codelineno-0-190"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-191"><a id="__codelineno-0-191" name="__codelineno-0-191"></a>    <span class="k">pass</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2291,7 +2189,7 @@ no explicit initialization is needed beyond the canvas setup.</p>
 
 
 
-<h4 id="momapy.rendering.skia.SkiaRenderer.default_format" class="doc doc-heading">
+<h4 id="momapy.rendering.cairo.CairoRenderer.default_format" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">default_format</span>
 
 
@@ -2320,7 +2218,7 @@ no explicit initialization is needed beyond the canvas setup.</p>
 <div class="doc doc-object doc-function">
 
 
-<h4 id="momapy.rendering.skia.SkiaRenderer.end_session" class="doc doc-heading">
+<h4 id="momapy.rendering.cairo.CairoRenderer.end_session" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">end_session</span>
 
 
@@ -2331,66 +2229,38 @@ no explicit initialization is needed beyond the canvas setup.</p>
     <div class="doc doc-contents ">
 
         <p>End the rendering session and save the output.</p>
-<p>This method finalizes the rendering, flushes the canvas, and saves
-the output to the file. The specific actions depend on the output format:
-- PDF: Ends the page and closes the document
-- PNG/JPEG/WebP: Takes a snapshot and saves the image
-- SVG: Flushes the stream</p>
+<p>This method finalizes the rendering and saves the output to the file.
+For PNG format, it writes the image data. For other formats, it
+finishes and flushes the surface.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/momapy/rendering/skia.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-219">219</a></span>
-<span class="normal"><a href="#__codelineno-0-220">220</a></span>
-<span class="normal"><a href="#__codelineno-0-221">221</a></span>
-<span class="normal"><a href="#__codelineno-0-222">222</a></span>
-<span class="normal"><a href="#__codelineno-0-223">223</a></span>
-<span class="normal"><a href="#__codelineno-0-224">224</a></span>
-<span class="normal"><a href="#__codelineno-0-225">225</a></span>
-<span class="normal"><a href="#__codelineno-0-226">226</a></span>
-<span class="normal"><a href="#__codelineno-0-227">227</a></span>
-<span class="normal"><a href="#__codelineno-0-228">228</a></span>
-<span class="normal"><a href="#__codelineno-0-229">229</a></span>
-<span class="normal"><a href="#__codelineno-0-230">230</a></span>
-<span class="normal"><a href="#__codelineno-0-231">231</a></span>
-<span class="normal"><a href="#__codelineno-0-232">232</a></span>
-<span class="normal"><a href="#__codelineno-0-233">233</a></span>
-<span class="normal"><a href="#__codelineno-0-234">234</a></span>
-<span class="normal"><a href="#__codelineno-0-235">235</a></span>
-<span class="normal"><a href="#__codelineno-0-236">236</a></span>
-<span class="normal"><a href="#__codelineno-0-237">237</a></span>
-<span class="normal"><a href="#__codelineno-0-238">238</a></span>
-<span class="normal"><a href="#__codelineno-0-239">239</a></span>
-<span class="normal"><a href="#__codelineno-0-240">240</a></span>
-<span class="normal"><a href="#__codelineno-0-241">241</a></span>
-<span class="normal"><a href="#__codelineno-0-242">242</a></span>
-<span class="normal"><a href="#__codelineno-0-243">243</a></span>
-<span class="normal"><a href="#__codelineno-0-244">244</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-219"><a id="__codelineno-0-219" name="__codelineno-0-219"></a><span class="k">def</span><span class="w"> </span><span class="nf">end_session</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-220"><a id="__codelineno-0-220" name="__codelineno-0-220"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;End the rendering session and save the output.</span>
-</span><span id="__span-0-221"><a id="__codelineno-0-221" name="__codelineno-0-221"></a>
-</span><span id="__span-0-222"><a id="__codelineno-0-222" name="__codelineno-0-222"></a><span class="sd">    This method finalizes the rendering, flushes the canvas, and saves</span>
-</span><span id="__span-0-223"><a id="__codelineno-0-223" name="__codelineno-0-223"></a><span class="sd">    the output to the file. The specific actions depend on the output format:</span>
-</span><span id="__span-0-224"><a id="__codelineno-0-224" name="__codelineno-0-224"></a><span class="sd">    - PDF: Ends the page and closes the document</span>
-</span><span id="__span-0-225"><a id="__codelineno-0-225" name="__codelineno-0-225"></a><span class="sd">    - PNG/JPEG/WebP: Takes a snapshot and saves the image</span>
-</span><span id="__span-0-226"><a id="__codelineno-0-226" name="__codelineno-0-226"></a><span class="sd">    - SVG: Flushes the stream</span>
-</span><span id="__span-0-227"><a id="__codelineno-0-227" name="__codelineno-0-227"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-228"><a id="__codelineno-0-228" name="__codelineno-0-228"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
-</span><span id="__span-0-229"><a id="__codelineno-0-229" name="__codelineno-0-229"></a>    <span class="n">format_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;format&quot;</span><span class="p">)</span>
-</span><span id="__span-0-230"><a id="__codelineno-0-230" name="__codelineno-0-230"></a>    <span class="k">if</span> <span class="n">format_</span> <span class="o">==</span> <span class="s2">&quot;pdf&quot;</span><span class="p">:</span>
-</span><span id="__span-0-231"><a id="__codelineno-0-231" name="__codelineno-0-231"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;document&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">endPage</span><span class="p">()</span>
-</span><span id="__span-0-232"><a id="__codelineno-0-232" name="__codelineno-0-232"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;document&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-</span><span id="__span-0-233"><a id="__codelineno-0-233" name="__codelineno-0-233"></a>    <span class="k">elif</span> <span class="n">format_</span> <span class="o">==</span> <span class="s2">&quot;png&quot;</span><span class="p">:</span>
-</span><span id="__span-0-234"><a id="__codelineno-0-234" name="__codelineno-0-234"></a>        <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">makeImageSnapshot</span><span class="p">()</span>
-</span><span id="__span-0-235"><a id="__codelineno-0-235" name="__codelineno-0-235"></a>        <span class="n">image</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;file_path&quot;</span><span class="p">],</span> <span class="n">skia</span><span class="o">.</span><span class="n">kPNG</span><span class="p">)</span>
-</span><span id="__span-0-236"><a id="__codelineno-0-236" name="__codelineno-0-236"></a>    <span class="k">elif</span> <span class="n">format_</span> <span class="o">==</span> <span class="s2">&quot;jpeg&quot;</span><span class="p">:</span>
-</span><span id="__span-0-237"><a id="__codelineno-0-237" name="__codelineno-0-237"></a>        <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">makeImageSnapshot</span><span class="p">()</span>
-</span><span id="__span-0-238"><a id="__codelineno-0-238" name="__codelineno-0-238"></a>        <span class="n">image</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;file_path&quot;</span><span class="p">],</span> <span class="n">skia</span><span class="o">.</span><span class="n">kJPEG</span><span class="p">)</span>
-</span><span id="__span-0-239"><a id="__codelineno-0-239" name="__codelineno-0-239"></a>    <span class="k">elif</span> <span class="n">format_</span> <span class="o">==</span> <span class="s2">&quot;webp&quot;</span><span class="p">:</span>
-</span><span id="__span-0-240"><a id="__codelineno-0-240" name="__codelineno-0-240"></a>        <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">makeImageSnapshot</span><span class="p">()</span>
-</span><span id="__span-0-241"><a id="__codelineno-0-241" name="__codelineno-0-241"></a>        <span class="n">image</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;file_path&quot;</span><span class="p">],</span> <span class="n">skia</span><span class="o">.</span><span class="n">kWEBP</span><span class="p">)</span>
-</span><span id="__span-0-242"><a id="__codelineno-0-242" name="__codelineno-0-242"></a>    <span class="k">elif</span> <span class="n">format_</span> <span class="o">==</span> <span class="s2">&quot;svg&quot;</span><span class="p">:</span>
-</span><span id="__span-0-243"><a id="__codelineno-0-243" name="__codelineno-0-243"></a>        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span>
-</span><span id="__span-0-244"><a id="__codelineno-0-244" name="__codelineno-0-244"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;stream&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+              <summary>Source code in <code>src/momapy/rendering/cairo.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-193">193</a></span>
+<span class="normal"><a href="#__codelineno-0-194">194</a></span>
+<span class="normal"><a href="#__codelineno-0-195">195</a></span>
+<span class="normal"><a href="#__codelineno-0-196">196</a></span>
+<span class="normal"><a href="#__codelineno-0-197">197</a></span>
+<span class="normal"><a href="#__codelineno-0-198">198</a></span>
+<span class="normal"><a href="#__codelineno-0-199">199</a></span>
+<span class="normal"><a href="#__codelineno-0-200">200</a></span>
+<span class="normal"><a href="#__codelineno-0-201">201</a></span>
+<span class="normal"><a href="#__codelineno-0-202">202</a></span>
+<span class="normal"><a href="#__codelineno-0-203">203</a></span>
+<span class="normal"><a href="#__codelineno-0-204">204</a></span>
+<span class="normal"><a href="#__codelineno-0-205">205</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-193"><a id="__codelineno-0-193" name="__codelineno-0-193"></a><span class="k">def</span><span class="w"> </span><span class="nf">end_session</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-194"><a id="__codelineno-0-194" name="__codelineno-0-194"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;End the rendering session and save the output.</span>
+</span><span id="__span-0-195"><a id="__codelineno-0-195" name="__codelineno-0-195"></a>
+</span><span id="__span-0-196"><a id="__codelineno-0-196" name="__codelineno-0-196"></a><span class="sd">    This method finalizes the rendering and saves the output to the file.</span>
+</span><span id="__span-0-197"><a id="__codelineno-0-197" name="__codelineno-0-197"></a><span class="sd">    For PNG format, it writes the image data. For other formats, it</span>
+</span><span id="__span-0-198"><a id="__codelineno-0-198" name="__codelineno-0-198"></a><span class="sd">    finishes and flushes the surface.</span>
+</span><span id="__span-0-199"><a id="__codelineno-0-199" name="__codelineno-0-199"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-200"><a id="__codelineno-0-200" name="__codelineno-0-200"></a>    <span class="n">surface</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get_target</span><span class="p">()</span>
+</span><span id="__span-0-201"><a id="__codelineno-0-201" name="__codelineno-0-201"></a>    <span class="n">format_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;format&quot;</span><span class="p">)</span>
+</span><span id="__span-0-202"><a id="__codelineno-0-202" name="__codelineno-0-202"></a>    <span class="k">if</span> <span class="n">format_</span> <span class="o">==</span> <span class="s2">&quot;png&quot;</span><span class="p">:</span>
+</span><span id="__span-0-203"><a id="__codelineno-0-203" name="__codelineno-0-203"></a>        <span class="n">surface</span><span class="o">.</span><span class="n">write_to_png</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;file_path&quot;</span><span class="p">])</span>
+</span><span id="__span-0-204"><a id="__codelineno-0-204" name="__codelineno-0-204"></a>    <span class="n">surface</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+</span><span id="__span-0-205"><a id="__codelineno-0-205" name="__codelineno-0-205"></a>    <span class="n">surface</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2405,7 +2275,7 @@ the output to the file. The specific actions depend on the output format:
 <div class="doc doc-object doc-function">
 
 
-<h4 id="momapy.rendering.skia.SkiaRenderer.from_file" class="doc doc-heading">
+<h4 id="momapy.rendering.cairo.CairoRenderer.from_file" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">from_file</span>
 
 
@@ -2419,7 +2289,7 @@ the output to the file. The specific actions depend on the output format:
 
     <div class="doc doc-contents ">
 
-        <p>Create a SkiaRenderer instance from a file path.</p>
+        <p>Create a CairoRenderer instance from a file path.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -2490,8 +2360,8 @@ the output to the file. The specific actions depend on the output format:
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The output format (pdf, svg, png, jpeg, or webp). <code>None</code>
-selects the backend's :attr:<code>default_format</code> ("pdf").</p>
+                <p>The output format (pdf, svg, png, or ps). <code>None</code> selects
+the backend's :attr:<code>default_format</code> ("pdf").</p>
               </div>
             </td>
             <td>
@@ -2517,7 +2387,7 @@ selects the backend's :attr:<code>default_format</code> ("pdf").</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>A new SkiaRenderer instance</p>
+                <p>A new CairoRenderer instance</p>
               </div>
             </td>
           </tr>
@@ -2549,13 +2419,33 @@ selects the backend's :attr:<code>default_format</code> ("pdf").</p>
 
 
 <p><span class="doc-section-title">Examples:</span></p>
-    <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">renderer</span> <span class="o">=</span> <span class="n">SkiaRenderer</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;output.pdf&quot;</span><span class="p">,</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">600</span><span class="p">,</span> <span class="s2">&quot;pdf&quot;</span><span class="p">)</span>
+    <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">renderer</span> <span class="o">=</span> <span class="n">CairoRenderer</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;output.pdf&quot;</span><span class="p">,</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">600</span><span class="p">,</span> <span class="s2">&quot;pdf&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/momapy/rendering/skia.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-152">152</a></span>
+              <summary>Source code in <code>src/momapy/rendering/cairo.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-132">132</a></span>
+<span class="normal"><a href="#__codelineno-0-133">133</a></span>
+<span class="normal"><a href="#__codelineno-0-134">134</a></span>
+<span class="normal"><a href="#__codelineno-0-135">135</a></span>
+<span class="normal"><a href="#__codelineno-0-136">136</a></span>
+<span class="normal"><a href="#__codelineno-0-137">137</a></span>
+<span class="normal"><a href="#__codelineno-0-138">138</a></span>
+<span class="normal"><a href="#__codelineno-0-139">139</a></span>
+<span class="normal"><a href="#__codelineno-0-140">140</a></span>
+<span class="normal"><a href="#__codelineno-0-141">141</a></span>
+<span class="normal"><a href="#__codelineno-0-142">142</a></span>
+<span class="normal"><a href="#__codelineno-0-143">143</a></span>
+<span class="normal"><a href="#__codelineno-0-144">144</a></span>
+<span class="normal"><a href="#__codelineno-0-145">145</a></span>
+<span class="normal"><a href="#__codelineno-0-146">146</a></span>
+<span class="normal"><a href="#__codelineno-0-147">147</a></span>
+<span class="normal"><a href="#__codelineno-0-148">148</a></span>
+<span class="normal"><a href="#__codelineno-0-149">149</a></span>
+<span class="normal"><a href="#__codelineno-0-150">150</a></span>
+<span class="normal"><a href="#__codelineno-0-151">151</a></span>
+<span class="normal"><a href="#__codelineno-0-152">152</a></span>
 <span class="normal"><a href="#__codelineno-0-153">153</a></span>
 <span class="normal"><a href="#__codelineno-0-154">154</a></span>
 <span class="normal"><a href="#__codelineno-0-155">155</a></span>
@@ -2586,90 +2476,58 @@ selects the backend's :attr:<code>default_format</code> ("pdf").</p>
 <span class="normal"><a href="#__codelineno-0-180">180</a></span>
 <span class="normal"><a href="#__codelineno-0-181">181</a></span>
 <span class="normal"><a href="#__codelineno-0-182">182</a></span>
-<span class="normal"><a href="#__codelineno-0-183">183</a></span>
-<span class="normal"><a href="#__codelineno-0-184">184</a></span>
-<span class="normal"><a href="#__codelineno-0-185">185</a></span>
-<span class="normal"><a href="#__codelineno-0-186">186</a></span>
-<span class="normal"><a href="#__codelineno-0-187">187</a></span>
-<span class="normal"><a href="#__codelineno-0-188">188</a></span>
-<span class="normal"><a href="#__codelineno-0-189">189</a></span>
-<span class="normal"><a href="#__codelineno-0-190">190</a></span>
-<span class="normal"><a href="#__codelineno-0-191">191</a></span>
-<span class="normal"><a href="#__codelineno-0-192">192</a></span>
-<span class="normal"><a href="#__codelineno-0-193">193</a></span>
-<span class="normal"><a href="#__codelineno-0-194">194</a></span>
-<span class="normal"><a href="#__codelineno-0-195">195</a></span>
-<span class="normal"><a href="#__codelineno-0-196">196</a></span>
-<span class="normal"><a href="#__codelineno-0-197">197</a></span>
-<span class="normal"><a href="#__codelineno-0-198">198</a></span>
-<span class="normal"><a href="#__codelineno-0-199">199</a></span>
-<span class="normal"><a href="#__codelineno-0-200">200</a></span>
-<span class="normal"><a href="#__codelineno-0-201">201</a></span>
-<span class="normal"><a href="#__codelineno-0-202">202</a></span>
-<span class="normal"><a href="#__codelineno-0-203">203</a></span>
-<span class="normal"><a href="#__codelineno-0-204">204</a></span>
-<span class="normal"><a href="#__codelineno-0-205">205</a></span>
-<span class="normal"><a href="#__codelineno-0-206">206</a></span>
-<span class="normal"><a href="#__codelineno-0-207">207</a></span>
-<span class="normal"><a href="#__codelineno-0-208">208</a></span>
-<span class="normal"><a href="#__codelineno-0-209">209</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-152"><a id="__codelineno-0-152" name="__codelineno-0-152"></a><span class="nd">@classmethod</span>
-</span><span id="__span-0-153"><a id="__codelineno-0-153" name="__codelineno-0-153"></a><span class="k">def</span><span class="w"> </span><span class="nf">from_file</span><span class="p">(</span>
-</span><span id="__span-0-154"><a id="__codelineno-0-154" name="__codelineno-0-154"></a>    <span class="bp">cls</span><span class="p">,</span>
-</span><span id="__span-0-155"><a id="__codelineno-0-155" name="__codelineno-0-155"></a>    <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span>
-</span><span id="__span-0-156"><a id="__codelineno-0-156" name="__codelineno-0-156"></a>    <span class="n">width</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-</span><span id="__span-0-157"><a id="__codelineno-0-157" name="__codelineno-0-157"></a>    <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-</span><span id="__span-0-158"><a id="__codelineno-0-158" name="__codelineno-0-158"></a>    <span class="n">format_</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-159"><a id="__codelineno-0-159" name="__codelineno-0-159"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing_extensions</span><span class="o">.</span><span class="n">Self</span><span class="p">:</span>
-</span><span id="__span-0-160"><a id="__codelineno-0-160" name="__codelineno-0-160"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a SkiaRenderer instance from a file path.</span>
-</span><span id="__span-0-161"><a id="__codelineno-0-161" name="__codelineno-0-161"></a>
-</span><span id="__span-0-162"><a id="__codelineno-0-162" name="__codelineno-0-162"></a><span class="sd">    Args:</span>
-</span><span id="__span-0-163"><a id="__codelineno-0-163" name="__codelineno-0-163"></a><span class="sd">        file_path: The output file path</span>
-</span><span id="__span-0-164"><a id="__codelineno-0-164" name="__codelineno-0-164"></a><span class="sd">        width: The width of the canvas</span>
-</span><span id="__span-0-165"><a id="__codelineno-0-165" name="__codelineno-0-165"></a><span class="sd">        height: The height of the canvas</span>
-</span><span id="__span-0-166"><a id="__codelineno-0-166" name="__codelineno-0-166"></a><span class="sd">        format_: The output format (pdf, svg, png, jpeg, or webp). ``None``</span>
-</span><span id="__span-0-167"><a id="__codelineno-0-167" name="__codelineno-0-167"></a><span class="sd">            selects the backend&#39;s :attr:`default_format` (&quot;pdf&quot;).</span>
-</span><span id="__span-0-168"><a id="__codelineno-0-168" name="__codelineno-0-168"></a>
-</span><span id="__span-0-169"><a id="__codelineno-0-169" name="__codelineno-0-169"></a><span class="sd">    Returns:</span>
-</span><span id="__span-0-170"><a id="__codelineno-0-170" name="__codelineno-0-170"></a><span class="sd">        A new SkiaRenderer instance</span>
-</span><span id="__span-0-171"><a id="__codelineno-0-171" name="__codelineno-0-171"></a>
-</span><span id="__span-0-172"><a id="__codelineno-0-172" name="__codelineno-0-172"></a><span class="sd">    Raises:</span>
-</span><span id="__span-0-173"><a id="__codelineno-0-173" name="__codelineno-0-173"></a><span class="sd">        ValueError: If the format is not supported</span>
-</span><span id="__span-0-174"><a id="__codelineno-0-174" name="__codelineno-0-174"></a>
-</span><span id="__span-0-175"><a id="__codelineno-0-175" name="__codelineno-0-175"></a><span class="sd">    Examples:</span>
-</span><span id="__span-0-176"><a id="__codelineno-0-176" name="__codelineno-0-176"></a><span class="sd">        ```python</span>
-</span><span id="__span-0-177"><a id="__codelineno-0-177" name="__codelineno-0-177"></a><span class="sd">        renderer = SkiaRenderer.from_file(&quot;output.pdf&quot;, 800, 600, &quot;pdf&quot;)</span>
-</span><span id="__span-0-178"><a id="__codelineno-0-178" name="__codelineno-0-178"></a><span class="sd">        ```</span>
-</span><span id="__span-0-179"><a id="__codelineno-0-179" name="__codelineno-0-179"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-180"><a id="__codelineno-0-180" name="__codelineno-0-180"></a>    <span class="k">if</span> <span class="n">format_</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-181"><a id="__codelineno-0-181" name="__codelineno-0-181"></a>        <span class="n">format_</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">default_format</span>
-</span><span id="__span-0-182"><a id="__codelineno-0-182" name="__codelineno-0-182"></a>    <span class="k">if</span> <span class="n">format_</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">supported_formats</span><span class="p">:</span>
-</span><span id="__span-0-183"><a id="__codelineno-0-183" name="__codelineno-0-183"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-</span><span id="__span-0-184"><a id="__codelineno-0-184" name="__codelineno-0-184"></a>            <span class="sa">f</span><span class="s2">&quot;unsupported format </span><span class="si">{</span><span class="n">format_</span><span class="si">!r}</span><span class="s2">: expected one of &quot;</span>
-</span><span id="__span-0-185"><a id="__codelineno-0-185" name="__codelineno-0-185"></a>            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">supported_formats</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="__span-0-186"><a id="__codelineno-0-186" name="__codelineno-0-186"></a>        <span class="p">)</span>
-</span><span id="__span-0-187"><a id="__codelineno-0-187" name="__codelineno-0-187"></a>    <span class="n">check_parent_dir_exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
-</span><span id="__span-0-188"><a id="__codelineno-0-188" name="__codelineno-0-188"></a>    <span class="n">config</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span id="__span-0-189"><a id="__codelineno-0-189" name="__codelineno-0-189"></a>    <span class="n">canvas</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="__span-0-190"><a id="__codelineno-0-190" name="__codelineno-0-190"></a>    <span class="k">if</span> <span class="n">format_</span> <span class="o">==</span> <span class="s2">&quot;pdf&quot;</span><span class="p">:</span>
-</span><span id="__span-0-191"><a id="__codelineno-0-191" name="__codelineno-0-191"></a>        <span class="n">stream</span> <span class="o">=</span> <span class="n">skia</span><span class="o">.</span><span class="n">FILEWStream</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
-</span><span id="__span-0-192"><a id="__codelineno-0-192" name="__codelineno-0-192"></a>        <span class="n">document</span> <span class="o">=</span> <span class="n">skia</span><span class="o">.</span><span class="n">PDF</span><span class="o">.</span><span class="n">MakeDocument</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
-</span><span id="__span-0-193"><a id="__codelineno-0-193" name="__codelineno-0-193"></a>        <span class="n">canvas</span> <span class="o">=</span> <span class="n">document</span><span class="o">.</span><span class="n">beginPage</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
-</span><span id="__span-0-194"><a id="__codelineno-0-194" name="__codelineno-0-194"></a>        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;stream&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stream</span>
-</span><span id="__span-0-195"><a id="__codelineno-0-195" name="__codelineno-0-195"></a>        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;document&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">document</span>
-</span><span id="__span-0-196"><a id="__codelineno-0-196" name="__codelineno-0-196"></a>    <span class="k">elif</span> <span class="n">format_</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;png&quot;</span><span class="p">,</span> <span class="s2">&quot;jpeg&quot;</span><span class="p">,</span> <span class="s2">&quot;webp&quot;</span><span class="p">]:</span>
-</span><span id="__span-0-197"><a id="__codelineno-0-197" name="__codelineno-0-197"></a>        <span class="n">surface</span> <span class="o">=</span> <span class="n">skia</span><span class="o">.</span><span class="n">Surface</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">width</span><span class="p">),</span> <span class="n">height</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">height</span><span class="p">))</span>
-</span><span id="__span-0-198"><a id="__codelineno-0-198" name="__codelineno-0-198"></a>        <span class="n">canvas</span> <span class="o">=</span> <span class="n">surface</span><span class="o">.</span><span class="n">getCanvas</span><span class="p">()</span>
-</span><span id="__span-0-199"><a id="__codelineno-0-199" name="__codelineno-0-199"></a>        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">surface</span>
-</span><span id="__span-0-200"><a id="__codelineno-0-200" name="__codelineno-0-200"></a>        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;file_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_path</span>
-</span><span id="__span-0-201"><a id="__codelineno-0-201" name="__codelineno-0-201"></a>    <span class="k">elif</span> <span class="n">format_</span> <span class="o">==</span> <span class="s2">&quot;svg&quot;</span><span class="p">:</span>
-</span><span id="__span-0-202"><a id="__codelineno-0-202" name="__codelineno-0-202"></a>        <span class="n">stream</span> <span class="o">=</span> <span class="n">skia</span><span class="o">.</span><span class="n">FILEWStream</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
-</span><span id="__span-0-203"><a id="__codelineno-0-203" name="__codelineno-0-203"></a>        <span class="n">canvas</span> <span class="o">=</span> <span class="n">skia</span><span class="o">.</span><span class="n">SVGCanvas</span><span class="o">.</span><span class="n">Make</span><span class="p">((</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">),</span> <span class="n">stream</span><span class="p">)</span>
-</span><span id="__span-0-204"><a id="__codelineno-0-204" name="__codelineno-0-204"></a>        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;stream&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stream</span>
-</span><span id="__span-0-205"><a id="__codelineno-0-205" name="__codelineno-0-205"></a>    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;file_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_path</span>
-</span><span id="__span-0-206"><a id="__codelineno-0-206" name="__codelineno-0-206"></a>    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">width</span>
-</span><span id="__span-0-207"><a id="__codelineno-0-207" name="__codelineno-0-207"></a>    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">height</span>
-</span><span id="__span-0-208"><a id="__codelineno-0-208" name="__codelineno-0-208"></a>    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;format&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">format_</span>
-</span><span id="__span-0-209"><a id="__codelineno-0-209" name="__codelineno-0-209"></a>    <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">canvas</span><span class="o">=</span><span class="n">canvas</span><span class="p">,</span> <span class="n">_config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+<span class="normal"><a href="#__codelineno-0-183">183</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-132"><a id="__codelineno-0-132" name="__codelineno-0-132"></a><span class="nd">@classmethod</span>
+</span><span id="__span-0-133"><a id="__codelineno-0-133" name="__codelineno-0-133"></a><span class="k">def</span><span class="w"> </span><span class="nf">from_file</span><span class="p">(</span>
+</span><span id="__span-0-134"><a id="__codelineno-0-134" name="__codelineno-0-134"></a>    <span class="bp">cls</span><span class="p">,</span>
+</span><span id="__span-0-135"><a id="__codelineno-0-135" name="__codelineno-0-135"></a>    <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span>
+</span><span id="__span-0-136"><a id="__codelineno-0-136" name="__codelineno-0-136"></a>    <span class="n">width</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+</span><span id="__span-0-137"><a id="__codelineno-0-137" name="__codelineno-0-137"></a>    <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+</span><span id="__span-0-138"><a id="__codelineno-0-138" name="__codelineno-0-138"></a>    <span class="n">format_</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-139"><a id="__codelineno-0-139" name="__codelineno-0-139"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing_extensions</span><span class="o">.</span><span class="n">Self</span><span class="p">:</span>
+</span><span id="__span-0-140"><a id="__codelineno-0-140" name="__codelineno-0-140"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a CairoRenderer instance from a file path.</span>
+</span><span id="__span-0-141"><a id="__codelineno-0-141" name="__codelineno-0-141"></a>
+</span><span id="__span-0-142"><a id="__codelineno-0-142" name="__codelineno-0-142"></a><span class="sd">    Args:</span>
+</span><span id="__span-0-143"><a id="__codelineno-0-143" name="__codelineno-0-143"></a><span class="sd">        file_path: The output file path</span>
+</span><span id="__span-0-144"><a id="__codelineno-0-144" name="__codelineno-0-144"></a><span class="sd">        width: The width of the canvas</span>
+</span><span id="__span-0-145"><a id="__codelineno-0-145" name="__codelineno-0-145"></a><span class="sd">        height: The height of the canvas</span>
+</span><span id="__span-0-146"><a id="__codelineno-0-146" name="__codelineno-0-146"></a><span class="sd">        format_: The output format (pdf, svg, png, or ps). ``None`` selects</span>
+</span><span id="__span-0-147"><a id="__codelineno-0-147" name="__codelineno-0-147"></a><span class="sd">            the backend&#39;s :attr:`default_format` (&quot;pdf&quot;).</span>
+</span><span id="__span-0-148"><a id="__codelineno-0-148" name="__codelineno-0-148"></a>
+</span><span id="__span-0-149"><a id="__codelineno-0-149" name="__codelineno-0-149"></a><span class="sd">    Returns:</span>
+</span><span id="__span-0-150"><a id="__codelineno-0-150" name="__codelineno-0-150"></a><span class="sd">        A new CairoRenderer instance</span>
+</span><span id="__span-0-151"><a id="__codelineno-0-151" name="__codelineno-0-151"></a>
+</span><span id="__span-0-152"><a id="__codelineno-0-152" name="__codelineno-0-152"></a><span class="sd">    Raises:</span>
+</span><span id="__span-0-153"><a id="__codelineno-0-153" name="__codelineno-0-153"></a><span class="sd">        ValueError: If the format is not supported</span>
+</span><span id="__span-0-154"><a id="__codelineno-0-154" name="__codelineno-0-154"></a>
+</span><span id="__span-0-155"><a id="__codelineno-0-155" name="__codelineno-0-155"></a><span class="sd">    Examples:</span>
+</span><span id="__span-0-156"><a id="__codelineno-0-156" name="__codelineno-0-156"></a><span class="sd">        ```python</span>
+</span><span id="__span-0-157"><a id="__codelineno-0-157" name="__codelineno-0-157"></a><span class="sd">        renderer = CairoRenderer.from_file(&quot;output.pdf&quot;, 800, 600, &quot;pdf&quot;)</span>
+</span><span id="__span-0-158"><a id="__codelineno-0-158" name="__codelineno-0-158"></a><span class="sd">        ```</span>
+</span><span id="__span-0-159"><a id="__codelineno-0-159" name="__codelineno-0-159"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-160"><a id="__codelineno-0-160" name="__codelineno-0-160"></a>    <span class="k">if</span> <span class="n">format_</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-161"><a id="__codelineno-0-161" name="__codelineno-0-161"></a>        <span class="n">format_</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">default_format</span>
+</span><span id="__span-0-162"><a id="__codelineno-0-162" name="__codelineno-0-162"></a>    <span class="k">if</span> <span class="n">format_</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">supported_formats</span><span class="p">:</span>
+</span><span id="__span-0-163"><a id="__codelineno-0-163" name="__codelineno-0-163"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span><span id="__span-0-164"><a id="__codelineno-0-164" name="__codelineno-0-164"></a>            <span class="sa">f</span><span class="s2">&quot;unsupported format </span><span class="si">{</span><span class="n">format_</span><span class="si">!r}</span><span class="s2">: expected one of &quot;</span>
+</span><span id="__span-0-165"><a id="__codelineno-0-165" name="__codelineno-0-165"></a>            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">supported_formats</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-0-166"><a id="__codelineno-0-166" name="__codelineno-0-166"></a>        <span class="p">)</span>
+</span><span id="__span-0-167"><a id="__codelineno-0-167" name="__codelineno-0-167"></a>    <span class="n">check_parent_dir_exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+</span><span id="__span-0-168"><a id="__codelineno-0-168" name="__codelineno-0-168"></a>    <span class="n">config</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="__span-0-169"><a id="__codelineno-0-169" name="__codelineno-0-169"></a>    <span class="k">if</span> <span class="n">format_</span> <span class="o">==</span> <span class="s2">&quot;pdf&quot;</span><span class="p">:</span>
+</span><span id="__span-0-170"><a id="__codelineno-0-170" name="__codelineno-0-170"></a>        <span class="n">surface</span> <span class="o">=</span> <span class="n">cairo</span><span class="o">.</span><span class="n">PDFSurface</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
+</span><span id="__span-0-171"><a id="__codelineno-0-171" name="__codelineno-0-171"></a>    <span class="k">elif</span> <span class="n">format_</span> <span class="o">==</span> <span class="s2">&quot;ps&quot;</span><span class="p">:</span>
+</span><span id="__span-0-172"><a id="__codelineno-0-172" name="__codelineno-0-172"></a>        <span class="n">surface</span> <span class="o">=</span> <span class="n">cairo</span><span class="o">.</span><span class="n">PSSurface</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
+</span><span id="__span-0-173"><a id="__codelineno-0-173" name="__codelineno-0-173"></a>    <span class="k">elif</span> <span class="n">format_</span> <span class="o">==</span> <span class="s2">&quot;svg&quot;</span><span class="p">:</span>
+</span><span id="__span-0-174"><a id="__codelineno-0-174" name="__codelineno-0-174"></a>        <span class="n">surface</span> <span class="o">=</span> <span class="n">cairo</span><span class="o">.</span><span class="n">SVGSurface</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
+</span><span id="__span-0-175"><a id="__codelineno-0-175" name="__codelineno-0-175"></a>    <span class="k">elif</span> <span class="n">format_</span> <span class="o">==</span> <span class="s2">&quot;png&quot;</span><span class="p">:</span>
+</span><span id="__span-0-176"><a id="__codelineno-0-176" name="__codelineno-0-176"></a>        <span class="n">surface</span> <span class="o">=</span> <span class="n">cairo</span><span class="o">.</span><span class="n">ImageSurface</span><span class="p">(</span><span class="n">cairo</span><span class="o">.</span><span class="n">FORMAT_ARGB32</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">width</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">height</span><span class="p">))</span>
+</span><span id="__span-0-177"><a id="__codelineno-0-177" name="__codelineno-0-177"></a>    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">surface</span>
+</span><span id="__span-0-178"><a id="__codelineno-0-178" name="__codelineno-0-178"></a>    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;file_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_path</span>
+</span><span id="__span-0-179"><a id="__codelineno-0-179" name="__codelineno-0-179"></a>    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">width</span>
+</span><span id="__span-0-180"><a id="__codelineno-0-180" name="__codelineno-0-180"></a>    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">height</span>
+</span><span id="__span-0-181"><a id="__codelineno-0-181" name="__codelineno-0-181"></a>    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;format&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">format_</span>
+</span><span id="__span-0-182"><a id="__codelineno-0-182" name="__codelineno-0-182"></a>    <span class="n">context</span> <span class="o">=</span> <span class="n">cairo</span><span class="o">.</span><span class="n">Context</span><span class="p">(</span><span class="n">surface</span><span class="p">)</span>
+</span><span id="__span-0-183"><a id="__codelineno-0-183" name="__codelineno-0-183"></a>    <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">,</span> <span class="n">_config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2684,7 +2542,7 @@ selects the backend's :attr:<code>default_format</code> ("pdf").</p>
 <div class="doc doc-object doc-function">
 
 
-<h4 id="momapy.rendering.skia.SkiaRenderer.get_bolder_font_weight" class="doc doc-heading">
+<h4 id="momapy.rendering.cairo.CairoRenderer.get_bolder_font_weight" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">get_bolder_font_weight</span>
 
 
@@ -2748,7 +2606,7 @@ selects the backend's :attr:<code>default_format</code> ("pdf").</p>
 <div class="doc doc-object doc-function">
 
 
-<h4 id="momapy.rendering.skia.SkiaRenderer.get_current_state" class="doc doc-heading">
+<h4 id="momapy.rendering.cairo.CairoRenderer.get_current_state" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">get_current_state</span>
 
 
@@ -2782,7 +2640,7 @@ selects the backend's :attr:<code>default_format</code> ("pdf").</p>
 <div class="doc doc-object doc-function">
 
 
-<h4 id="momapy.rendering.skia.SkiaRenderer.get_current_value" class="doc doc-heading">
+<h4 id="momapy.rendering.cairo.CairoRenderer.get_current_value" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">get_current_value</span>
 
 
@@ -2816,7 +2674,7 @@ selects the backend's :attr:<code>default_format</code> ("pdf").</p>
 <div class="doc doc-object doc-function">
 
 
-<h4 id="momapy.rendering.skia.SkiaRenderer.get_initial_value" class="doc doc-heading">
+<h4 id="momapy.rendering.cairo.CairoRenderer.get_initial_value" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">get_initial_value</span>
 
 
@@ -2862,7 +2720,7 @@ selects the backend's :attr:<code>default_format</code> ("pdf").</p>
 <div class="doc doc-object doc-function">
 
 
-<h4 id="momapy.rendering.skia.SkiaRenderer.get_lighter_font_weight" class="doc doc-heading">
+<h4 id="momapy.rendering.cairo.CairoRenderer.get_lighter_font_weight" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">get_lighter_font_weight</span>
 
 
@@ -2926,7 +2784,7 @@ selects the backend's :attr:<code>default_format</code> ("pdf").</p>
 <div class="doc doc-object doc-function">
 
 
-<h4 id="momapy.rendering.skia.SkiaRenderer.new_page" class="doc doc-heading">
+<h4 id="momapy.rendering.cairo.CairoRenderer.new_page" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">new_page</span>
 
 
@@ -2988,40 +2846,43 @@ selects the backend's :attr:<code>default_format</code> ("pdf").</p>
 
 <details class="note" open>
   <summary>Note</summary>
-  <p>Only PDF format supports multiple pages. Other formats will ignore this call.</p>
+  <p>Only PDF and PostScript formats support multiple pages.
+Other formats will ignore this call.</p>
 </details>
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/momapy/rendering/skia.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-246">246</a></span>
-<span class="normal"><a href="#__codelineno-0-247">247</a></span>
-<span class="normal"><a href="#__codelineno-0-248">248</a></span>
-<span class="normal"><a href="#__codelineno-0-249">249</a></span>
-<span class="normal"><a href="#__codelineno-0-250">250</a></span>
-<span class="normal"><a href="#__codelineno-0-251">251</a></span>
-<span class="normal"><a href="#__codelineno-0-252">252</a></span>
-<span class="normal"><a href="#__codelineno-0-253">253</a></span>
-<span class="normal"><a href="#__codelineno-0-254">254</a></span>
-<span class="normal"><a href="#__codelineno-0-255">255</a></span>
-<span class="normal"><a href="#__codelineno-0-256">256</a></span>
-<span class="normal"><a href="#__codelineno-0-257">257</a></span>
-<span class="normal"><a href="#__codelineno-0-258">258</a></span>
-<span class="normal"><a href="#__codelineno-0-259">259</a></span>
-<span class="normal"><a href="#__codelineno-0-260">260</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-246"><a id="__codelineno-0-246" name="__codelineno-0-246"></a><span class="k">def</span><span class="w"> </span><span class="nf">new_page</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-247"><a id="__codelineno-0-247" name="__codelineno-0-247"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a new page in the output document.</span>
-</span><span id="__span-0-248"><a id="__codelineno-0-248" name="__codelineno-0-248"></a>
-</span><span id="__span-0-249"><a id="__codelineno-0-249" name="__codelineno-0-249"></a><span class="sd">    Args:</span>
-</span><span id="__span-0-250"><a id="__codelineno-0-250" name="__codelineno-0-250"></a><span class="sd">        width: The width of the new page</span>
-</span><span id="__span-0-251"><a id="__codelineno-0-251" name="__codelineno-0-251"></a><span class="sd">        height: The height of the new page</span>
-</span><span id="__span-0-252"><a id="__codelineno-0-252" name="__codelineno-0-252"></a>
-</span><span id="__span-0-253"><a id="__codelineno-0-253" name="__codelineno-0-253"></a><span class="sd">    Note:</span>
-</span><span id="__span-0-254"><a id="__codelineno-0-254" name="__codelineno-0-254"></a><span class="sd">        Only PDF format supports multiple pages. Other formats will ignore this call.</span>
-</span><span id="__span-0-255"><a id="__codelineno-0-255" name="__codelineno-0-255"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-256"><a id="__codelineno-0-256" name="__codelineno-0-256"></a>    <span class="n">format_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;format&quot;</span><span class="p">)</span>
-</span><span id="__span-0-257"><a id="__codelineno-0-257" name="__codelineno-0-257"></a>    <span class="k">if</span> <span class="n">format_</span> <span class="o">==</span> <span class="s2">&quot;pdf&quot;</span><span class="p">:</span>
-</span><span id="__span-0-258"><a id="__codelineno-0-258" name="__codelineno-0-258"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;document&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">endPage</span><span class="p">()</span>
-</span><span id="__span-0-259"><a id="__codelineno-0-259" name="__codelineno-0-259"></a>        <span class="n">canvas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;document&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">beginPage</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
-</span><span id="__span-0-260"><a id="__codelineno-0-260" name="__codelineno-0-260"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span> <span class="o">=</span> <span class="n">canvas</span>
+              <summary>Source code in <code>src/momapy/rendering/cairo.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-207">207</a></span>
+<span class="normal"><a href="#__codelineno-0-208">208</a></span>
+<span class="normal"><a href="#__codelineno-0-209">209</a></span>
+<span class="normal"><a href="#__codelineno-0-210">210</a></span>
+<span class="normal"><a href="#__codelineno-0-211">211</a></span>
+<span class="normal"><a href="#__codelineno-0-212">212</a></span>
+<span class="normal"><a href="#__codelineno-0-213">213</a></span>
+<span class="normal"><a href="#__codelineno-0-214">214</a></span>
+<span class="normal"><a href="#__codelineno-0-215">215</a></span>
+<span class="normal"><a href="#__codelineno-0-216">216</a></span>
+<span class="normal"><a href="#__codelineno-0-217">217</a></span>
+<span class="normal"><a href="#__codelineno-0-218">218</a></span>
+<span class="normal"><a href="#__codelineno-0-219">219</a></span>
+<span class="normal"><a href="#__codelineno-0-220">220</a></span>
+<span class="normal"><a href="#__codelineno-0-221">221</a></span>
+<span class="normal"><a href="#__codelineno-0-222">222</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-207"><a id="__codelineno-0-207" name="__codelineno-0-207"></a><span class="k">def</span><span class="w"> </span><span class="nf">new_page</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-208"><a id="__codelineno-0-208" name="__codelineno-0-208"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a new page in the output document.</span>
+</span><span id="__span-0-209"><a id="__codelineno-0-209" name="__codelineno-0-209"></a>
+</span><span id="__span-0-210"><a id="__codelineno-0-210" name="__codelineno-0-210"></a><span class="sd">    Args:</span>
+</span><span id="__span-0-211"><a id="__codelineno-0-211" name="__codelineno-0-211"></a><span class="sd">        width: The width of the new page</span>
+</span><span id="__span-0-212"><a id="__codelineno-0-212" name="__codelineno-0-212"></a><span class="sd">        height: The height of the new page</span>
+</span><span id="__span-0-213"><a id="__codelineno-0-213" name="__codelineno-0-213"></a>
+</span><span id="__span-0-214"><a id="__codelineno-0-214" name="__codelineno-0-214"></a><span class="sd">    Note:</span>
+</span><span id="__span-0-215"><a id="__codelineno-0-215" name="__codelineno-0-215"></a><span class="sd">        Only PDF and PostScript formats support multiple pages.</span>
+</span><span id="__span-0-216"><a id="__codelineno-0-216" name="__codelineno-0-216"></a><span class="sd">        Other formats will ignore this call.</span>
+</span><span id="__span-0-217"><a id="__codelineno-0-217" name="__codelineno-0-217"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-218"><a id="__codelineno-0-218" name="__codelineno-0-218"></a>    <span class="n">format_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;format&quot;</span><span class="p">)</span>
+</span><span id="__span-0-219"><a id="__codelineno-0-219" name="__codelineno-0-219"></a>    <span class="k">if</span> <span class="n">format_</span> <span class="o">==</span> <span class="s2">&quot;pdf&quot;</span> <span class="ow">or</span> <span class="n">format_</span> <span class="o">==</span> <span class="s2">&quot;ps&quot;</span><span class="p">:</span>
+</span><span id="__span-0-220"><a id="__codelineno-0-220" name="__codelineno-0-220"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">show_page</span><span class="p">()</span>
+</span><span id="__span-0-221"><a id="__codelineno-0-221" name="__codelineno-0-221"></a>        <span class="n">surface</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get_target</span><span class="p">()</span>
+</span><span id="__span-0-222"><a id="__codelineno-0-222" name="__codelineno-0-222"></a>        <span class="n">surface</span><span class="o">.</span><span class="n">set_size</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3036,7 +2897,7 @@ selects the backend's :attr:<code>default_format</code> ("pdf").</p>
 <div class="doc doc-object doc-function">
 
 
-<h4 id="momapy.rendering.skia.SkiaRenderer.render_drawing_element" class="doc doc-heading">
+<h4 id="momapy.rendering.cairo.CairoRenderer.render_drawing_element" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">render_drawing_element</span>
 
 
@@ -3088,91 +2949,47 @@ selects the backend's :attr:<code>default_format</code> ("pdf").</p>
           </tr>
       </tbody>
     </table>
-        <p>This method handles filters, transformations, and delegates to
+        <p>This method handles transformations and delegates to
 the appropriate rendering method based on the drawing element type.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/momapy/rendering/skia.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-272">272</a></span>
-<span class="normal"><a href="#__codelineno-0-273">273</a></span>
-<span class="normal"><a href="#__codelineno-0-274">274</a></span>
-<span class="normal"><a href="#__codelineno-0-275">275</a></span>
-<span class="normal"><a href="#__codelineno-0-276">276</a></span>
-<span class="normal"><a href="#__codelineno-0-277">277</a></span>
-<span class="normal"><a href="#__codelineno-0-278">278</a></span>
-<span class="normal"><a href="#__codelineno-0-279">279</a></span>
-<span class="normal"><a href="#__codelineno-0-280">280</a></span>
-<span class="normal"><a href="#__codelineno-0-281">281</a></span>
-<span class="normal"><a href="#__codelineno-0-282">282</a></span>
-<span class="normal"><a href="#__codelineno-0-283">283</a></span>
-<span class="normal"><a href="#__codelineno-0-284">284</a></span>
-<span class="normal"><a href="#__codelineno-0-285">285</a></span>
-<span class="normal"><a href="#__codelineno-0-286">286</a></span>
-<span class="normal"><a href="#__codelineno-0-287">287</a></span>
-<span class="normal"><a href="#__codelineno-0-288">288</a></span>
-<span class="normal"><a href="#__codelineno-0-289">289</a></span>
-<span class="normal"><a href="#__codelineno-0-290">290</a></span>
-<span class="normal"><a href="#__codelineno-0-291">291</a></span>
-<span class="normal"><a href="#__codelineno-0-292">292</a></span>
-<span class="normal"><a href="#__codelineno-0-293">293</a></span>
-<span class="normal"><a href="#__codelineno-0-294">294</a></span>
-<span class="normal"><a href="#__codelineno-0-295">295</a></span>
-<span class="normal"><a href="#__codelineno-0-296">296</a></span>
-<span class="normal"><a href="#__codelineno-0-297">297</a></span>
-<span class="normal"><a href="#__codelineno-0-298">298</a></span>
-<span class="normal"><a href="#__codelineno-0-299">299</a></span>
-<span class="normal"><a href="#__codelineno-0-300">300</a></span>
-<span class="normal"><a href="#__codelineno-0-301">301</a></span>
-<span class="normal"><a href="#__codelineno-0-302">302</a></span>
-<span class="normal"><a href="#__codelineno-0-303">303</a></span>
-<span class="normal"><a href="#__codelineno-0-304">304</a></span>
-<span class="normal"><a href="#__codelineno-0-305">305</a></span>
-<span class="normal"><a href="#__codelineno-0-306">306</a></span>
-<span class="normal"><a href="#__codelineno-0-307">307</a></span>
-<span class="normal"><a href="#__codelineno-0-308">308</a></span>
-<span class="normal"><a href="#__codelineno-0-309">309</a></span>
-<span class="normal"><a href="#__codelineno-0-310">310</a></span>
-<span class="normal"><a href="#__codelineno-0-311">311</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-272"><a id="__codelineno-0-272" name="__codelineno-0-272"></a><span class="k">def</span><span class="w"> </span><span class="nf">render_drawing_element</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">drawing_element</span><span class="p">:</span> <span class="n">DrawingElement</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-273"><a id="__codelineno-0-273" name="__codelineno-0-273"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Render a drawing element to the output.</span>
-</span><span id="__span-0-274"><a id="__codelineno-0-274" name="__codelineno-0-274"></a>
-</span><span id="__span-0-275"><a id="__codelineno-0-275" name="__codelineno-0-275"></a><span class="sd">    Args:</span>
-</span><span id="__span-0-276"><a id="__codelineno-0-276" name="__codelineno-0-276"></a><span class="sd">        drawing_element: The drawing element to render</span>
-</span><span id="__span-0-277"><a id="__codelineno-0-277" name="__codelineno-0-277"></a>
-</span><span id="__span-0-278"><a id="__codelineno-0-278" name="__codelineno-0-278"></a><span class="sd">    This method handles filters, transformations, and delegates to</span>
-</span><span id="__span-0-279"><a id="__codelineno-0-279" name="__codelineno-0-279"></a><span class="sd">    the appropriate rendering method based on the drawing element type.</span>
-</span><span id="__span-0-280"><a id="__codelineno-0-280" name="__codelineno-0-280"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-281"><a id="__codelineno-0-281" name="__codelineno-0-281"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-</span><span id="__span-0-282"><a id="__codelineno-0-282" name="__codelineno-0-282"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">set_current_state_from_drawing_element</span><span class="p">(</span><span class="n">drawing_element</span><span class="p">)</span>
-</span><span id="__span-0-283"><a id="__codelineno-0-283" name="__codelineno-0-283"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_add_transform_from_drawing_element</span><span class="p">(</span><span class="n">drawing_element</span><span class="p">)</span>
-</span><span id="__span-0-284"><a id="__codelineno-0-284" name="__codelineno-0-284"></a>    <span class="n">class_</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">drawing_element</span><span class="p">)</span>
-</span><span id="__span-0-285"><a id="__codelineno-0-285" name="__codelineno-0-285"></a>    <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">class_</span><span class="p">,</span> <span class="n">Builder</span><span class="p">):</span>
-</span><span id="__span-0-286"><a id="__codelineno-0-286" name="__codelineno-0-286"></a>        <span class="n">class_</span> <span class="o">=</span> <span class="n">class_</span><span class="o">.</span><span class="n">_cls_to_build</span>
-</span><span id="__span-0-287"><a id="__codelineno-0-287" name="__codelineno-0-287"></a>    <span class="n">de_func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_de_class_func_mapping</span><span class="p">[</span><span class="n">class_</span><span class="p">])</span>
-</span><span id="__span-0-288"><a id="__codelineno-0-288" name="__codelineno-0-288"></a>    <span class="n">filter_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_current_value</span><span class="p">(</span><span class="s2">&quot;filter_&quot;</span><span class="p">)</span>
-</span><span id="__span-0-289"><a id="__codelineno-0-289" name="__codelineno-0-289"></a>    <span class="k">if</span> <span class="n">filter_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">NoneValue</span><span class="p">:</span>
-</span><span id="__span-0-290"><a id="__codelineno-0-290" name="__codelineno-0-290"></a>        <span class="n">bbox</span> <span class="o">=</span> <span class="n">drawing_element</span><span class="o">.</span><span class="n">bbox</span><span class="p">()</span>
-</span><span id="__span-0-291"><a id="__codelineno-0-291" name="__codelineno-0-291"></a>        <span class="n">saved_canvas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span>
-</span><span id="__span-0-292"><a id="__codelineno-0-292" name="__codelineno-0-292"></a>        <span class="n">recorder</span> <span class="o">=</span> <span class="n">skia</span><span class="o">.</span><span class="n">PictureRecorder</span><span class="p">()</span>
-</span><span id="__span-0-293"><a id="__codelineno-0-293" name="__codelineno-0-293"></a>        <span class="n">canvas</span> <span class="o">=</span> <span class="n">recorder</span><span class="o">.</span><span class="n">beginRecording</span><span class="p">(</span>
-</span><span id="__span-0-294"><a id="__codelineno-0-294" name="__codelineno-0-294"></a>            <span class="n">skia</span><span class="o">.</span><span class="n">Rect</span><span class="o">.</span><span class="n">MakeXYWH</span><span class="p">(</span>
-</span><span id="__span-0-295"><a id="__codelineno-0-295" name="__codelineno-0-295"></a>                <span class="n">bbox</span><span class="o">.</span><span class="n">north_west</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
-</span><span id="__span-0-296"><a id="__codelineno-0-296" name="__codelineno-0-296"></a>                <span class="n">bbox</span><span class="o">.</span><span class="n">north_west</span><span class="p">()</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
-</span><span id="__span-0-297"><a id="__codelineno-0-297" name="__codelineno-0-297"></a>                <span class="n">bbox</span><span class="o">.</span><span class="n">width</span><span class="p">,</span>
-</span><span id="__span-0-298"><a id="__codelineno-0-298" name="__codelineno-0-298"></a>                <span class="n">bbox</span><span class="o">.</span><span class="n">height</span><span class="p">,</span>
-</span><span id="__span-0-299"><a id="__codelineno-0-299" name="__codelineno-0-299"></a>            <span class="p">)</span>
-</span><span id="__span-0-300"><a id="__codelineno-0-300" name="__codelineno-0-300"></a>        <span class="p">)</span>
-</span><span id="__span-0-301"><a id="__codelineno-0-301" name="__codelineno-0-301"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span> <span class="o">=</span> <span class="n">canvas</span>
-</span><span id="__span-0-302"><a id="__codelineno-0-302" name="__codelineno-0-302"></a>        <span class="n">de_func</span><span class="p">(</span><span class="n">drawing_element</span><span class="p">)</span>
-</span><span id="__span-0-303"><a id="__codelineno-0-303" name="__codelineno-0-303"></a>        <span class="n">picture</span> <span class="o">=</span> <span class="n">recorder</span><span class="o">.</span><span class="n">finishRecordingAsPicture</span><span class="p">()</span>
-</span><span id="__span-0-304"><a id="__codelineno-0-304" name="__codelineno-0-304"></a>        <span class="n">skia_paint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_filter_paint</span><span class="p">(</span>
-</span><span id="__span-0-305"><a id="__codelineno-0-305" name="__codelineno-0-305"></a>            <span class="n">filter_</span><span class="p">,</span> <span class="n">drawing_element</span><span class="o">.</span><span class="n">get_filter_region</span><span class="p">()</span>
-</span><span id="__span-0-306"><a id="__codelineno-0-306" name="__codelineno-0-306"></a>        <span class="p">)</span>
-</span><span id="__span-0-307"><a id="__codelineno-0-307" name="__codelineno-0-307"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span> <span class="o">=</span> <span class="n">saved_canvas</span>
-</span><span id="__span-0-308"><a id="__codelineno-0-308" name="__codelineno-0-308"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">drawPicture</span><span class="p">(</span><span class="n">picture</span><span class="p">,</span> <span class="n">paint</span><span class="o">=</span><span class="n">skia_paint</span><span class="p">)</span>
-</span><span id="__span-0-309"><a id="__codelineno-0-309" name="__codelineno-0-309"></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="__span-0-310"><a id="__codelineno-0-310" name="__codelineno-0-310"></a>        <span class="n">de_func</span><span class="p">(</span><span class="n">drawing_element</span><span class="p">)</span>
-</span><span id="__span-0-311"><a id="__codelineno-0-311" name="__codelineno-0-311"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">restore</span><span class="p">()</span>
+              <summary>Source code in <code>src/momapy/rendering/cairo.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-234">234</a></span>
+<span class="normal"><a href="#__codelineno-0-235">235</a></span>
+<span class="normal"><a href="#__codelineno-0-236">236</a></span>
+<span class="normal"><a href="#__codelineno-0-237">237</a></span>
+<span class="normal"><a href="#__codelineno-0-238">238</a></span>
+<span class="normal"><a href="#__codelineno-0-239">239</a></span>
+<span class="normal"><a href="#__codelineno-0-240">240</a></span>
+<span class="normal"><a href="#__codelineno-0-241">241</a></span>
+<span class="normal"><a href="#__codelineno-0-242">242</a></span>
+<span class="normal"><a href="#__codelineno-0-243">243</a></span>
+<span class="normal"><a href="#__codelineno-0-244">244</a></span>
+<span class="normal"><a href="#__codelineno-0-245">245</a></span>
+<span class="normal"><a href="#__codelineno-0-246">246</a></span>
+<span class="normal"><a href="#__codelineno-0-247">247</a></span>
+<span class="normal"><a href="#__codelineno-0-248">248</a></span>
+<span class="normal"><a href="#__codelineno-0-249">249</a></span>
+<span class="normal"><a href="#__codelineno-0-250">250</a></span>
+<span class="normal"><a href="#__codelineno-0-251">251</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-234"><a id="__codelineno-0-234" name="__codelineno-0-234"></a><span class="k">def</span><span class="w"> </span><span class="nf">render_drawing_element</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">drawing_element</span><span class="p">:</span> <span class="n">DrawingElement</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-235"><a id="__codelineno-0-235" name="__codelineno-0-235"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Render a drawing element to the output.</span>
+</span><span id="__span-0-236"><a id="__codelineno-0-236" name="__codelineno-0-236"></a>
+</span><span id="__span-0-237"><a id="__codelineno-0-237" name="__codelineno-0-237"></a><span class="sd">    Args:</span>
+</span><span id="__span-0-238"><a id="__codelineno-0-238" name="__codelineno-0-238"></a><span class="sd">        drawing_element: The drawing element to render</span>
+</span><span id="__span-0-239"><a id="__codelineno-0-239" name="__codelineno-0-239"></a>
+</span><span id="__span-0-240"><a id="__codelineno-0-240" name="__codelineno-0-240"></a><span class="sd">    This method handles transformations and delegates to</span>
+</span><span id="__span-0-241"><a id="__codelineno-0-241" name="__codelineno-0-241"></a><span class="sd">    the appropriate rendering method based on the drawing element type.</span>
+</span><span id="__span-0-242"><a id="__codelineno-0-242" name="__codelineno-0-242"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-243"><a id="__codelineno-0-243" name="__codelineno-0-243"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</span><span id="__span-0-244"><a id="__codelineno-0-244" name="__codelineno-0-244"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">set_current_state_from_drawing_element</span><span class="p">(</span><span class="n">drawing_element</span><span class="p">)</span>
+</span><span id="__span-0-245"><a id="__codelineno-0-245" name="__codelineno-0-245"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_add_transform_from_drawing_element</span><span class="p">(</span><span class="n">drawing_element</span><span class="p">)</span>
+</span><span id="__span-0-246"><a id="__codelineno-0-246" name="__codelineno-0-246"></a>    <span class="n">class_</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">drawing_element</span><span class="p">)</span>
+</span><span id="__span-0-247"><a id="__codelineno-0-247" name="__codelineno-0-247"></a>    <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">class_</span><span class="p">,</span> <span class="n">Builder</span><span class="p">):</span>
+</span><span id="__span-0-248"><a id="__codelineno-0-248" name="__codelineno-0-248"></a>        <span class="n">class_</span> <span class="o">=</span> <span class="n">class_</span><span class="o">.</span><span class="n">_cls_to_build</span>
+</span><span id="__span-0-249"><a id="__codelineno-0-249" name="__codelineno-0-249"></a>    <span class="n">de_func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_de_class_func_mapping</span><span class="p">[</span><span class="n">class_</span><span class="p">])</span>
+</span><span id="__span-0-250"><a id="__codelineno-0-250" name="__codelineno-0-250"></a>    <span class="n">de_func</span><span class="p">(</span><span class="n">drawing_element</span><span class="p">)</span>
+</span><span id="__span-0-251"><a id="__codelineno-0-251" name="__codelineno-0-251"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">restore</span><span class="p">()</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3187,7 +3004,7 @@ the appropriate rendering method based on the drawing element type.</p>
 <div class="doc doc-object doc-function">
 
 
-<h4 id="momapy.rendering.skia.SkiaRenderer.render_layout_element" class="doc doc-heading">
+<h4 id="momapy.rendering.cairo.CairoRenderer.render_layout_element" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">render_layout_element</span>
 
 
@@ -3242,24 +3059,24 @@ the appropriate rendering method based on the drawing element type.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/momapy/rendering/skia.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-262">262</a></span>
-<span class="normal"><a href="#__codelineno-0-263">263</a></span>
-<span class="normal"><a href="#__codelineno-0-264">264</a></span>
-<span class="normal"><a href="#__codelineno-0-265">265</a></span>
-<span class="normal"><a href="#__codelineno-0-266">266</a></span>
-<span class="normal"><a href="#__codelineno-0-267">267</a></span>
-<span class="normal"><a href="#__codelineno-0-268">268</a></span>
-<span class="normal"><a href="#__codelineno-0-269">269</a></span>
-<span class="normal"><a href="#__codelineno-0-270">270</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-262"><a id="__codelineno-0-262" name="__codelineno-0-262"></a><span class="k">def</span><span class="w"> </span><span class="nf">render_layout_element</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout_element</span><span class="p">:</span> <span class="n">LayoutElement</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-263"><a id="__codelineno-0-263" name="__codelineno-0-263"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Render a layout element to the output.</span>
-</span><span id="__span-0-264"><a id="__codelineno-0-264" name="__codelineno-0-264"></a>
-</span><span id="__span-0-265"><a id="__codelineno-0-265" name="__codelineno-0-265"></a><span class="sd">    Args:</span>
-</span><span id="__span-0-266"><a id="__codelineno-0-266" name="__codelineno-0-266"></a><span class="sd">        layout_element: The layout element to render</span>
-</span><span id="__span-0-267"><a id="__codelineno-0-267" name="__codelineno-0-267"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-268"><a id="__codelineno-0-268" name="__codelineno-0-268"></a>    <span class="n">drawing_elements</span> <span class="o">=</span> <span class="n">layout_element</span><span class="o">.</span><span class="n">drawing_elements</span><span class="p">()</span>
-</span><span id="__span-0-269"><a id="__codelineno-0-269" name="__codelineno-0-269"></a>    <span class="k">for</span> <span class="n">drawing_element</span> <span class="ow">in</span> <span class="n">drawing_elements</span><span class="p">:</span>
-</span><span id="__span-0-270"><a id="__codelineno-0-270" name="__codelineno-0-270"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">render_drawing_element</span><span class="p">(</span><span class="n">drawing_element</span><span class="p">)</span>
+              <summary>Source code in <code>src/momapy/rendering/cairo.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-224">224</a></span>
+<span class="normal"><a href="#__codelineno-0-225">225</a></span>
+<span class="normal"><a href="#__codelineno-0-226">226</a></span>
+<span class="normal"><a href="#__codelineno-0-227">227</a></span>
+<span class="normal"><a href="#__codelineno-0-228">228</a></span>
+<span class="normal"><a href="#__codelineno-0-229">229</a></span>
+<span class="normal"><a href="#__codelineno-0-230">230</a></span>
+<span class="normal"><a href="#__codelineno-0-231">231</a></span>
+<span class="normal"><a href="#__codelineno-0-232">232</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-224"><a id="__codelineno-0-224" name="__codelineno-0-224"></a><span class="k">def</span><span class="w"> </span><span class="nf">render_layout_element</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout_element</span><span class="p">:</span> <span class="n">LayoutElement</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-225"><a id="__codelineno-0-225" name="__codelineno-0-225"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Render a layout element to the output.</span>
+</span><span id="__span-0-226"><a id="__codelineno-0-226" name="__codelineno-0-226"></a>
+</span><span id="__span-0-227"><a id="__codelineno-0-227" name="__codelineno-0-227"></a><span class="sd">    Args:</span>
+</span><span id="__span-0-228"><a id="__codelineno-0-228" name="__codelineno-0-228"></a><span class="sd">        layout_element: The layout element to render</span>
+</span><span id="__span-0-229"><a id="__codelineno-0-229" name="__codelineno-0-229"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-230"><a id="__codelineno-0-230" name="__codelineno-0-230"></a>    <span class="n">drawing_elements</span> <span class="o">=</span> <span class="n">layout_element</span><span class="o">.</span><span class="n">drawing_elements</span><span class="p">()</span>
+</span><span id="__span-0-231"><a id="__codelineno-0-231" name="__codelineno-0-231"></a>    <span class="k">for</span> <span class="n">drawing_element</span> <span class="ow">in</span> <span class="n">drawing_elements</span><span class="p">:</span>
+</span><span id="__span-0-232"><a id="__codelineno-0-232" name="__codelineno-0-232"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">render_drawing_element</span><span class="p">(</span><span class="n">drawing_element</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3274,7 +3091,7 @@ the appropriate rendering method based on the drawing element type.</p>
 <div class="doc doc-object doc-function">
 
 
-<h4 id="momapy.rendering.skia.SkiaRenderer.render_map" class="doc doc-heading">
+<h4 id="momapy.rendering.cairo.CairoRenderer.render_map" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">render_map</span>
 
 
@@ -3419,7 +3236,7 @@ method; it renders each page through :meth:<code>render_layout_element</code>.</
 <div class="doc doc-object doc-function">
 
 
-<h4 id="momapy.rendering.skia.SkiaRenderer.restore" class="doc doc-heading">
+<h4 id="momapy.rendering.cairo.CairoRenderer.restore" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">restore</span>
 
 
@@ -3469,7 +3286,7 @@ method; it renders each page through :meth:<code>render_layout_element</code>.</
 <div class="doc doc-object doc-function">
 
 
-<h4 id="momapy.rendering.skia.SkiaRenderer.save" class="doc doc-heading">
+<h4 id="momapy.rendering.cairo.CairoRenderer.save" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">save</span>
 
 
@@ -3505,7 +3322,7 @@ method; it renders each page through :meth:<code>render_layout_element</code>.</
 <div class="doc doc-object doc-function">
 
 
-<h4 id="momapy.rendering.skia.SkiaRenderer.self_restore" class="doc doc-heading">
+<h4 id="momapy.rendering.cairo.CairoRenderer.self_restore" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">self_restore</span>
 
 
@@ -3515,26 +3332,28 @@ method; it renders each page through :meth:<code>render_layout_element</code>.</
 
     <div class="doc doc-contents ">
 
-        <p>Restore the Skia canvas state.</p>
-<p>This method restores the Skia canvas to the state saved by the
+        <p>Restore the Cairo context state.</p>
+<p>This method restores the Cairo context to the state saved by the
 most recent call to self_save().</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/momapy/rendering/skia.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-321">321</a></span>
-<span class="normal"><a href="#__codelineno-0-322">322</a></span>
-<span class="normal"><a href="#__codelineno-0-323">323</a></span>
-<span class="normal"><a href="#__codelineno-0-324">324</a></span>
-<span class="normal"><a href="#__codelineno-0-325">325</a></span>
-<span class="normal"><a href="#__codelineno-0-326">326</a></span>
-<span class="normal"><a href="#__codelineno-0-327">327</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-321"><a id="__codelineno-0-321" name="__codelineno-0-321"></a><span class="k">def</span><span class="w"> </span><span class="nf">self_restore</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-322"><a id="__codelineno-0-322" name="__codelineno-0-322"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Restore the Skia canvas state.</span>
-</span><span id="__span-0-323"><a id="__codelineno-0-323" name="__codelineno-0-323"></a>
-</span><span id="__span-0-324"><a id="__codelineno-0-324" name="__codelineno-0-324"></a><span class="sd">    This method restores the Skia canvas to the state saved by the</span>
-</span><span id="__span-0-325"><a id="__codelineno-0-325" name="__codelineno-0-325"></a><span class="sd">    most recent call to self_save().</span>
-</span><span id="__span-0-326"><a id="__codelineno-0-326" name="__codelineno-0-326"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-327"><a id="__codelineno-0-327" name="__codelineno-0-327"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">restore</span><span class="p">()</span>
+              <summary>Source code in <code>src/momapy/rendering/cairo.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-261">261</a></span>
+<span class="normal"><a href="#__codelineno-0-262">262</a></span>
+<span class="normal"><a href="#__codelineno-0-263">263</a></span>
+<span class="normal"><a href="#__codelineno-0-264">264</a></span>
+<span class="normal"><a href="#__codelineno-0-265">265</a></span>
+<span class="normal"><a href="#__codelineno-0-266">266</a></span>
+<span class="normal"><a href="#__codelineno-0-267">267</a></span>
+<span class="normal"><a href="#__codelineno-0-268">268</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-261"><a id="__codelineno-0-261" name="__codelineno-0-261"></a><span class="k">def</span><span class="w"> </span><span class="nf">self_restore</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-262"><a id="__codelineno-0-262" name="__codelineno-0-262"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Restore the Cairo context state.</span>
+</span><span id="__span-0-263"><a id="__codelineno-0-263" name="__codelineno-0-263"></a>
+</span><span id="__span-0-264"><a id="__codelineno-0-264" name="__codelineno-0-264"></a><span class="sd">    This method restores the Cairo context to the state saved by the</span>
+</span><span id="__span-0-265"><a id="__codelineno-0-265" name="__codelineno-0-265"></a><span class="sd">    most recent call to self_save().</span>
+</span><span id="__span-0-266"><a id="__codelineno-0-266" name="__codelineno-0-266"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-267"><a id="__codelineno-0-267" name="__codelineno-0-267"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">restore</span><span class="p">()</span>
+</span><span id="__span-0-268"><a id="__codelineno-0-268" name="__codelineno-0-268"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">new_path</span><span class="p">()</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3549,7 +3368,7 @@ most recent call to self_save().</p>
 <div class="doc doc-object doc-function">
 
 
-<h4 id="momapy.rendering.skia.SkiaRenderer.self_save" class="doc doc-heading">
+<h4 id="momapy.rendering.cairo.CairoRenderer.self_save" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">self_save</span>
 
 
@@ -3559,26 +3378,26 @@ most recent call to self_save().</p>
 
     <div class="doc doc-contents ">
 
-        <p>Save the Skia canvas state.</p>
-<p>This method saves the current state of the Skia canvas, including
-transformations and clipping regions.</p>
+        <p>Save the Cairo context state.</p>
+<p>This method saves the current state of the Cairo context, including
+transformations, clipping regions, and drawing parameters.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/momapy/rendering/skia.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-313">313</a></span>
-<span class="normal"><a href="#__codelineno-0-314">314</a></span>
-<span class="normal"><a href="#__codelineno-0-315">315</a></span>
-<span class="normal"><a href="#__codelineno-0-316">316</a></span>
-<span class="normal"><a href="#__codelineno-0-317">317</a></span>
-<span class="normal"><a href="#__codelineno-0-318">318</a></span>
-<span class="normal"><a href="#__codelineno-0-319">319</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-313"><a id="__codelineno-0-313" name="__codelineno-0-313"></a><span class="k">def</span><span class="w"> </span><span class="nf">self_save</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-314"><a id="__codelineno-0-314" name="__codelineno-0-314"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Save the Skia canvas state.</span>
-</span><span id="__span-0-315"><a id="__codelineno-0-315" name="__codelineno-0-315"></a>
-</span><span id="__span-0-316"><a id="__codelineno-0-316" name="__codelineno-0-316"></a><span class="sd">    This method saves the current state of the Skia canvas, including</span>
-</span><span id="__span-0-317"><a id="__codelineno-0-317" name="__codelineno-0-317"></a><span class="sd">    transformations and clipping regions.</span>
-</span><span id="__span-0-318"><a id="__codelineno-0-318" name="__codelineno-0-318"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-319"><a id="__codelineno-0-319" name="__codelineno-0-319"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+              <summary>Source code in <code>src/momapy/rendering/cairo.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-253">253</a></span>
+<span class="normal"><a href="#__codelineno-0-254">254</a></span>
+<span class="normal"><a href="#__codelineno-0-255">255</a></span>
+<span class="normal"><a href="#__codelineno-0-256">256</a></span>
+<span class="normal"><a href="#__codelineno-0-257">257</a></span>
+<span class="normal"><a href="#__codelineno-0-258">258</a></span>
+<span class="normal"><a href="#__codelineno-0-259">259</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-253"><a id="__codelineno-0-253" name="__codelineno-0-253"></a><span class="k">def</span><span class="w"> </span><span class="nf">self_save</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-254"><a id="__codelineno-0-254" name="__codelineno-0-254"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Save the Cairo context state.</span>
+</span><span id="__span-0-255"><a id="__codelineno-0-255" name="__codelineno-0-255"></a>
+</span><span id="__span-0-256"><a id="__codelineno-0-256" name="__codelineno-0-256"></a><span class="sd">    This method saves the current state of the Cairo context, including</span>
+</span><span id="__span-0-257"><a id="__codelineno-0-257" name="__codelineno-0-257"></a><span class="sd">    transformations, clipping regions, and drawing parameters.</span>
+</span><span id="__span-0-258"><a id="__codelineno-0-258" name="__codelineno-0-258"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-259"><a id="__codelineno-0-259" name="__codelineno-0-259"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3593,7 +3412,7 @@ transformations and clipping regions.</p>
 <div class="doc doc-object doc-function">
 
 
-<h4 id="momapy.rendering.skia.SkiaRenderer.set_current_state" class="doc doc-heading">
+<h4 id="momapy.rendering.cairo.CairoRenderer.set_current_state" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">set_current_state</span>
 
 
@@ -3629,7 +3448,7 @@ transformations and clipping regions.</p>
 <div class="doc doc-object doc-function">
 
 
-<h4 id="momapy.rendering.skia.SkiaRenderer.set_current_state_from_drawing_element" class="doc doc-heading">
+<h4 id="momapy.rendering.cairo.CairoRenderer.set_current_state_from_drawing_element" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">set_current_state_from_drawing_element</span>
 
 
@@ -3674,7 +3493,7 @@ transformations and clipping regions.</p>
 <div class="doc doc-object doc-function">
 
 
-<h4 id="momapy.rendering.skia.SkiaRenderer.set_current_value" class="doc doc-heading">
+<h4 id="momapy.rendering.cairo.CairoRenderer.set_current_value" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">set_current_value</span>
 
 
@@ -3750,6 +3569,82 @@ transformations and clipping regions.</p>
     </div>
 
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

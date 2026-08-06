@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../assets/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
       
       
 
@@ -1397,6 +1397,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../api_reference/rendering/cairo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cairo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../api_reference/rendering/svg_native/" class="md-nav__link">
         
   
@@ -2608,7 +2636,7 @@
 <p>The <code>momapy</code> command-line interface (CLI) allows you to work with molecular maps directly from the command line without writing Python code. It supports SBGN-ML and CellDesigner map formats.</p>
 <p>Available subcommands:</p>
 <ul>
-<li><strong><code>render</code></strong> — Render maps to image formats (SVG, PDF, PNG, JPEG, WebP)</li>
+<li><strong><code>render</code></strong> — Render maps to image formats (SVG, PDF, PNG, PS, JPEG, WebP)</li>
 <li><strong><code>export</code></strong> — Export maps back to their original format (useful for roundtrip testing)</li>
 <li><strong><code>info</code></strong> — Print a summary of a map file's contents</li>
 <li><strong><code>list</code></strong> — List available readers, writers, renderers, colors, styles, or stylable attributes</li>
@@ -2618,12 +2646,12 @@
 </ul>
 <h2 id="synopsis">Synopsis</h2>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>momapy<span class="w"> </span>render<span class="w"> </span>&lt;input_file_path&gt;...<span class="w"> </span>-o<span class="w"> </span>&lt;output_file_path&gt;<span class="w"> </span><span class="o">[</span>options<span class="o">]</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>momapy<span class="w"> </span><span class="nb">export</span><span class="w"> </span>&lt;input_file_path&gt;<span class="w"> </span>-o<span class="w"> </span>&lt;output_file_path&gt;<span class="w"> </span><span class="o">[</span>options<span class="o">]</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>momapy<span class="w"> </span>info<span class="w"> </span>&lt;input_file_path&gt;<span class="w"> </span><span class="o">[</span>options<span class="o">]</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>momapy<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="o">[</span>&lt;input_file_path&gt;<span class="o">]</span><span class="w"> </span><span class="o">[</span>-o<span class="w"> </span>&lt;output_file_path&gt;<span class="o">]</span><span class="w"> </span><span class="o">[</span>options<span class="o">]</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>momapy<span class="w"> </span>info<span class="w"> </span><span class="o">[</span>&lt;input_file_path&gt;<span class="o">]</span><span class="w"> </span><span class="o">[</span>options<span class="o">]</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>momapy<span class="w"> </span>list<span class="w"> </span><span class="o">{</span>readers,writers,renderers,colors,styles,attributes<span class="o">}</span>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>momapy<span class="w"> </span>tidy<span class="w"> </span>&lt;operation&gt;<span class="w"> </span><span class="o">[</span>&lt;input_file_path&gt;<span class="o">]</span><span class="w"> </span><span class="o">[</span>options<span class="o">]</span>
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>momapy<span class="w"> </span>style<span class="w"> </span><span class="o">[</span>&lt;input_file_path&gt;<span class="o">]</span><span class="w"> </span><span class="o">[</span>options<span class="o">]</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>momapy<span class="w"> </span>visualize<span class="w"> </span>&lt;input_file_path&gt;<span class="w"> </span><span class="o">[</span>options<span class="o">]</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>momapy<span class="w"> </span>visualize<span class="w"> </span><span class="o">[</span>&lt;input_file_path&gt;<span class="o">]</span><span class="w"> </span><span class="o">[</span>options<span class="o">]</span>
 </span></code></pre></div>
 <h2 id="subcommand-render">Subcommand: <code>render</code></h2>
 <p>Renders one or more molecular maps to an image file.</p>
@@ -2638,7 +2666,7 @@
 <tbody>
 <tr>
 <td><code>input_file_path</code></td>
-<td>One or more input file paths (SBGN-ML or CellDesigner format)</td>
+<td>One or more input file paths (SBGN-ML or CellDesigner format; reads from stdin if omitted)</td>
 </tr>
 </tbody>
 </table>
@@ -2660,12 +2688,12 @@
 <tr>
 <td><code>--renderer</code></td>
 <td><code>-r</code></td>
-<td>Renderer to use: <code>svg-native</code>, <code>skia</code>, <code>cairo</code> (auto-detected if omitted)</td>
+<td>Renderer to use: <code>svg-native</code>, <code>svg-native-compat</code>, <code>skia</code>, <code>cairo</code> (auto-detected if omitted)</td>
 </tr>
 <tr>
 <td><code>--format</code></td>
 <td><code>-f</code></td>
-<td>Output format: <code>svg</code>, <code>pdf</code>, <code>png</code>, <code>jpeg</code>, <code>webp</code> (inferred from extension if omitted)</td>
+<td>Output format: <code>svg</code>, <code>pdf</code>, <code>png</code>, <code>ps</code>, <code>jpeg</code>, <code>webp</code> (inferred from extension if omitted)</td>
 </tr>
 <tr>
 <td><code>--multi-pages</code></td>
@@ -2685,7 +2713,12 @@
 <tr>
 <td><code>--style-sheet-file-path</code></td>
 <td><code>-s</code></td>
-<td>Style sheet file path (can be repeated for multiple style sheets)</td>
+<td>Custom CSS style sheet file path (repeatable)</td>
+</tr>
+<tr>
+<td><code>--preset</code></td>
+<td><code>-p</code></td>
+<td>Built-in preset name (repeatable); see <code>momapy list styles</code></td>
 </tr>
 </tbody>
 </table>
@@ -2695,6 +2728,7 @@
 <tr>
 <th>Format</th>
 <th>svg-native</th>
+<th>svg-native-compat</th>
 <th>skia</th>
 <th>cairo</th>
 </tr>
@@ -2705,9 +2739,11 @@
 <td>✓</td>
 <td>✓</td>
 <td>✓</td>
+<td>✓</td>
 </tr>
 <tr>
 <td>PDF</td>
+<td>✗</td>
 <td>✗</td>
 <td>✓</td>
 <td>✓</td>
@@ -2715,11 +2751,20 @@
 <tr>
 <td>PNG</td>
 <td>✗</td>
+<td>✗</td>
 <td>✓</td>
 <td>✓</td>
 </tr>
 <tr>
+<td>PS</td>
+<td>✗</td>
+<td>✗</td>
+<td>✗</td>
+<td>✓</td>
+</tr>
+<tr>
 <td>JPEG</td>
+<td>✗</td>
 <td>✗</td>
 <td>✓</td>
 <td>✗</td>
@@ -2727,12 +2772,13 @@
 <tr>
 <td>WebP</td>
 <td>✗</td>
+<td>✗</td>
 <td>✓</td>
 <td>✗</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Note:</strong> The <code>svg-native</code> renderer is always available and has no external dependencies. The <code>skia</code> and <code>cairo</code> renderers require optional dependencies to be installed.</p>
+<p><strong>Note:</strong> The <code>svg-native</code> and <code>svg-native-compat</code> renderers are always available and have no external dependencies; <code>svg-native-compat</code> converts filters (e.g. drop shadows) into a form that renders in older SVG viewers. The <code>skia</code> and <code>cairo</code> renderers require optional dependencies to be installed.</p>
 <h2 id="examples">Examples</h2>
 <h3 id="basic-rendering">Basic rendering</h3>
 <p>Render an SBGN-ML file to SVG:</p>
@@ -2763,7 +2809,7 @@
 <p>The CLI is installed automatically when you install momapy:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>pip<span class="w"> </span>install<span class="w"> </span>momapy
 </span></code></pre></div>
-<p>To use PDF, PNG, JPEG, or WebP output formats, install the optional rendering dependencies:</p>
+<p>To use PDF, PNG, PS, JPEG, or WebP output formats, install the optional rendering dependencies:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>pip<span class="w"> </span>install<span class="w"> </span>momapy<span class="o">[</span>skia<span class="o">]</span><span class="w">  </span><span class="c1"># For skia renderer</span>
 </span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>pip<span class="w"> </span>install<span class="w"> </span>momapy<span class="o">[</span>cairo<span class="o">]</span><span class="w">  </span><span class="c1"># For cairo renderer</span>
 </span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>pip<span class="w"> </span>install<span class="w"> </span>momapy<span class="o">[</span>all<span class="o">]</span><span class="w">    </span><span class="c1"># For all renderers</span>
@@ -2781,7 +2827,7 @@
 <tbody>
 <tr>
 <td><code>input_file_path</code></td>
-<td>Input file path (SBGN-ML or CellDesigner format)</td>
+<td>Input file path (SBGN-ML or CellDesigner format; reads from stdin if omitted)</td>
 </tr>
 </tbody>
 </table>
@@ -2801,6 +2847,11 @@
 <td>Output file path (default: stdout)</td>
 </tr>
 <tr>
+<td><code>--text</code></td>
+<td><code>-T</code></td>
+<td>Write human-readable XML to stdout instead of a pickled <code>ReaderResult</code> (the default when piping); no effect with <code>-o</code></td>
+</tr>
+<tr>
 <td><code>--tidy</code></td>
 <td><code>-t</code></td>
 <td>Tidy the map (reroute arcs, fit labels, etc.)</td>
@@ -2813,12 +2864,17 @@
 <tr>
 <td><code>--style-sheet-file-path</code></td>
 <td><code>-s</code></td>
-<td>Style sheet file path (can be repeated for multiple style sheets)</td>
+<td>Custom CSS style sheet file path (repeatable)</td>
+</tr>
+<tr>
+<td><code>--preset</code></td>
+<td><code>-p</code></td>
+<td>Built-in preset name (repeatable); see <code>momapy list styles</code></td>
 </tr>
 </tbody>
 </table>
-<p>The writer is inferred automatically from the map type: SBGN maps are exported using the <code>sbgnml</code> writer, CellDesigner maps using the <code>celldesigner</code> writer.</p>
-<p>If no output file is specified, the result is written to standard output.</p>
+<p>The writer is inferred automatically from the map type: SBGN maps are exported using the <code>sbgnml</code> writer, CellDesigner maps using the <code>celldesigner</code> writer. SBML is read-only and cannot be exported.</p>
+<p>If no output file is specified, the result is written to standard output. When the output is a pipe, a pickled <code>ReaderResult</code> is written by default (so <code>momapy</code> commands can be chained); pass <code>-T</code> to emit XML text instead.</p>
 <h3 id="examples_1">Examples</h3>
 <h4 id="export-to-stdout">Export to stdout</h4>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>momapy<span class="w"> </span><span class="nb">export</span><span class="w"> </span>my_map.sbgn
@@ -2852,7 +2908,7 @@
 <tbody>
 <tr>
 <td><code>input_file_path</code></td>
-<td>Input file path (SBGN-ML or CellDesigner format)</td>
+<td>Input file path (SBGN-ML or CellDesigner format; reads from stdin if omitted)</td>
 </tr>
 </tbody>
 </table>
@@ -2884,7 +2940,7 @@
 </span></code></pre></div>
 <p>Output:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>File:      my_map.sbgn
-</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>Map type:  SBGN Process Description
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>Map type:  SBGN PD
 </span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
 </span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>Model:
 </span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>  compartments:             0
@@ -2905,7 +2961,7 @@
 </span></code></pre></div>
 <p>Output:</p>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="p">{</span>
-</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">  </span><span class="nt">&quot;map_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SBGN Process Description&quot;</span><span class="p">,</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">  </span><span class="nt">&quot;map_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SBGN PD&quot;</span><span class="p">,</span>
 </span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">  </span><span class="nt">&quot;model&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">    </span><span class="nt">&quot;compartments&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
 </span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="w">    </span><span class="nt">&quot;entity_pools&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">28</span><span class="p">,</span>
@@ -3009,11 +3065,11 @@
 </span><span id="__span-27-4"><a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>newt                     Newt style
 </span><span id="__span-27-5"><a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a>sbgned                   SBGN-ED style
 </span></code></pre></div>
-<p>Preset names can be passed to <code>momapy style -p</code> or <code>momapy render</code>/<code>momapy export</code> via <code>--preset</code>.</p>
+<p>Preset names can be passed to <code>momapy style -p</code> or to <code>momapy render</code>/<code>momapy export</code>/<code>momapy visualize</code> via <code>--preset</code>.</p>
 <h4 id="list-stylable-attributes-of-a-class">List stylable attributes of a class</h4>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>momapy<span class="w"> </span>list<span class="w"> </span>attributes<span class="w"> </span>momapy.sbgn.pd:MacromoleculeLayout
 </span></code></pre></div>
-<p>Lists every attribute that can be targeted in a stylesheet for the given class. Pass <code>-p</code> / <code>--presentation-only</code> to restrict the output to visual presentation attributes (fill, stroke, font, etc.).</p>
+<p>Lists every attribute that can be targeted in a stylesheet for the given class. Pass <code>-P</code> / <code>--presentation-only</code> to restrict the output to visual presentation attributes (fill, stroke, font, etc.).</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>momapy<span class="w"> </span>list<span class="w"> </span>attributes<span class="w"> </span>momapy.sbgn.pd:MacromoleculeLayout<span class="w"> </span>--presentation-only
 </span></code></pre></div>
 <h2 id="subcommand-tidy">Subcommand: <code>tidy</code></h2>
@@ -3088,6 +3144,11 @@
 <td><code>-o</code></td>
 <td>Output file path (default: stdout)</td>
 </tr>
+<tr>
+<td><code>--text</code></td>
+<td><code>-T</code></td>
+<td>Write human-readable XML to stdout instead of a pickled <code>ReaderResult</code> (the default when piping); no effect with <code>-o</code></td>
+</tr>
 </tbody>
 </table>
 <p>The <code>all</code>, <code>fit-species</code>, <code>fit-epns</code>, <code>fit-auxiliary</code>, <code>fit-complexes</code>, <code>fit-compartments</code>, <code>fit-submaps</code>, and <code>fit-layout</code> operations also accept:</p>
@@ -3106,6 +3167,21 @@
 <tr>
 <td><code>--ysep &lt;float&gt;</code></td>
 <td>Vertical padding (default: depends on operation and map type)</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>fit-species</code>, <code>fit-epns</code>, <code>fit-auxiliary</code>, <code>fit-complexes</code>, <code>fit-compartments</code>, and <code>fit-submaps</code> operations also accept:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--no-snap-arcs</code></td>
+<td>Do not snap arc endpoints to node borders after the operation (useful when chaining tidy operations; run <code>tidy snap-arcs</code> once at the end)</td>
 </tr>
 </tbody>
 </table>
@@ -3131,8 +3207,8 @@
 <h4 id="fit-entity-pool-nodes-to-their-labels">Fit entity pool nodes to their labels</h4>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>momapy<span class="w"> </span>tidy<span class="w"> </span>fit-epns<span class="w"> </span>my_map.sbgn<span class="w"> </span>-o<span class="w"> </span>tidy_map.sbgn
 </span></code></pre></div>
-<h4 id="snap-arc-endpoints-to-node-borders-with-custom-padding">Snap arc endpoints to node borders with custom padding</h4>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>momapy<span class="w"> </span>tidy<span class="w"> </span>snap-arcs<span class="w"> </span>my_map.sbgn<span class="w"> </span>-o<span class="w"> </span>tidy_map.sbgn<span class="w"> </span>--xsep<span class="w"> </span><span class="m">5</span>.0<span class="w"> </span>--ysep<span class="w"> </span><span class="m">5</span>.0
+<h4 id="snap-arc-endpoints-to-node-borders">Snap arc endpoints to node borders</h4>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>momapy<span class="w"> </span>tidy<span class="w"> </span>snap-arcs<span class="w"> </span>my_map.sbgn<span class="w"> </span>-o<span class="w"> </span>tidy_map.sbgn
 </span></code></pre></div>
 <h4 id="read-from-stdin-and-write-to-stdout-pipeline">Read from stdin and write to stdout (pipeline)</h4>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>cat<span class="w"> </span>my_map.sbgn<span class="w"> </span><span class="p">|</span><span class="w"> </span>momapy<span class="w"> </span>tidy<span class="w"> </span>all<span class="w"> </span>&gt;<span class="w"> </span>tidy_map.sbgn
@@ -3168,6 +3244,11 @@
 <td><code>--output-file-path</code></td>
 <td><code>-o</code></td>
 <td>Output file path (default: stdout)</td>
+</tr>
+<tr>
+<td><code>--text</code></td>
+<td><code>-T</code></td>
+<td>Write human-readable XML to stdout instead of a pickled <code>ReaderResult</code> (the default when piping); no effect with <code>-o</code></td>
 </tr>
 <tr>
 <td><code>--style-sheet-file-path</code></td>
@@ -3214,7 +3295,7 @@
 <tbody>
 <tr>
 <td><code>input_file_path</code></td>
-<td>Input file path (SBGN-ML or CellDesigner format)</td>
+<td>Input file path (SBGN-ML or CellDesigner format; reads from stdin if omitted)</td>
 </tr>
 </tbody>
 </table>
@@ -3241,7 +3322,12 @@
 <tr>
 <td><code>--style-sheet-file-path</code></td>
 <td><code>-s</code></td>
-<td>Style sheet file path (can be repeated for multiple style sheets)</td>
+<td>Custom CSS style sheet file path (repeatable)</td>
+</tr>
+<tr>
+<td><code>--preset</code></td>
+<td><code>-p</code></td>
+<td>Built-in preset name (repeatable); see <code>momapy list styles</code></td>
 </tr>
 </tbody>
 </table>
@@ -3315,7 +3401,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"alias": true, "default": "stable", "provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

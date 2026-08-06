@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../assets/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
       
       
 
@@ -1263,6 +1263,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../api_reference/rendering/cairo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cairo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../api_reference/rendering/svg_native/" class="md-nav__link">
         
   
@@ -2383,7 +2411,7 @@
 </span></code></pre></div>
 <h3 id="descendant-selector">Descendant Selector</h3>
 <p>Matches elements at any depth:</p>
-<div class="language-css highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nt">Group</span><span class="w"> </span><span class="nt">TextLayout</span><span class="w"> </span><span class="p">{</span>
+<div class="language-css highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nt">GroupLayout</span><span class="w"> </span><span class="nt">TextLayout</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="k">fill</span><span class="p">:</span><span class="w"> </span><span class="kc">white</span><span class="p">;</span>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="p">}</span>
 </span></code></pre></div>
@@ -2404,9 +2432,9 @@
 <div class="language-css highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nt">font-family</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;DejaVu Sans&quot;</span><span class="o">;</span>
 </span></code></pre></div>
 <h3 id="colors">Colors</h3>
-<p>Color names or hex values:</p>
+<p>Colors are given as names (any color defined in <code>momapy.coloring</code>). Hex values are not supported:</p>
 <div class="language-css highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nt">fill</span><span class="o">:</span><span class="w"> </span><span class="nt">royalblue</span><span class="o">;</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nt">stroke</span><span class="o">:</span><span class="w"> </span><span class="p">#</span><span class="nn">FF5733</span><span class="o">;</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nt">stroke</span><span class="o">:</span><span class="w"> </span><span class="nt">tomato</span><span class="o">;</span>
 </span></code></pre></div>
 <h3 id="special-values">Special Values</h3>
 <ul>
@@ -2454,14 +2482,9 @@
 <td><code>stroke-dasharray: 5, 5;</code></td>
 </tr>
 <tr>
-<td><code>opacity</code></td>
-<td>Opacity (0.0-1.0)</td>
-<td><code>opacity: 0.8;</code></td>
-</tr>
-<tr>
 <td><code>filter</code></td>
 <td>Visual effects</td>
-<td><code>filter: drop-shadow(2, 2, 3, 0.5, gray);</code></td>
+<td><code>filter: drop-shadow(2.0, 2.0, 3.0, 0.5, gray);</code></td>
 </tr>
 </tbody>
 </table>
@@ -2493,12 +2516,12 @@
 <tr>
 <td><code>font-style</code></td>
 <td>Font style</td>
-<td><code>font-style: italic;</code></td>
+<td><code>font-style: "italic";</code></td>
 </tr>
 <tr>
 <td><code>font-weight</code></td>
-<td>Font weight</td>
-<td><code>font-weight: bold;</code></td>
+<td>Font weight (numeric)</td>
+<td><code>font-weight: 700;</code></td>
 </tr>
 </tbody>
 </table>
@@ -2663,84 +2686,78 @@
 </span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="s2">}</span>
 </span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
 </span></code></pre></div>
-<p><strong>Note:</strong> Both <code>from_file()</code> and <code>from_string()</code> raise a <code>ParseException</code> if the CSS cannot be parsed. Selectors or property names that are valid CSS but not recognised by momapy are silently ignored rather than raising an error.</p>
-<p>Apply to a layout:</p>
+<p><strong>Note:</strong> Both <code>from_file()</code> and <code>from_string()</code> raise a <code>ParseException</code> if the CSS cannot be parsed. Selectors that do not match any element are silently ignored, but a property name that is not a field of a matched element raises <code>AttributeError</code> when the stylesheet is applied. Pass <code>strict=False</code> to <code>apply_style_sheet()</code> to skip such unknown properties instead.</p>
+<p>Bake the styles into the map. <code>apply_style_sheet</code> returns a new, styled copy
+(the map is frozen), so capture the return value:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">momapy.styling</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_style_sheet</span>
 </span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>
-</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="n">apply_style_sheet</span><span class="p">(</span><span class="n">map_</span><span class="o">.</span><span class="n">layout</span><span class="p">,</span> <span class="n">style_sheet</span><span class="p">)</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="n">styled_map</span> <span class="o">=</span> <span class="n">apply_style_sheet</span><span class="p">(</span><span class="n">map_</span><span class="p">,</span> <span class="n">style_sheet</span><span class="p">)</span>
 </span></code></pre></div>
-<p>Or apply during rendering:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">momapy.rendering.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">render_map</span>
+<p>Or apply during rendering, leaving the map unchanged:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">momapy.rendering</span><span class="w"> </span><span class="kn">import</span> <span class="n">render_map</span>
 </span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>
 </span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="n">render_map</span><span class="p">(</span><span class="n">map_</span><span class="p">,</span> <span class="s2">&quot;output.svg&quot;</span><span class="p">,</span> <span class="n">style_sheet</span><span class="o">=</span><span class="n">style_sheet</span><span class="p">)</span>
 </span></code></pre></div>
 <h2 id="complete-example">Complete Example</h2>
-<p>Here's a custom stylesheet for some layout elements of SBGN PD:</p>
-<div class="language-css highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="c">/* Import a base stylesheet */</span>
-</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="p">@</span><span class="k">import</span><span class="w"> </span><span class="s2">&quot;my_base_stylesheet.css&quot;</span><span class="p">;</span>
-</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>
-</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="c">/* Style state variables */</span>
-</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="nt">StateVariableLayout</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="w">    </span><span class="k">fill</span><span class="p">:</span><span class="w"> </span><span class="kc">royalblue</span><span class="p">;</span>
-</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="w">    </span><span class="k">stroke</span><span class="p">:</span><span class="w"> </span><span class="kc">white</span><span class="p">;</span>
-</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a><span class="w">    </span><span class="k">stroke-width</span><span class="p">:</span><span class="w"> </span><span class="mf">1.5</span><span class="p">;</span>
-</span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a><span class="p">}</span>
-</span><span id="__span-20-10"><a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a>
-</span><span id="__span-20-11"><a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a><span class="c">/* Style text inside state variables */</span>
-</span><span id="__span-20-12"><a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a><span class="nt">StateVariableLayout</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="nt">TextLayout</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-20-13"><a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a><span class="w">    </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mf">7.0</span><span class="p">;</span>
-</span><span id="__span-20-14"><a id="__codelineno-20-14" name="__codelineno-20-14" href="#__codelineno-20-14"></a><span class="w">    </span><span class="k">fill</span><span class="p">:</span><span class="w"> </span><span class="kc">white</span><span class="p">;</span>
-</span><span id="__span-20-15"><a id="__codelineno-20-15" name="__codelineno-20-15" href="#__codelineno-20-15"></a><span class="p">}</span>
-</span><span id="__span-20-16"><a id="__codelineno-20-16" name="__codelineno-20-16" href="#__codelineno-20-16"></a>
-</span><span id="__span-20-17"><a id="__codelineno-20-17" name="__codelineno-20-17" href="#__codelineno-20-17"></a><span class="c">/* Style macromolecules */</span>
-</span><span id="__span-20-18"><a id="__codelineno-20-18" name="__codelineno-20-18" href="#__codelineno-20-18"></a><span class="nt">MacromoleculeLayout</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-20-19"><a id="__codelineno-20-19" name="__codelineno-20-19" href="#__codelineno-20-19"></a><span class="w">    </span><span class="k">fill</span><span class="p">:</span><span class="w"> </span><span class="kc">royalblue</span><span class="p">;</span>
-</span><span id="__span-20-20"><a id="__codelineno-20-20" name="__codelineno-20-20" href="#__codelineno-20-20"></a><span class="w">    </span><span class="k">stroke</span><span class="p">:</span><span class="w"> </span><span class="kc">white</span><span class="p">;</span>
-</span><span id="__span-20-21"><a id="__codelineno-20-21" name="__codelineno-20-21" href="#__codelineno-20-21"></a><span class="w">    </span><span class="k">stroke-width</span><span class="p">:</span><span class="w"> </span><span class="mf">2.0</span><span class="p">;</span>
-</span><span id="__span-20-22"><a id="__codelineno-20-22" name="__codelineno-20-22" href="#__codelineno-20-22"></a><span class="p">}</span>
-</span><span id="__span-20-23"><a id="__codelineno-20-23" name="__codelineno-20-23" href="#__codelineno-20-23"></a>
-</span><span id="__span-20-24"><a id="__codelineno-20-24" name="__codelineno-20-24" href="#__codelineno-20-24"></a><span class="nt">MacromoleculeLayout</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="nt">TextLayout</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-20-25"><a id="__codelineno-20-25" name="__codelineno-20-25" href="#__codelineno-20-25"></a><span class="w">    </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mf">14.0</span><span class="p">;</span>
-</span><span id="__span-20-26"><a id="__codelineno-20-26" name="__codelineno-20-26" href="#__codelineno-20-26"></a><span class="w">    </span><span class="k">fill</span><span class="p">:</span><span class="w"> </span><span class="kc">white</span><span class="p">;</span>
-</span><span id="__span-20-27"><a id="__codelineno-20-27" name="__codelineno-20-27" href="#__codelineno-20-27"></a><span class="p">}</span>
-</span><span id="__span-20-28"><a id="__codelineno-20-28" name="__codelineno-20-28" href="#__codelineno-20-28"></a>
-</span><span id="__span-20-29"><a id="__codelineno-20-29" name="__codelineno-20-29" href="#__codelineno-20-29"></a><span class="c">/* Style simple chemicals */</span>
-</span><span id="__span-20-30"><a id="__codelineno-20-30" name="__codelineno-20-30" href="#__codelineno-20-30"></a><span class="nt">SimpleChemicalLayout</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-20-31"><a id="__codelineno-20-31" name="__codelineno-20-31" href="#__codelineno-20-31"></a><span class="w">    </span><span class="k">fill</span><span class="p">:</span><span class="w"> </span><span class="kc">gold</span><span class="p">;</span>
-</span><span id="__span-20-32"><a id="__codelineno-20-32" name="__codelineno-20-32" href="#__codelineno-20-32"></a><span class="w">    </span><span class="k">stroke</span><span class="p">:</span><span class="w"> </span><span class="kc">white</span><span class="p">;</span>
-</span><span id="__span-20-33"><a id="__codelineno-20-33" name="__codelineno-20-33" href="#__codelineno-20-33"></a><span class="w">    </span><span class="k">stroke-width</span><span class="p">:</span><span class="w"> </span><span class="mf">2.0</span><span class="p">;</span>
+<p>Here's a custom stylesheet for some layout elements of SBGN PD (note that the
+grammar has no comment syntax, so the rules speak for themselves):</p>
+<div class="language-css highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="p">@</span><span class="k">import</span><span class="w"> </span><span class="s2">&quot;my_base_stylesheet.css&quot;</span><span class="p">;</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="nt">StateVariableLayout</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="w">    </span><span class="k">fill</span><span class="p">:</span><span class="w"> </span><span class="kc">royalblue</span><span class="p">;</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="w">    </span><span class="k">stroke</span><span class="p">:</span><span class="w"> </span><span class="kc">white</span><span class="p">;</span>
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="w">    </span><span class="k">stroke-width</span><span class="p">:</span><span class="w"> </span><span class="mf">1.5</span><span class="p">;</span>
+</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="p">}</span>
+</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>
+</span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a><span class="nt">StateVariableLayout</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="nt">TextLayout</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-20-10"><a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a><span class="w">    </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mf">7.0</span><span class="p">;</span>
+</span><span id="__span-20-11"><a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a><span class="w">    </span><span class="k">fill</span><span class="p">:</span><span class="w"> </span><span class="kc">white</span><span class="p">;</span>
+</span><span id="__span-20-12"><a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a><span class="p">}</span>
+</span><span id="__span-20-13"><a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a>
+</span><span id="__span-20-14"><a id="__codelineno-20-14" name="__codelineno-20-14" href="#__codelineno-20-14"></a><span class="nt">MacromoleculeLayout</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-20-15"><a id="__codelineno-20-15" name="__codelineno-20-15" href="#__codelineno-20-15"></a><span class="w">    </span><span class="k">fill</span><span class="p">:</span><span class="w"> </span><span class="kc">royalblue</span><span class="p">;</span>
+</span><span id="__span-20-16"><a id="__codelineno-20-16" name="__codelineno-20-16" href="#__codelineno-20-16"></a><span class="w">    </span><span class="k">stroke</span><span class="p">:</span><span class="w"> </span><span class="kc">white</span><span class="p">;</span>
+</span><span id="__span-20-17"><a id="__codelineno-20-17" name="__codelineno-20-17" href="#__codelineno-20-17"></a><span class="w">    </span><span class="k">stroke-width</span><span class="p">:</span><span class="w"> </span><span class="mf">2.0</span><span class="p">;</span>
+</span><span id="__span-20-18"><a id="__codelineno-20-18" name="__codelineno-20-18" href="#__codelineno-20-18"></a><span class="p">}</span>
+</span><span id="__span-20-19"><a id="__codelineno-20-19" name="__codelineno-20-19" href="#__codelineno-20-19"></a>
+</span><span id="__span-20-20"><a id="__codelineno-20-20" name="__codelineno-20-20" href="#__codelineno-20-20"></a><span class="nt">MacromoleculeLayout</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="nt">TextLayout</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-20-21"><a id="__codelineno-20-21" name="__codelineno-20-21" href="#__codelineno-20-21"></a><span class="w">    </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mf">14.0</span><span class="p">;</span>
+</span><span id="__span-20-22"><a id="__codelineno-20-22" name="__codelineno-20-22" href="#__codelineno-20-22"></a><span class="w">    </span><span class="k">fill</span><span class="p">:</span><span class="w"> </span><span class="kc">white</span><span class="p">;</span>
+</span><span id="__span-20-23"><a id="__codelineno-20-23" name="__codelineno-20-23" href="#__codelineno-20-23"></a><span class="p">}</span>
+</span><span id="__span-20-24"><a id="__codelineno-20-24" name="__codelineno-20-24" href="#__codelineno-20-24"></a>
+</span><span id="__span-20-25"><a id="__codelineno-20-25" name="__codelineno-20-25" href="#__codelineno-20-25"></a><span class="nt">SimpleChemicalLayout</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-20-26"><a id="__codelineno-20-26" name="__codelineno-20-26" href="#__codelineno-20-26"></a><span class="w">    </span><span class="k">fill</span><span class="p">:</span><span class="w"> </span><span class="kc">gold</span><span class="p">;</span>
+</span><span id="__span-20-27"><a id="__codelineno-20-27" name="__codelineno-20-27" href="#__codelineno-20-27"></a><span class="w">    </span><span class="k">stroke</span><span class="p">:</span><span class="w"> </span><span class="kc">white</span><span class="p">;</span>
+</span><span id="__span-20-28"><a id="__codelineno-20-28" name="__codelineno-20-28" href="#__codelineno-20-28"></a><span class="w">    </span><span class="k">stroke-width</span><span class="p">:</span><span class="w"> </span><span class="mf">2.0</span><span class="p">;</span>
+</span><span id="__span-20-29"><a id="__codelineno-20-29" name="__codelineno-20-29" href="#__codelineno-20-29"></a><span class="p">}</span>
+</span><span id="__span-20-30"><a id="__codelineno-20-30" name="__codelineno-20-30" href="#__codelineno-20-30"></a>
+</span><span id="__span-20-31"><a id="__codelineno-20-31" name="__codelineno-20-31" href="#__codelineno-20-31"></a><span class="nt">SimpleChemicalLayout</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="nt">TextLayout</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-20-32"><a id="__codelineno-20-32" name="__codelineno-20-32" href="#__codelineno-20-32"></a><span class="w">    </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mf">10.0</span><span class="p">;</span>
+</span><span id="__span-20-33"><a id="__codelineno-20-33" name="__codelineno-20-33" href="#__codelineno-20-33"></a><span class="w">    </span><span class="k">fill</span><span class="p">:</span><span class="w"> </span><span class="kc">black</span><span class="p">;</span>
 </span><span id="__span-20-34"><a id="__codelineno-20-34" name="__codelineno-20-34" href="#__codelineno-20-34"></a><span class="p">}</span>
 </span><span id="__span-20-35"><a id="__codelineno-20-35" name="__codelineno-20-35" href="#__codelineno-20-35"></a>
-</span><span id="__span-20-36"><a id="__codelineno-20-36" name="__codelineno-20-36" href="#__codelineno-20-36"></a><span class="nt">SimpleChemicalLayout</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="nt">TextLayout</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-20-37"><a id="__codelineno-20-37" name="__codelineno-20-37" href="#__codelineno-20-37"></a><span class="w">    </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mf">10.0</span><span class="p">;</span>
-</span><span id="__span-20-38"><a id="__codelineno-20-38" name="__codelineno-20-38" href="#__codelineno-20-38"></a><span class="w">    </span><span class="k">fill</span><span class="p">:</span><span class="w"> </span><span class="kc">black</span><span class="p">;</span>
-</span><span id="__span-20-39"><a id="__codelineno-20-39" name="__codelineno-20-39" href="#__codelineno-20-39"></a><span class="p">}</span>
-</span><span id="__span-20-40"><a id="__codelineno-20-40" name="__codelineno-20-40" href="#__codelineno-20-40"></a>
-</span><span id="__span-20-41"><a id="__codelineno-20-41" name="__codelineno-20-41" href="#__codelineno-20-41"></a><span class="c">/* Style processes with connectors */</span>
-</span><span id="__span-20-42"><a id="__codelineno-20-42" name="__codelineno-20-42" href="#__codelineno-20-42"></a><span class="nt">GenericProcessLayout</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-20-43"><a id="__codelineno-20-43" name="__codelineno-20-43" href="#__codelineno-20-43"></a><span class="w">    </span><span class="k">fill</span><span class="p">:</span><span class="w"> </span><span class="kc">gray</span><span class="p">;</span>
-</span><span id="__span-20-44"><a id="__codelineno-20-44" name="__codelineno-20-44" href="#__codelineno-20-44"></a><span class="w">    </span><span class="k">stroke</span><span class="p">:</span><span class="w"> </span><span class="kc">white</span><span class="p">;</span>
-</span><span id="__span-20-45"><a id="__codelineno-20-45" name="__codelineno-20-45" href="#__codelineno-20-45"></a><span class="w">    </span><span class="n">right-connector-stroke</span><span class="p">:</span><span class="w"> </span><span class="kc">gray</span><span class="p">;</span>
-</span><span id="__span-20-46"><a id="__codelineno-20-46" name="__codelineno-20-46" href="#__codelineno-20-46"></a><span class="w">    </span><span class="n">right-connector-length</span><span class="p">:</span><span class="w"> </span><span class="mf">10.0</span><span class="p">;</span>
-</span><span id="__span-20-47"><a id="__codelineno-20-47" name="__codelineno-20-47" href="#__codelineno-20-47"></a><span class="w">    </span><span class="n">left-connector-stroke</span><span class="p">:</span><span class="w"> </span><span class="kc">gray</span><span class="p">;</span>
-</span><span id="__span-20-48"><a id="__codelineno-20-48" name="__codelineno-20-48" href="#__codelineno-20-48"></a><span class="w">    </span><span class="n">left-connector-length</span><span class="p">:</span><span class="w"> </span><span class="mf">10.0</span><span class="p">;</span>
+</span><span id="__span-20-36"><a id="__codelineno-20-36" name="__codelineno-20-36" href="#__codelineno-20-36"></a><span class="nt">GenericProcessLayout</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-20-37"><a id="__codelineno-20-37" name="__codelineno-20-37" href="#__codelineno-20-37"></a><span class="w">    </span><span class="k">fill</span><span class="p">:</span><span class="w"> </span><span class="kc">gray</span><span class="p">;</span>
+</span><span id="__span-20-38"><a id="__codelineno-20-38" name="__codelineno-20-38" href="#__codelineno-20-38"></a><span class="w">    </span><span class="k">stroke</span><span class="p">:</span><span class="w"> </span><span class="kc">white</span><span class="p">;</span>
+</span><span id="__span-20-39"><a id="__codelineno-20-39" name="__codelineno-20-39" href="#__codelineno-20-39"></a><span class="w">    </span><span class="n">right-connector-stroke</span><span class="p">:</span><span class="w"> </span><span class="kc">gray</span><span class="p">;</span>
+</span><span id="__span-20-40"><a id="__codelineno-20-40" name="__codelineno-20-40" href="#__codelineno-20-40"></a><span class="w">    </span><span class="n">right-connector-length</span><span class="p">:</span><span class="w"> </span><span class="mf">10.0</span><span class="p">;</span>
+</span><span id="__span-20-41"><a id="__codelineno-20-41" name="__codelineno-20-41" href="#__codelineno-20-41"></a><span class="w">    </span><span class="n">left-connector-stroke</span><span class="p">:</span><span class="w"> </span><span class="kc">gray</span><span class="p">;</span>
+</span><span id="__span-20-42"><a id="__codelineno-20-42" name="__codelineno-20-42" href="#__codelineno-20-42"></a><span class="w">    </span><span class="n">left-connector-length</span><span class="p">:</span><span class="w"> </span><span class="mf">10.0</span><span class="p">;</span>
+</span><span id="__span-20-43"><a id="__codelineno-20-43" name="__codelineno-20-43" href="#__codelineno-20-43"></a><span class="p">}</span>
+</span><span id="__span-20-44"><a id="__codelineno-20-44" name="__codelineno-20-44" href="#__codelineno-20-44"></a>
+</span><span id="__span-20-45"><a id="__codelineno-20-45" name="__codelineno-20-45" href="#__codelineno-20-45"></a><span class="nt">ConsumptionLayout</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-20-46"><a id="__codelineno-20-46" name="__codelineno-20-46" href="#__codelineno-20-46"></a><span class="w">    </span><span class="n">path-stroke</span><span class="p">:</span><span class="w"> </span><span class="kc">gray</span><span class="p">;</span>
+</span><span id="__span-20-47"><a id="__codelineno-20-47" name="__codelineno-20-47" href="#__codelineno-20-47"></a><span class="w">    </span><span class="n">path-stroke-width</span><span class="p">:</span><span class="w"> </span><span class="mf">1.5</span><span class="p">;</span>
+</span><span id="__span-20-48"><a id="__codelineno-20-48" name="__codelineno-20-48" href="#__codelineno-20-48"></a><span class="w">    </span><span class="n">end-shorten</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
 </span><span id="__span-20-49"><a id="__codelineno-20-49" name="__codelineno-20-49" href="#__codelineno-20-49"></a><span class="p">}</span>
 </span><span id="__span-20-50"><a id="__codelineno-20-50" name="__codelineno-20-50" href="#__codelineno-20-50"></a>
-</span><span id="__span-20-51"><a id="__codelineno-20-51" name="__codelineno-20-51" href="#__codelineno-20-51"></a><span class="c">/* Style consumption arc (polyline, no arrowhead) */</span>
-</span><span id="__span-20-52"><a id="__codelineno-20-52" name="__codelineno-20-52" href="#__codelineno-20-52"></a><span class="nt">ConsumptionLayout</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-20-53"><a id="__codelineno-20-53" name="__codelineno-20-53" href="#__codelineno-20-53"></a><span class="w">    </span><span class="n">path-stroke</span><span class="p">:</span><span class="w"> </span><span class="kc">gray</span><span class="p">;</span>
-</span><span id="__span-20-54"><a id="__codelineno-20-54" name="__codelineno-20-54" href="#__codelineno-20-54"></a><span class="w">    </span><span class="n">path-stroke-width</span><span class="p">:</span><span class="w"> </span><span class="mf">1.5</span><span class="p">;</span>
-</span><span id="__span-20-55"><a id="__codelineno-20-55" name="__codelineno-20-55" href="#__codelineno-20-55"></a><span class="w">    </span><span class="n">end-shorten</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
-</span><span id="__span-20-56"><a id="__codelineno-20-56" name="__codelineno-20-56" href="#__codelineno-20-56"></a><span class="p">}</span>
-</span><span id="__span-20-57"><a id="__codelineno-20-57" name="__codelineno-20-57" href="#__codelineno-20-57"></a>
-</span><span id="__span-20-58"><a id="__codelineno-20-58" name="__codelineno-20-58" href="#__codelineno-20-58"></a><span class="c">/* Style production arc */</span>
-</span><span id="__span-20-59"><a id="__codelineno-20-59" name="__codelineno-20-59" href="#__codelineno-20-59"></a><span class="nt">ProductionLayout</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-20-60"><a id="__codelineno-20-60" name="__codelineno-20-60" href="#__codelineno-20-60"></a><span class="w">    </span><span class="n">arrowhead-fill</span><span class="p">:</span><span class="w"> </span><span class="kc">gray</span><span class="p">;</span>
-</span><span id="__span-20-61"><a id="__codelineno-20-61" name="__codelineno-20-61" href="#__codelineno-20-61"></a><span class="w">    </span><span class="n">arrowhead-stroke</span><span class="p">:</span><span class="w"> </span><span class="kc">gray</span><span class="p">;</span>
-</span><span id="__span-20-62"><a id="__codelineno-20-62" name="__codelineno-20-62" href="#__codelineno-20-62"></a><span class="w">    </span><span class="n">path-stroke</span><span class="p">:</span><span class="w"> </span><span class="kc">gray</span><span class="p">;</span>
-</span><span id="__span-20-63"><a id="__codelineno-20-63" name="__codelineno-20-63" href="#__codelineno-20-63"></a><span class="w">    </span><span class="n">path-stroke-width</span><span class="p">:</span><span class="w"> </span><span class="mf">1.5</span><span class="p">;</span>
-</span><span id="__span-20-64"><a id="__codelineno-20-64" name="__codelineno-20-64" href="#__codelineno-20-64"></a><span class="w">    </span><span class="n">end-shorten</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
-</span><span id="__span-20-65"><a id="__codelineno-20-65" name="__codelineno-20-65" href="#__codelineno-20-65"></a><span class="p">}</span>
+</span><span id="__span-20-51"><a id="__codelineno-20-51" name="__codelineno-20-51" href="#__codelineno-20-51"></a><span class="nt">ProductionLayout</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-20-52"><a id="__codelineno-20-52" name="__codelineno-20-52" href="#__codelineno-20-52"></a><span class="w">    </span><span class="n">arrowhead-fill</span><span class="p">:</span><span class="w"> </span><span class="kc">gray</span><span class="p">;</span>
+</span><span id="__span-20-53"><a id="__codelineno-20-53" name="__codelineno-20-53" href="#__codelineno-20-53"></a><span class="w">    </span><span class="n">arrowhead-stroke</span><span class="p">:</span><span class="w"> </span><span class="kc">gray</span><span class="p">;</span>
+</span><span id="__span-20-54"><a id="__codelineno-20-54" name="__codelineno-20-54" href="#__codelineno-20-54"></a><span class="w">    </span><span class="n">path-stroke</span><span class="p">:</span><span class="w"> </span><span class="kc">gray</span><span class="p">;</span>
+</span><span id="__span-20-55"><a id="__codelineno-20-55" name="__codelineno-20-55" href="#__codelineno-20-55"></a><span class="w">    </span><span class="n">path-stroke-width</span><span class="p">:</span><span class="w"> </span><span class="mf">1.5</span><span class="p">;</span>
+</span><span id="__span-20-56"><a id="__codelineno-20-56" name="__codelineno-20-56" href="#__codelineno-20-56"></a><span class="w">    </span><span class="n">end-shorten</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
+</span><span id="__span-20-57"><a id="__codelineno-20-57" name="__codelineno-20-57" href="#__codelineno-20-57"></a><span class="p">}</span>
 </span></code></pre></div>
 
 
@@ -2794,7 +2811,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"alias": true, "default": "stable", "provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

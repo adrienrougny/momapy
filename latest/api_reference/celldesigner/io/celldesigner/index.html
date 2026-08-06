@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../../assets/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
       
       
 
@@ -859,6 +859,34 @@
     
   
     Skia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../rendering/cairo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cairo
   
 
     
@@ -1819,7 +1847,7 @@
             <td><code><span title="momapy.celldesigner.io.celldesigner.writer">writer</span></code></td>
             <td>
               <div class="doc-md-description">
-                <p>CellDesigner XML writer (new, model-first approach).</p>
+                <p>CellDesigner XML writer class.</p>
               </div>
             </td>
           </tr>
@@ -1844,7 +1872,7 @@
             <td><code><a class="autorefs autorefs-internal" title="            CellDesignerReader (momapy.celldesigner.io.celldesigner.CellDesignerReader)" href="#momapy.celldesigner.io.celldesigner.CellDesignerReader">CellDesignerReader</a></code></td>
             <td>
               <div class="doc-md-description">
-                <p>Class for CellDesigner reader objects</p>
+                <p>Class for CellDesigner reader objects.</p>
               </div>
             </td>
           </tr>
@@ -1886,11 +1914,11 @@
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><span title="momapy.io.core.Reader">Reader</span></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="            Reader (momapy.io.core.Reader)" href="../../../io/#momapy.io.Reader">Reader</a></code></p>
 
 
 
-        <p>Class for CellDesigner reader objects</p>
+        <p>Class for CellDesigner reader objects.</p>
 
 
 
@@ -1921,7 +1949,7 @@
    (momapy.celldesigner.io.celldesigner.CellDesignerReader.check_file)" href="#momapy.celldesigner.io.celldesigner.CellDesignerReader.check_file">check_file</a></code></td>
               <td>
                 <div class="doc-md-description">
-                  <p>Return <code>true</code> if the file is a CellDesigner file, <code>false</code> otherwise</p>
+                  <p>Return <code>True</code> if the file is a CellDesigner file.</p>
                 </div>
               </td>
             </tr>
@@ -1934,7 +1962,7 @@
    (momapy.celldesigner.io.celldesigner.CellDesignerReader.read)" href="#momapy.celldesigner.io.celldesigner.CellDesignerReader.read">read</a></code></td>
               <td>
                 <div class="doc-md-description">
-                  <p>Read a CellDesigner file and return a reader result object</p>
+                  <p>Read a CellDesigner file and return a reader result object.</p>
                 </div>
               </td>
             </tr>
@@ -1966,37 +1994,117 @@
   </span>
 
 </h4>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">check_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="n"><span title="os.PathLike">PathLike</span></span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">check_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="n"><span title="os.PathLike">PathLike</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="bool">bool</span></span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
 
-        <p>Return <code>true</code> if the file is a CellDesigner file, <code>false</code> otherwise</p>
+        <p>Return <code>True</code> if the file is a CellDesigner file.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>file_path</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span> | <span title="os.PathLike">PathLike</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Path of the file to check.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p><code>True</code> if the file references the CellDesigner namespace, <code>False</code></p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>otherwise.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/momapy/celldesigner/io/celldesigner/reader.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-671">671</a></span>
-<span class="normal"><a href="#__codelineno-0-672">672</a></span>
-<span class="normal"><a href="#__codelineno-0-673">673</a></span>
-<span class="normal"><a href="#__codelineno-0-674">674</a></span>
-<span class="normal"><a href="#__codelineno-0-675">675</a></span>
-<span class="normal"><a href="#__codelineno-0-676">676</a></span>
-<span class="normal"><a href="#__codelineno-0-677">677</a></span>
-<span class="normal"><a href="#__codelineno-0-678">678</a></span>
-<span class="normal"><a href="#__codelineno-0-679">679</a></span>
-<span class="normal"><a href="#__codelineno-0-680">680</a></span>
-<span class="normal"><a href="#__codelineno-0-681">681</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-671"><a id="__codelineno-0-671" name="__codelineno-0-671"></a><span class="nd">@classmethod</span>
-</span><span id="__span-0-672"><a id="__codelineno-0-672" name="__codelineno-0-672"></a><span class="k">def</span><span class="w"> </span><span class="nf">check_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">):</span>
-</span><span id="__span-0-673"><a id="__codelineno-0-673" name="__codelineno-0-673"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Return `true` if the file is a CellDesigner file, `false` otherwise&quot;&quot;&quot;</span>
-</span><span id="__span-0-674"><a id="__codelineno-0-674" name="__codelineno-0-674"></a>    <span class="k">try</span><span class="p">:</span>
-</span><span id="__span-0-675"><a id="__codelineno-0-675" name="__codelineno-0-675"></a>        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-</span><span id="__span-0-676"><a id="__codelineno-0-676" name="__codelineno-0-676"></a>            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
-</span><span id="__span-0-677"><a id="__codelineno-0-677" name="__codelineno-0-677"></a>                <span class="k">if</span> <span class="s2">&quot;http://www.sbml.org/2001/ns/celldesigner&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
-</span><span id="__span-0-678"><a id="__codelineno-0-678" name="__codelineno-0-678"></a>                    <span class="k">return</span> <span class="kc">True</span>
-</span><span id="__span-0-679"><a id="__codelineno-0-679" name="__codelineno-0-679"></a>        <span class="k">return</span> <span class="kc">False</span>
-</span><span id="__span-0-680"><a id="__codelineno-0-680" name="__codelineno-0-680"></a>    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-</span><span id="__span-0-681"><a id="__codelineno-0-681" name="__codelineno-0-681"></a>        <span class="k">return</span> <span class="kc">False</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-237">237</a></span>
+<span class="normal"><a href="#__codelineno-0-238">238</a></span>
+<span class="normal"><a href="#__codelineno-0-239">239</a></span>
+<span class="normal"><a href="#__codelineno-0-240">240</a></span>
+<span class="normal"><a href="#__codelineno-0-241">241</a></span>
+<span class="normal"><a href="#__codelineno-0-242">242</a></span>
+<span class="normal"><a href="#__codelineno-0-243">243</a></span>
+<span class="normal"><a href="#__codelineno-0-244">244</a></span>
+<span class="normal"><a href="#__codelineno-0-245">245</a></span>
+<span class="normal"><a href="#__codelineno-0-246">246</a></span>
+<span class="normal"><a href="#__codelineno-0-247">247</a></span>
+<span class="normal"><a href="#__codelineno-0-248">248</a></span>
+<span class="normal"><a href="#__codelineno-0-249">249</a></span>
+<span class="normal"><a href="#__codelineno-0-250">250</a></span>
+<span class="normal"><a href="#__codelineno-0-251">251</a></span>
+<span class="normal"><a href="#__codelineno-0-252">252</a></span>
+<span class="normal"><a href="#__codelineno-0-253">253</a></span>
+<span class="normal"><a href="#__codelineno-0-254">254</a></span>
+<span class="normal"><a href="#__codelineno-0-255">255</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-237"><a id="__codelineno-0-237" name="__codelineno-0-237"></a><span class="nd">@classmethod</span>
+</span><span id="__span-0-238"><a id="__codelineno-0-238" name="__codelineno-0-238"></a><span class="k">def</span><span class="w"> </span><span class="nf">check_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="__span-0-239"><a id="__codelineno-0-239" name="__codelineno-0-239"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Return `True` if the file is a CellDesigner file.</span>
+</span><span id="__span-0-240"><a id="__codelineno-0-240" name="__codelineno-0-240"></a>
+</span><span id="__span-0-241"><a id="__codelineno-0-241" name="__codelineno-0-241"></a><span class="sd">    Args:</span>
+</span><span id="__span-0-242"><a id="__codelineno-0-242" name="__codelineno-0-242"></a><span class="sd">        file_path: Path of the file to check.</span>
+</span><span id="__span-0-243"><a id="__codelineno-0-243" name="__codelineno-0-243"></a>
+</span><span id="__span-0-244"><a id="__codelineno-0-244" name="__codelineno-0-244"></a><span class="sd">    Returns:</span>
+</span><span id="__span-0-245"><a id="__codelineno-0-245" name="__codelineno-0-245"></a><span class="sd">        `True` if the file references the CellDesigner namespace, `False`</span>
+</span><span id="__span-0-246"><a id="__codelineno-0-246" name="__codelineno-0-246"></a><span class="sd">        otherwise.</span>
+</span><span id="__span-0-247"><a id="__codelineno-0-247" name="__codelineno-0-247"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-248"><a id="__codelineno-0-248" name="__codelineno-0-248"></a>    <span class="k">try</span><span class="p">:</span>
+</span><span id="__span-0-249"><a id="__codelineno-0-249" name="__codelineno-0-249"></a>        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span><span id="__span-0-250"><a id="__codelineno-0-250" name="__codelineno-0-250"></a>            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+</span><span id="__span-0-251"><a id="__codelineno-0-251" name="__codelineno-0-251"></a>                <span class="k">if</span> <span class="s2">&quot;http://www.sbml.org/2001/ns/celldesigner&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+</span><span id="__span-0-252"><a id="__codelineno-0-252" name="__codelineno-0-252"></a>                    <span class="k">return</span> <span class="kc">True</span>
+</span><span id="__span-0-253"><a id="__codelineno-0-253" name="__codelineno-0-253"></a>        <span class="k">return</span> <span class="kc">False</span>
+</span><span id="__span-0-254"><a id="__codelineno-0-254" name="__codelineno-0-254"></a>    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+</span><span id="__span-0-255"><a id="__codelineno-0-255" name="__codelineno-0-255"></a>        <span class="k">return</span> <span class="kc">False</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2020,7 +2128,7 @@
   </span>
 
 </h4>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">read</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="n"><span title="os.PathLike">PathLike</span></span><span class="p">,</span> <span class="n">return_type</span><span class="p">:</span> <span class="n"><span title="typing.Literal">Literal</span></span><span class="p">[</span><span class="s1">&#39;map&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">,</span> <span class="s1">&#39;layout&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;map&#39;</span><span class="p">,</span> <span class="n">with_model</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">with_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">with_annotations</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">with_notes</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="            ReaderResult
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">read</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="n"><span title="os.PathLike">PathLike</span></span><span class="p">,</span> <span class="n">return_type</span><span class="p">:</span> <span class="n"><span title="typing.Literal">Literal</span></span><span class="p">[</span><span class="s1">&#39;map&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">,</span> <span class="s1">&#39;layout&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;map&#39;</span><span class="p">,</span> <span class="n">with_model</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">with_layout</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">with_annotations</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">with_notes</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">:</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="            ReaderResult
 
 
   
@@ -2030,94 +2138,314 @@
 
     <div class="doc doc-contents ">
 
-        <p>Read a CellDesigner file and return a reader result object</p>
+        <p>Read a CellDesigner file and return a reader result object.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>file_path</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span> | <span title="os.PathLike">PathLike</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Path of the CellDesigner file to read.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>return_type</code>
+            </td>
+            <td>
+                  <code><span title="typing.Literal">Literal</span>[&#39;map&#39;, &#39;model&#39;, &#39;layout&#39;]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Shape of <code>result.obj</code>: <code>"map"</code> (default) returns a
+CellDesigner map, <code>"model"</code> returns the bare model, <code>"layout"</code>
+returns the bare layout.</p>
+              </div>
+            </td>
+            <td>
+                  <code>&#39;map&#39;</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>with_model</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Whether to build the model. When <code>False</code> and
+<code>return_type="map"</code>, the map's <code>model</code> is <code>None</code>. Defaults to
+<code>True</code>.</p>
+              </div>
+            </td>
+            <td>
+                  <code>True</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>with_layout</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Whether to build the layout. When <code>False</code> and
+<code>return_type="map"</code>, the map's <code>layout</code> is <code>None</code>. Defaults to
+<code>True</code>.</p>
+              </div>
+            </td>
+            <td>
+                  <code>True</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>with_annotations</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Whether to read annotations. Defaults to <code>True</code>.</p>
+              </div>
+            </td>
+            <td>
+                  <code>True</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>with_notes</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Whether to read notes. Defaults to <code>True</code>.</p>
+              </div>
+            </td>
+            <td>
+                  <code>True</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>options</code>
+            </td>
+            <td>
+                  <code><span title="typing.Any">Any</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Additional reader-specific options (ignored).</p>
+              </div>
+            </td>
+            <td>
+                  <code>{}</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="            ReaderResult
+
+
+  
+      dataclass
+   (momapy.io.core.ReaderResult)" href="../../../io/#momapy.io.ReaderResult">ReaderResult</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>A <code>ReaderResult</code> whose <code>obj</code> is a map, model, or layout depending</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="            ReaderResult
+
+
+  
+      dataclass
+   (momapy.io.core.ReaderResult)" href="../../../io/#momapy.io.ReaderResult">ReaderResult</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>on <code>return_type</code>.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/momapy/celldesigner/io/celldesigner/reader.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-683">683</a></span>
-<span class="normal"><a href="#__codelineno-0-684">684</a></span>
-<span class="normal"><a href="#__codelineno-0-685">685</a></span>
-<span class="normal"><a href="#__codelineno-0-686">686</a></span>
-<span class="normal"><a href="#__codelineno-0-687">687</a></span>
-<span class="normal"><a href="#__codelineno-0-688">688</a></span>
-<span class="normal"><a href="#__codelineno-0-689">689</a></span>
-<span class="normal"><a href="#__codelineno-0-690">690</a></span>
-<span class="normal"><a href="#__codelineno-0-691">691</a></span>
-<span class="normal"><a href="#__codelineno-0-692">692</a></span>
-<span class="normal"><a href="#__codelineno-0-693">693</a></span>
-<span class="normal"><a href="#__codelineno-0-694">694</a></span>
-<span class="normal"><a href="#__codelineno-0-695">695</a></span>
-<span class="normal"><a href="#__codelineno-0-696">696</a></span>
-<span class="normal"><a href="#__codelineno-0-697">697</a></span>
-<span class="normal"><a href="#__codelineno-0-698">698</a></span>
-<span class="normal"><a href="#__codelineno-0-699">699</a></span>
-<span class="normal"><a href="#__codelineno-0-700">700</a></span>
-<span class="normal"><a href="#__codelineno-0-701">701</a></span>
-<span class="normal"><a href="#__codelineno-0-702">702</a></span>
-<span class="normal"><a href="#__codelineno-0-703">703</a></span>
-<span class="normal"><a href="#__codelineno-0-704">704</a></span>
-<span class="normal"><a href="#__codelineno-0-705">705</a></span>
-<span class="normal"><a href="#__codelineno-0-706">706</a></span>
-<span class="normal"><a href="#__codelineno-0-707">707</a></span>
-<span class="normal"><a href="#__codelineno-0-708">708</a></span>
-<span class="normal"><a href="#__codelineno-0-709">709</a></span>
-<span class="normal"><a href="#__codelineno-0-710">710</a></span>
-<span class="normal"><a href="#__codelineno-0-711">711</a></span>
-<span class="normal"><a href="#__codelineno-0-712">712</a></span>
-<span class="normal"><a href="#__codelineno-0-713">713</a></span>
-<span class="normal"><a href="#__codelineno-0-714">714</a></span>
-<span class="normal"><a href="#__codelineno-0-715">715</a></span>
-<span class="normal"><a href="#__codelineno-0-716">716</a></span>
-<span class="normal"><a href="#__codelineno-0-717">717</a></span>
-<span class="normal"><a href="#__codelineno-0-718">718</a></span>
-<span class="normal"><a href="#__codelineno-0-719">719</a></span>
-<span class="normal"><a href="#__codelineno-0-720">720</a></span>
-<span class="normal"><a href="#__codelineno-0-721">721</a></span>
-<span class="normal"><a href="#__codelineno-0-722">722</a></span>
-<span class="normal"><a href="#__codelineno-0-723">723</a></span>
-<span class="normal"><a href="#__codelineno-0-724">724</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-683"><a id="__codelineno-0-683" name="__codelineno-0-683"></a><span class="nd">@classmethod</span>
-</span><span id="__span-0-684"><a id="__codelineno-0-684" name="__codelineno-0-684"></a><span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span>
-</span><span id="__span-0-685"><a id="__codelineno-0-685" name="__codelineno-0-685"></a>    <span class="bp">cls</span><span class="p">,</span>
-</span><span id="__span-0-686"><a id="__codelineno-0-686" name="__codelineno-0-686"></a>    <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span>
-</span><span id="__span-0-687"><a id="__codelineno-0-687" name="__codelineno-0-687"></a>    <span class="n">return_type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;map&quot;</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="s2">&quot;layout&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;map&quot;</span><span class="p">,</span>
-</span><span id="__span-0-688"><a id="__codelineno-0-688" name="__codelineno-0-688"></a>    <span class="n">with_model</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-0-689"><a id="__codelineno-0-689" name="__codelineno-0-689"></a>    <span class="n">with_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-0-690"><a id="__codelineno-0-690" name="__codelineno-0-690"></a>    <span class="n">with_annotations</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-0-691"><a id="__codelineno-0-691" name="__codelineno-0-691"></a>    <span class="n">with_notes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-0-692"><a id="__codelineno-0-692" name="__codelineno-0-692"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReaderResult</span><span class="p">:</span>
-</span><span id="__span-0-693"><a id="__codelineno-0-693" name="__codelineno-0-693"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Read a CellDesigner file and return a reader result object&quot;&quot;&quot;</span>
-</span><span id="__span-0-694"><a id="__codelineno-0-694" name="__codelineno-0-694"></a>    <span class="n">cd_document</span> <span class="o">=</span> <span class="n">lxml</span><span class="o">.</span><span class="n">objectify</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
-</span><span id="__span-0-695"><a id="__codelineno-0-695" name="__codelineno-0-695"></a>    <span class="n">cd_sbml</span> <span class="o">=</span> <span class="n">cd_document</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
-</span><span id="__span-0-696"><a id="__codelineno-0-696" name="__codelineno-0-696"></a>    <span class="p">(</span>
-</span><span id="__span-0-697"><a id="__codelineno-0-697" name="__codelineno-0-697"></a>        <span class="n">obj</span><span class="p">,</span>
-</span><span id="__span-0-698"><a id="__codelineno-0-698" name="__codelineno-0-698"></a>        <span class="n">annotations</span><span class="p">,</span>
-</span><span id="__span-0-699"><a id="__codelineno-0-699" name="__codelineno-0-699"></a>        <span class="n">notes</span><span class="p">,</span>
-</span><span id="__span-0-700"><a id="__codelineno-0-700" name="__codelineno-0-700"></a>        <span class="n">id_to_element</span><span class="p">,</span>
-</span><span id="__span-0-701"><a id="__codelineno-0-701" name="__codelineno-0-701"></a>        <span class="n">source_id_to_model_element</span><span class="p">,</span>
-</span><span id="__span-0-702"><a id="__codelineno-0-702" name="__codelineno-0-702"></a>        <span class="n">source_id_to_layout_element</span><span class="p">,</span>
-</span><span id="__span-0-703"><a id="__codelineno-0-703" name="__codelineno-0-703"></a>        <span class="n">source_id_to_annotations</span><span class="p">,</span>
-</span><span id="__span-0-704"><a id="__codelineno-0-704" name="__codelineno-0-704"></a>        <span class="n">source_id_to_notes</span><span class="p">,</span>
-</span><span id="__span-0-705"><a id="__codelineno-0-705" name="__codelineno-0-705"></a>    <span class="p">)</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_make_main_obj</span><span class="p">(</span>
-</span><span id="__span-0-706"><a id="__codelineno-0-706" name="__codelineno-0-706"></a>        <span class="n">cd_model</span><span class="o">=</span><span class="n">cd_sbml</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
-</span><span id="__span-0-707"><a id="__codelineno-0-707" name="__codelineno-0-707"></a>        <span class="n">return_type</span><span class="o">=</span><span class="n">return_type</span><span class="p">,</span>
-</span><span id="__span-0-708"><a id="__codelineno-0-708" name="__codelineno-0-708"></a>        <span class="n">with_model</span><span class="o">=</span><span class="n">with_model</span><span class="p">,</span>
-</span><span id="__span-0-709"><a id="__codelineno-0-709" name="__codelineno-0-709"></a>        <span class="n">with_layout</span><span class="o">=</span><span class="n">with_layout</span><span class="p">,</span>
-</span><span id="__span-0-710"><a id="__codelineno-0-710" name="__codelineno-0-710"></a>        <span class="n">with_annotations</span><span class="o">=</span><span class="n">with_annotations</span><span class="p">,</span>
-</span><span id="__span-0-711"><a id="__codelineno-0-711" name="__codelineno-0-711"></a>        <span class="n">with_notes</span><span class="o">=</span><span class="n">with_notes</span><span class="p">,</span>
-</span><span id="__span-0-712"><a id="__codelineno-0-712" name="__codelineno-0-712"></a>    <span class="p">)</span>
-</span><span id="__span-0-713"><a id="__codelineno-0-713" name="__codelineno-0-713"></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">ReaderResult</span><span class="p">(</span>
-</span><span id="__span-0-714"><a id="__codelineno-0-714" name="__codelineno-0-714"></a>        <span class="n">obj</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
-</span><span id="__span-0-715"><a id="__codelineno-0-715" name="__codelineno-0-715"></a>        <span class="n">element_to_notes</span><span class="o">=</span><span class="n">notes</span><span class="p">,</span>
-</span><span id="__span-0-716"><a id="__codelineno-0-716" name="__codelineno-0-716"></a>        <span class="n">element_to_annotations</span><span class="o">=</span><span class="n">annotations</span><span class="p">,</span>
-</span><span id="__span-0-717"><a id="__codelineno-0-717" name="__codelineno-0-717"></a>        <span class="n">id_to_element</span><span class="o">=</span><span class="n">id_to_element</span><span class="p">,</span>
-</span><span id="__span-0-718"><a id="__codelineno-0-718" name="__codelineno-0-718"></a>        <span class="n">source_id_to_model_element</span><span class="o">=</span><span class="n">source_id_to_model_element</span><span class="p">,</span>
-</span><span id="__span-0-719"><a id="__codelineno-0-719" name="__codelineno-0-719"></a>        <span class="n">source_id_to_layout_element</span><span class="o">=</span><span class="n">source_id_to_layout_element</span><span class="p">,</span>
-</span><span id="__span-0-720"><a id="__codelineno-0-720" name="__codelineno-0-720"></a>        <span class="n">source_id_to_annotations</span><span class="o">=</span><span class="n">source_id_to_annotations</span><span class="p">,</span>
-</span><span id="__span-0-721"><a id="__codelineno-0-721" name="__codelineno-0-721"></a>        <span class="n">source_id_to_notes</span><span class="o">=</span><span class="n">source_id_to_notes</span><span class="p">,</span>
-</span><span id="__span-0-722"><a id="__codelineno-0-722" name="__codelineno-0-722"></a>        <span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">,</span>
-</span><span id="__span-0-723"><a id="__codelineno-0-723" name="__codelineno-0-723"></a>    <span class="p">)</span>
-</span><span id="__span-0-724"><a id="__codelineno-0-724" name="__codelineno-0-724"></a>    <span class="k">return</span> <span class="n">result</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-257">257</a></span>
+<span class="normal"><a href="#__codelineno-0-258">258</a></span>
+<span class="normal"><a href="#__codelineno-0-259">259</a></span>
+<span class="normal"><a href="#__codelineno-0-260">260</a></span>
+<span class="normal"><a href="#__codelineno-0-261">261</a></span>
+<span class="normal"><a href="#__codelineno-0-262">262</a></span>
+<span class="normal"><a href="#__codelineno-0-263">263</a></span>
+<span class="normal"><a href="#__codelineno-0-264">264</a></span>
+<span class="normal"><a href="#__codelineno-0-265">265</a></span>
+<span class="normal"><a href="#__codelineno-0-266">266</a></span>
+<span class="normal"><a href="#__codelineno-0-267">267</a></span>
+<span class="normal"><a href="#__codelineno-0-268">268</a></span>
+<span class="normal"><a href="#__codelineno-0-269">269</a></span>
+<span class="normal"><a href="#__codelineno-0-270">270</a></span>
+<span class="normal"><a href="#__codelineno-0-271">271</a></span>
+<span class="normal"><a href="#__codelineno-0-272">272</a></span>
+<span class="normal"><a href="#__codelineno-0-273">273</a></span>
+<span class="normal"><a href="#__codelineno-0-274">274</a></span>
+<span class="normal"><a href="#__codelineno-0-275">275</a></span>
+<span class="normal"><a href="#__codelineno-0-276">276</a></span>
+<span class="normal"><a href="#__codelineno-0-277">277</a></span>
+<span class="normal"><a href="#__codelineno-0-278">278</a></span>
+<span class="normal"><a href="#__codelineno-0-279">279</a></span>
+<span class="normal"><a href="#__codelineno-0-280">280</a></span>
+<span class="normal"><a href="#__codelineno-0-281">281</a></span>
+<span class="normal"><a href="#__codelineno-0-282">282</a></span>
+<span class="normal"><a href="#__codelineno-0-283">283</a></span>
+<span class="normal"><a href="#__codelineno-0-284">284</a></span>
+<span class="normal"><a href="#__codelineno-0-285">285</a></span>
+<span class="normal"><a href="#__codelineno-0-286">286</a></span>
+<span class="normal"><a href="#__codelineno-0-287">287</a></span>
+<span class="normal"><a href="#__codelineno-0-288">288</a></span>
+<span class="normal"><a href="#__codelineno-0-289">289</a></span>
+<span class="normal"><a href="#__codelineno-0-290">290</a></span>
+<span class="normal"><a href="#__codelineno-0-291">291</a></span>
+<span class="normal"><a href="#__codelineno-0-292">292</a></span>
+<span class="normal"><a href="#__codelineno-0-293">293</a></span>
+<span class="normal"><a href="#__codelineno-0-294">294</a></span>
+<span class="normal"><a href="#__codelineno-0-295">295</a></span>
+<span class="normal"><a href="#__codelineno-0-296">296</a></span>
+<span class="normal"><a href="#__codelineno-0-297">297</a></span>
+<span class="normal"><a href="#__codelineno-0-298">298</a></span>
+<span class="normal"><a href="#__codelineno-0-299">299</a></span>
+<span class="normal"><a href="#__codelineno-0-300">300</a></span>
+<span class="normal"><a href="#__codelineno-0-301">301</a></span>
+<span class="normal"><a href="#__codelineno-0-302">302</a></span>
+<span class="normal"><a href="#__codelineno-0-303">303</a></span>
+<span class="normal"><a href="#__codelineno-0-304">304</a></span>
+<span class="normal"><a href="#__codelineno-0-305">305</a></span>
+<span class="normal"><a href="#__codelineno-0-306">306</a></span>
+<span class="normal"><a href="#__codelineno-0-307">307</a></span>
+<span class="normal"><a href="#__codelineno-0-308">308</a></span>
+<span class="normal"><a href="#__codelineno-0-309">309</a></span>
+<span class="normal"><a href="#__codelineno-0-310">310</a></span>
+<span class="normal"><a href="#__codelineno-0-311">311</a></span>
+<span class="normal"><a href="#__codelineno-0-312">312</a></span>
+<span class="normal"><a href="#__codelineno-0-313">313</a></span>
+<span class="normal"><a href="#__codelineno-0-314">314</a></span>
+<span class="normal"><a href="#__codelineno-0-315">315</a></span>
+<span class="normal"><a href="#__codelineno-0-316">316</a></span>
+<span class="normal"><a href="#__codelineno-0-317">317</a></span>
+<span class="normal"><a href="#__codelineno-0-318">318</a></span>
+<span class="normal"><a href="#__codelineno-0-319">319</a></span>
+<span class="normal"><a href="#__codelineno-0-320">320</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-257"><a id="__codelineno-0-257" name="__codelineno-0-257"></a><span class="nd">@classmethod</span>
+</span><span id="__span-0-258"><a id="__codelineno-0-258" name="__codelineno-0-258"></a><span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span>
+</span><span id="__span-0-259"><a id="__codelineno-0-259" name="__codelineno-0-259"></a>    <span class="bp">cls</span><span class="p">,</span>
+</span><span id="__span-0-260"><a id="__codelineno-0-260" name="__codelineno-0-260"></a>    <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span>
+</span><span id="__span-0-261"><a id="__codelineno-0-261" name="__codelineno-0-261"></a>    <span class="n">return_type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;map&quot;</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="s2">&quot;layout&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;map&quot;</span><span class="p">,</span>
+</span><span id="__span-0-262"><a id="__codelineno-0-262" name="__codelineno-0-262"></a>    <span class="n">with_model</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-263"><a id="__codelineno-0-263" name="__codelineno-0-263"></a>    <span class="n">with_layout</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-264"><a id="__codelineno-0-264" name="__codelineno-0-264"></a>    <span class="n">with_annotations</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-265"><a id="__codelineno-0-265" name="__codelineno-0-265"></a>    <span class="n">with_notes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-266"><a id="__codelineno-0-266" name="__codelineno-0-266"></a>    <span class="o">**</span><span class="n">options</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
+</span><span id="__span-0-267"><a id="__codelineno-0-267" name="__codelineno-0-267"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReaderResult</span><span class="p">:</span>
+</span><span id="__span-0-268"><a id="__codelineno-0-268" name="__codelineno-0-268"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Read a CellDesigner file and return a reader result object.</span>
+</span><span id="__span-0-269"><a id="__codelineno-0-269" name="__codelineno-0-269"></a>
+</span><span id="__span-0-270"><a id="__codelineno-0-270" name="__codelineno-0-270"></a><span class="sd">    Args:</span>
+</span><span id="__span-0-271"><a id="__codelineno-0-271" name="__codelineno-0-271"></a><span class="sd">        file_path: Path of the CellDesigner file to read.</span>
+</span><span id="__span-0-272"><a id="__codelineno-0-272" name="__codelineno-0-272"></a><span class="sd">        return_type: Shape of `result.obj`: `&quot;map&quot;` (default) returns a</span>
+</span><span id="__span-0-273"><a id="__codelineno-0-273" name="__codelineno-0-273"></a><span class="sd">            CellDesigner map, `&quot;model&quot;` returns the bare model, `&quot;layout&quot;`</span>
+</span><span id="__span-0-274"><a id="__codelineno-0-274" name="__codelineno-0-274"></a><span class="sd">            returns the bare layout.</span>
+</span><span id="__span-0-275"><a id="__codelineno-0-275" name="__codelineno-0-275"></a><span class="sd">        with_model: Whether to build the model. When `False` and</span>
+</span><span id="__span-0-276"><a id="__codelineno-0-276" name="__codelineno-0-276"></a><span class="sd">            `return_type=&quot;map&quot;`, the map&#39;s `model` is `None`. Defaults to</span>
+</span><span id="__span-0-277"><a id="__codelineno-0-277" name="__codelineno-0-277"></a><span class="sd">            `True`.</span>
+</span><span id="__span-0-278"><a id="__codelineno-0-278" name="__codelineno-0-278"></a><span class="sd">        with_layout: Whether to build the layout. When `False` and</span>
+</span><span id="__span-0-279"><a id="__codelineno-0-279" name="__codelineno-0-279"></a><span class="sd">            `return_type=&quot;map&quot;`, the map&#39;s `layout` is `None`. Defaults to</span>
+</span><span id="__span-0-280"><a id="__codelineno-0-280" name="__codelineno-0-280"></a><span class="sd">            `True`.</span>
+</span><span id="__span-0-281"><a id="__codelineno-0-281" name="__codelineno-0-281"></a><span class="sd">        with_annotations: Whether to read annotations. Defaults to `True`.</span>
+</span><span id="__span-0-282"><a id="__codelineno-0-282" name="__codelineno-0-282"></a><span class="sd">        with_notes: Whether to read notes. Defaults to `True`.</span>
+</span><span id="__span-0-283"><a id="__codelineno-0-283" name="__codelineno-0-283"></a><span class="sd">        options: Additional reader-specific options (ignored).</span>
+</span><span id="__span-0-284"><a id="__codelineno-0-284" name="__codelineno-0-284"></a>
+</span><span id="__span-0-285"><a id="__codelineno-0-285" name="__codelineno-0-285"></a><span class="sd">    Returns:</span>
+</span><span id="__span-0-286"><a id="__codelineno-0-286" name="__codelineno-0-286"></a><span class="sd">        A `ReaderResult` whose `obj` is a map, model, or layout depending</span>
+</span><span id="__span-0-287"><a id="__codelineno-0-287" name="__codelineno-0-287"></a><span class="sd">        on `return_type`.</span>
+</span><span id="__span-0-288"><a id="__codelineno-0-288" name="__codelineno-0-288"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-289"><a id="__codelineno-0-289" name="__codelineno-0-289"></a>    <span class="n">check_file_exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+</span><span id="__span-0-290"><a id="__codelineno-0-290" name="__codelineno-0-290"></a>    <span class="n">cd_document</span> <span class="o">=</span> <span class="n">lxml</span><span class="o">.</span><span class="n">objectify</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+</span><span id="__span-0-291"><a id="__codelineno-0-291" name="__codelineno-0-291"></a>    <span class="n">cd_sbml</span> <span class="o">=</span> <span class="n">cd_document</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+</span><span id="__span-0-292"><a id="__codelineno-0-292" name="__codelineno-0-292"></a>    <span class="p">(</span>
+</span><span id="__span-0-293"><a id="__codelineno-0-293" name="__codelineno-0-293"></a>        <span class="n">obj</span><span class="p">,</span>
+</span><span id="__span-0-294"><a id="__codelineno-0-294" name="__codelineno-0-294"></a>        <span class="n">annotations</span><span class="p">,</span>
+</span><span id="__span-0-295"><a id="__codelineno-0-295" name="__codelineno-0-295"></a>        <span class="n">notes</span><span class="p">,</span>
+</span><span id="__span-0-296"><a id="__codelineno-0-296" name="__codelineno-0-296"></a>        <span class="n">id_to_element</span><span class="p">,</span>
+</span><span id="__span-0-297"><a id="__codelineno-0-297" name="__codelineno-0-297"></a>        <span class="n">source_id_to_model_element</span><span class="p">,</span>
+</span><span id="__span-0-298"><a id="__codelineno-0-298" name="__codelineno-0-298"></a>        <span class="n">source_id_to_layout_element</span><span class="p">,</span>
+</span><span id="__span-0-299"><a id="__codelineno-0-299" name="__codelineno-0-299"></a>        <span class="n">source_id_to_annotations</span><span class="p">,</span>
+</span><span id="__span-0-300"><a id="__codelineno-0-300" name="__codelineno-0-300"></a>        <span class="n">source_id_to_notes</span><span class="p">,</span>
+</span><span id="__span-0-301"><a id="__codelineno-0-301" name="__codelineno-0-301"></a>    <span class="p">)</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_make_main_obj</span><span class="p">(</span>
+</span><span id="__span-0-302"><a id="__codelineno-0-302" name="__codelineno-0-302"></a>        <span class="n">cd_model</span><span class="o">=</span><span class="n">cd_sbml</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+</span><span id="__span-0-303"><a id="__codelineno-0-303" name="__codelineno-0-303"></a>        <span class="n">return_type</span><span class="o">=</span><span class="n">return_type</span><span class="p">,</span>
+</span><span id="__span-0-304"><a id="__codelineno-0-304" name="__codelineno-0-304"></a>        <span class="n">with_model</span><span class="o">=</span><span class="n">with_model</span><span class="p">,</span>
+</span><span id="__span-0-305"><a id="__codelineno-0-305" name="__codelineno-0-305"></a>        <span class="n">with_layout</span><span class="o">=</span><span class="n">with_layout</span><span class="p">,</span>
+</span><span id="__span-0-306"><a id="__codelineno-0-306" name="__codelineno-0-306"></a>        <span class="n">with_annotations</span><span class="o">=</span><span class="n">with_annotations</span><span class="p">,</span>
+</span><span id="__span-0-307"><a id="__codelineno-0-307" name="__codelineno-0-307"></a>        <span class="n">with_notes</span><span class="o">=</span><span class="n">with_notes</span><span class="p">,</span>
+</span><span id="__span-0-308"><a id="__codelineno-0-308" name="__codelineno-0-308"></a>    <span class="p">)</span>
+</span><span id="__span-0-309"><a id="__codelineno-0-309" name="__codelineno-0-309"></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">ReaderResult</span><span class="p">(</span>
+</span><span id="__span-0-310"><a id="__codelineno-0-310" name="__codelineno-0-310"></a>        <span class="n">obj</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
+</span><span id="__span-0-311"><a id="__codelineno-0-311" name="__codelineno-0-311"></a>        <span class="n">element_to_notes</span><span class="o">=</span><span class="n">notes</span><span class="p">,</span>
+</span><span id="__span-0-312"><a id="__codelineno-0-312" name="__codelineno-0-312"></a>        <span class="n">element_to_annotations</span><span class="o">=</span><span class="n">annotations</span><span class="p">,</span>
+</span><span id="__span-0-313"><a id="__codelineno-0-313" name="__codelineno-0-313"></a>        <span class="n">id_to_element</span><span class="o">=</span><span class="n">id_to_element</span><span class="p">,</span>
+</span><span id="__span-0-314"><a id="__codelineno-0-314" name="__codelineno-0-314"></a>        <span class="n">source_id_to_model_element</span><span class="o">=</span><span class="n">source_id_to_model_element</span><span class="p">,</span>
+</span><span id="__span-0-315"><a id="__codelineno-0-315" name="__codelineno-0-315"></a>        <span class="n">source_id_to_layout_element</span><span class="o">=</span><span class="n">source_id_to_layout_element</span><span class="p">,</span>
+</span><span id="__span-0-316"><a id="__codelineno-0-316" name="__codelineno-0-316"></a>        <span class="n">source_id_to_annotations</span><span class="o">=</span><span class="n">source_id_to_annotations</span><span class="p">,</span>
+</span><span id="__span-0-317"><a id="__codelineno-0-317" name="__codelineno-0-317"></a>        <span class="n">source_id_to_notes</span><span class="o">=</span><span class="n">source_id_to_notes</span><span class="p">,</span>
+</span><span id="__span-0-318"><a id="__codelineno-0-318" name="__codelineno-0-318"></a>        <span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">,</span>
+</span><span id="__span-0-319"><a id="__codelineno-0-319" name="__codelineno-0-319"></a>    <span class="p">)</span>
+</span><span id="__span-0-320"><a id="__codelineno-0-320" name="__codelineno-0-320"></a>    <span class="k">return</span> <span class="n">result</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2151,11 +2479,17 @@
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><span title="momapy.io.core.Writer">Writer</span></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="            Writer (momapy.io.core.Writer)" href="../../../io/#momapy.io.Writer">Writer</a></code></p>
 
 
 
         <p>CellDesigner XML writer (model-first approach).</p>
+<p><strong>Round-trip caveat.</strong> CellDesigner encodes link geometry as anchor
+ids, edit points, angles, and line directions, whereas momapy stores
+resolved coordinates. On write this encoding is re-derived from those
+coordinates (see <code>compute_cd_angle</code> and the anchor/edit-point helpers),
+so a read/write round-trip produces <em>equivalent</em> link geometry rather
+than the exact encoding found in the source file.</p>
 
 
 
@@ -2223,7 +2557,7 @@
 
   
       dataclass
-   (momapy.celldesigner.map.CellDesignerMap)" href="../../celldesigner/#momapy.celldesigner.CellDesignerMap">CellDesignerMap</a></span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="n"><span title="os.PathLike">PathLike</span></span><span class="p">,</span> <span class="n">element_to_annotations</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">element_to_notes</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">source_id_to_model_element</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">source_id_to_layout_element</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">with_annotations</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">with_notes</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">:</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="            WriterResult
+   (momapy.celldesigner.map.CellDesignerMap)" href="../../celldesigner/#momapy.celldesigner.CellDesignerMap">CellDesignerMap</a></span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="n"><span title="os.PathLike">PathLike</span></span><span class="p">,</span> <span class="n">element_to_annotations</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">element_to_notes</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">source_id_to_model_element</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">source_id_to_layout_element</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">source_id_to_annotations</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">source_id_to_notes</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">with_annotations</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">with_notes</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">:</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="            WriterResult
 
 
   
@@ -2352,6 +2686,40 @@ element mapping from ReaderResult.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
+                <code>source_id_to_annotations</code>
+            </td>
+            <td>
+                  <code><span title="dict">dict</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional per-source-id annotations
+from ReaderResult.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>source_id_to_notes</code>
+            </td>
+            <td>
+                  <code><span title="dict">dict</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional per-source-id notes from
+ReaderResult.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
                 <code>with_annotations</code>
             </td>
             <td>
@@ -2380,6 +2748,22 @@ element mapping from ReaderResult.</p>
             </td>
             <td>
                   <code>True</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>options</code>
+            </td>
+            <td>
+                  <code><span title="typing.Any">Any</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Additional options (accepted and ignored).</p>
+              </div>
+            </td>
+            <td>
+                  <code>{}</code>
             </td>
           </tr>
       </tbody>
@@ -2416,169 +2800,153 @@ element mapping from ReaderResult.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/momapy/celldesigner/io/celldesigner/writer.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-4548">4548</a></span>
-<span class="normal"><a href="#__codelineno-0-4549">4549</a></span>
-<span class="normal"><a href="#__codelineno-0-4550">4550</a></span>
-<span class="normal"><a href="#__codelineno-0-4551">4551</a></span>
-<span class="normal"><a href="#__codelineno-0-4552">4552</a></span>
-<span class="normal"><a href="#__codelineno-0-4553">4553</a></span>
-<span class="normal"><a href="#__codelineno-0-4554">4554</a></span>
-<span class="normal"><a href="#__codelineno-0-4555">4555</a></span>
-<span class="normal"><a href="#__codelineno-0-4556">4556</a></span>
-<span class="normal"><a href="#__codelineno-0-4557">4557</a></span>
-<span class="normal"><a href="#__codelineno-0-4558">4558</a></span>
-<span class="normal"><a href="#__codelineno-0-4559">4559</a></span>
-<span class="normal"><a href="#__codelineno-0-4560">4560</a></span>
-<span class="normal"><a href="#__codelineno-0-4561">4561</a></span>
-<span class="normal"><a href="#__codelineno-0-4562">4562</a></span>
-<span class="normal"><a href="#__codelineno-0-4563">4563</a></span>
-<span class="normal"><a href="#__codelineno-0-4564">4564</a></span>
-<span class="normal"><a href="#__codelineno-0-4565">4565</a></span>
-<span class="normal"><a href="#__codelineno-0-4566">4566</a></span>
-<span class="normal"><a href="#__codelineno-0-4567">4567</a></span>
-<span class="normal"><a href="#__codelineno-0-4568">4568</a></span>
-<span class="normal"><a href="#__codelineno-0-4569">4569</a></span>
-<span class="normal"><a href="#__codelineno-0-4570">4570</a></span>
-<span class="normal"><a href="#__codelineno-0-4571">4571</a></span>
-<span class="normal"><a href="#__codelineno-0-4572">4572</a></span>
-<span class="normal"><a href="#__codelineno-0-4573">4573</a></span>
-<span class="normal"><a href="#__codelineno-0-4574">4574</a></span>
-<span class="normal"><a href="#__codelineno-0-4575">4575</a></span>
-<span class="normal"><a href="#__codelineno-0-4576">4576</a></span>
-<span class="normal"><a href="#__codelineno-0-4577">4577</a></span>
-<span class="normal"><a href="#__codelineno-0-4578">4578</a></span>
-<span class="normal"><a href="#__codelineno-0-4579">4579</a></span>
-<span class="normal"><a href="#__codelineno-0-4580">4580</a></span>
-<span class="normal"><a href="#__codelineno-0-4581">4581</a></span>
-<span class="normal"><a href="#__codelineno-0-4582">4582</a></span>
-<span class="normal"><a href="#__codelineno-0-4583">4583</a></span>
-<span class="normal"><a href="#__codelineno-0-4584">4584</a></span>
-<span class="normal"><a href="#__codelineno-0-4585">4585</a></span>
-<span class="normal"><a href="#__codelineno-0-4586">4586</a></span>
-<span class="normal"><a href="#__codelineno-0-4587">4587</a></span>
-<span class="normal"><a href="#__codelineno-0-4588">4588</a></span>
-<span class="normal"><a href="#__codelineno-0-4589">4589</a></span>
-<span class="normal"><a href="#__codelineno-0-4590">4590</a></span>
-<span class="normal"><a href="#__codelineno-0-4591">4591</a></span>
-<span class="normal"><a href="#__codelineno-0-4592">4592</a></span>
-<span class="normal"><a href="#__codelineno-0-4593">4593</a></span>
-<span class="normal"><a href="#__codelineno-0-4594">4594</a></span>
-<span class="normal"><a href="#__codelineno-0-4595">4595</a></span>
-<span class="normal"><a href="#__codelineno-0-4596">4596</a></span>
-<span class="normal"><a href="#__codelineno-0-4597">4597</a></span>
-<span class="normal"><a href="#__codelineno-0-4598">4598</a></span>
-<span class="normal"><a href="#__codelineno-0-4599">4599</a></span>
-<span class="normal"><a href="#__codelineno-0-4600">4600</a></span>
-<span class="normal"><a href="#__codelineno-0-4601">4601</a></span>
-<span class="normal"><a href="#__codelineno-0-4602">4602</a></span>
-<span class="normal"><a href="#__codelineno-0-4603">4603</a></span>
-<span class="normal"><a href="#__codelineno-0-4604">4604</a></span>
-<span class="normal"><a href="#__codelineno-0-4605">4605</a></span>
-<span class="normal"><a href="#__codelineno-0-4606">4606</a></span>
-<span class="normal"><a href="#__codelineno-0-4607">4607</a></span>
-<span class="normal"><a href="#__codelineno-0-4608">4608</a></span>
-<span class="normal"><a href="#__codelineno-0-4609">4609</a></span>
-<span class="normal"><a href="#__codelineno-0-4610">4610</a></span>
-<span class="normal"><a href="#__codelineno-0-4611">4611</a></span>
-<span class="normal"><a href="#__codelineno-0-4612">4612</a></span>
-<span class="normal"><a href="#__codelineno-0-4613">4613</a></span>
-<span class="normal"><a href="#__codelineno-0-4614">4614</a></span>
-<span class="normal"><a href="#__codelineno-0-4615">4615</a></span>
-<span class="normal"><a href="#__codelineno-0-4616">4616</a></span>
-<span class="normal"><a href="#__codelineno-0-4617">4617</a></span>
-<span class="normal"><a href="#__codelineno-0-4618">4618</a></span>
-<span class="normal"><a href="#__codelineno-0-4619">4619</a></span>
-<span class="normal"><a href="#__codelineno-0-4620">4620</a></span>
-<span class="normal"><a href="#__codelineno-0-4621">4621</a></span>
-<span class="normal"><a href="#__codelineno-0-4622">4622</a></span>
-<span class="normal"><a href="#__codelineno-0-4623">4623</a></span>
-<span class="normal"><a href="#__codelineno-0-4624">4624</a></span>
-<span class="normal"><a href="#__codelineno-0-4625">4625</a></span>
-<span class="normal"><a href="#__codelineno-0-4626">4626</a></span>
-<span class="normal"><a href="#__codelineno-0-4627">4627</a></span>
-<span class="normal"><a href="#__codelineno-0-4628">4628</a></span>
-<span class="normal"><a href="#__codelineno-0-4629">4629</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-4548"><a id="__codelineno-0-4548" name="__codelineno-0-4548"></a><span class="nd">@classmethod</span>
-</span><span id="__span-0-4549"><a id="__codelineno-0-4549" name="__codelineno-0-4549"></a><span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span>
-</span><span id="__span-0-4550"><a id="__codelineno-0-4550" name="__codelineno-0-4550"></a>    <span class="bp">cls</span><span class="p">,</span>
-</span><span id="__span-0-4551"><a id="__codelineno-0-4551" name="__codelineno-0-4551"></a>    <span class="n">obj</span><span class="p">:</span> <span class="n">CellDesignerMap</span><span class="p">,</span>
-</span><span id="__span-0-4552"><a id="__codelineno-0-4552" name="__codelineno-0-4552"></a>    <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span>
-</span><span id="__span-0-4553"><a id="__codelineno-0-4553" name="__codelineno-0-4553"></a>    <span class="n">element_to_annotations</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-4554"><a id="__codelineno-0-4554" name="__codelineno-0-4554"></a>    <span class="n">element_to_notes</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-4555"><a id="__codelineno-0-4555" name="__codelineno-0-4555"></a>    <span class="n">source_id_to_model_element</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-4556"><a id="__codelineno-0-4556" name="__codelineno-0-4556"></a>    <span class="n">source_id_to_layout_element</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-4557"><a id="__codelineno-0-4557" name="__codelineno-0-4557"></a>    <span class="n">with_annotations</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-0-4558"><a id="__codelineno-0-4558" name="__codelineno-0-4558"></a>    <span class="n">with_notes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-0-4559"><a id="__codelineno-0-4559" name="__codelineno-0-4559"></a>    <span class="o">**</span><span class="n">options</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
-</span><span id="__span-0-4560"><a id="__codelineno-0-4560" name="__codelineno-0-4560"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WriterResult</span><span class="p">:</span>
-</span><span id="__span-0-4561"><a id="__codelineno-0-4561" name="__codelineno-0-4561"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a CellDesigner map to a file.</span>
-</span><span id="__span-0-4562"><a id="__codelineno-0-4562" name="__codelineno-0-4562"></a>
-</span><span id="__span-0-4563"><a id="__codelineno-0-4563" name="__codelineno-0-4563"></a><span class="sd">    Args:</span>
-</span><span id="__span-0-4564"><a id="__codelineno-0-4564" name="__codelineno-0-4564"></a><span class="sd">        obj: A CellDesignerMap instance.</span>
-</span><span id="__span-0-4565"><a id="__codelineno-0-4565" name="__codelineno-0-4565"></a><span class="sd">        file_path: Output file path.</span>
-</span><span id="__span-0-4566"><a id="__codelineno-0-4566" name="__codelineno-0-4566"></a><span class="sd">        element_to_annotations: Annotations dict from reader result.</span>
-</span><span id="__span-0-4567"><a id="__codelineno-0-4567" name="__codelineno-0-4567"></a><span class="sd">        element_to_notes: Notes dict from reader result.</span>
-</span><span id="__span-0-4568"><a id="__codelineno-0-4568" name="__codelineno-0-4568"></a><span class="sd">        source_id_to_model_element: Optional source ID to model</span>
-</span><span id="__span-0-4569"><a id="__codelineno-0-4569" name="__codelineno-0-4569"></a><span class="sd">            element mapping from ReaderResult.</span>
-</span><span id="__span-0-4570"><a id="__codelineno-0-4570" name="__codelineno-0-4570"></a><span class="sd">        source_id_to_layout_element: Optional source ID to layout</span>
-</span><span id="__span-0-4571"><a id="__codelineno-0-4571" name="__codelineno-0-4571"></a><span class="sd">            element mapping from ReaderResult.</span>
-</span><span id="__span-0-4572"><a id="__codelineno-0-4572" name="__codelineno-0-4572"></a><span class="sd">        with_annotations: Whether to write annotations.</span>
-</span><span id="__span-0-4573"><a id="__codelineno-0-4573" name="__codelineno-0-4573"></a><span class="sd">        with_notes: Whether to write notes.</span>
-</span><span id="__span-0-4574"><a id="__codelineno-0-4574" name="__codelineno-0-4574"></a>
-</span><span id="__span-0-4575"><a id="__codelineno-0-4575" name="__codelineno-0-4575"></a><span class="sd">    Returns:</span>
-</span><span id="__span-0-4576"><a id="__codelineno-0-4576" name="__codelineno-0-4576"></a><span class="sd">        WriterResult.</span>
-</span><span id="__span-0-4577"><a id="__codelineno-0-4577" name="__codelineno-0-4577"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-4578"><a id="__codelineno-0-4578" name="__codelineno-0-4578"></a>    <span class="n">check_parent_dir_exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
-</span><span id="__span-0-4579"><a id="__codelineno-0-4579" name="__codelineno-0-4579"></a>    <span class="k">if</span> <span class="n">element_to_annotations</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-4580"><a id="__codelineno-0-4580" name="__codelineno-0-4580"></a>        <span class="n">element_to_annotations</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span id="__span-0-4581"><a id="__codelineno-0-4581" name="__codelineno-0-4581"></a>    <span class="k">if</span> <span class="n">element_to_notes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-4582"><a id="__codelineno-0-4582" name="__codelineno-0-4582"></a>        <span class="n">element_to_notes</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span id="__span-0-4583"><a id="__codelineno-0-4583" name="__codelineno-0-4583"></a>
-</span><span id="__span-0-4584"><a id="__codelineno-0-4584" name="__codelineno-0-4584"></a>    <span class="n">subunit_to_complex</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span id="__span-0-4585"><a id="__codelineno-0-4585" name="__codelineno-0-4585"></a>    <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-4586"><a id="__codelineno-0-4586" name="__codelineno-0-4586"></a>
-</span><span id="__span-0-4587"><a id="__codelineno-0-4587" name="__codelineno-0-4587"></a>        <span class="k">def</span><span class="w"> </span><span class="nf">_collect</span><span class="p">(</span><span class="n">species</span><span class="p">):</span>
-</span><span id="__span-0-4588"><a id="__codelineno-0-4588" name="__codelineno-0-4588"></a>            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">Complex</span><span class="p">):</span>
-</span><span id="__span-0-4589"><a id="__codelineno-0-4589" name="__codelineno-0-4589"></a>                <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">species</span><span class="o">.</span><span class="n">subunits</span><span class="p">:</span>
-</span><span id="__span-0-4590"><a id="__codelineno-0-4590" name="__codelineno-0-4590"></a>                    <span class="c1"># Map to top-level ancestor, not immediate parent.</span>
-</span><span id="__span-0-4591"><a id="__codelineno-0-4591" name="__codelineno-0-4591"></a>                    <span class="c1"># If the parent is itself a subunit, its entry</span>
-</span><span id="__span-0-4592"><a id="__codelineno-0-4592" name="__codelineno-0-4592"></a>                    <span class="c1"># was already set (parent before children).</span>
-</span><span id="__span-0-4593"><a id="__codelineno-0-4593" name="__codelineno-0-4593"></a>                    <span class="n">ancestor</span> <span class="o">=</span> <span class="n">species</span>
-</span><span id="__span-0-4594"><a id="__codelineno-0-4594" name="__codelineno-0-4594"></a>                    <span class="k">while</span> <span class="nb">id</span><span class="p">(</span><span class="n">ancestor</span><span class="p">)</span> <span class="ow">in</span> <span class="n">subunit_to_complex</span><span class="p">:</span>
-</span><span id="__span-0-4595"><a id="__codelineno-0-4595" name="__codelineno-0-4595"></a>                        <span class="n">ancestor</span> <span class="o">=</span> <span class="n">subunit_to_complex</span><span class="p">[</span><span class="nb">id</span><span class="p">(</span><span class="n">ancestor</span><span class="p">)]</span>
-</span><span id="__span-0-4596"><a id="__codelineno-0-4596" name="__codelineno-0-4596"></a>                    <span class="n">subunit_to_complex</span><span class="p">[</span><span class="nb">id</span><span class="p">(</span><span class="n">sub</span><span class="p">)]</span> <span class="o">=</span> <span class="n">ancestor</span>
-</span><span id="__span-0-4597"><a id="__codelineno-0-4597" name="__codelineno-0-4597"></a>                    <span class="n">_collect</span><span class="p">(</span><span class="n">sub</span><span class="p">)</span>
-</span><span id="__span-0-4598"><a id="__codelineno-0-4598" name="__codelineno-0-4598"></a>
-</span><span id="__span-0-4599"><a id="__codelineno-0-4599" name="__codelineno-0-4599"></a>        <span class="k">for</span> <span class="n">species</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">species</span><span class="p">:</span>
-</span><span id="__span-0-4600"><a id="__codelineno-0-4600" name="__codelineno-0-4600"></a>            <span class="n">_collect</span><span class="p">(</span><span class="n">species</span><span class="p">)</span>
-</span><span id="__span-0-4601"><a id="__codelineno-0-4601" name="__codelineno-0-4601"></a>
-</span><span id="__span-0-4602"><a id="__codelineno-0-4602" name="__codelineno-0-4602"></a>    <span class="n">writing_context</span> <span class="o">=</span> <span class="n">CellDesignerWritingContext</span><span class="p">(</span>
-</span><span id="__span-0-4603"><a id="__codelineno-0-4603" name="__codelineno-0-4603"></a>        <span class="n">map_</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
-</span><span id="__span-0-4604"><a id="__codelineno-0-4604" name="__codelineno-0-4604"></a>        <span class="n">element_to_annotations</span><span class="o">=</span><span class="n">element_to_annotations</span><span class="p">,</span>
-</span><span id="__span-0-4605"><a id="__codelineno-0-4605" name="__codelineno-0-4605"></a>        <span class="n">element_to_notes</span><span class="o">=</span><span class="n">element_to_notes</span><span class="p">,</span>
-</span><span id="__span-0-4606"><a id="__codelineno-0-4606" name="__codelineno-0-4606"></a>        <span class="n">source_id_to_model_element</span><span class="o">=</span><span class="n">source_id_to_model_element</span><span class="p">,</span>
-</span><span id="__span-0-4607"><a id="__codelineno-0-4607" name="__codelineno-0-4607"></a>        <span class="n">source_id_to_layout_element</span><span class="o">=</span><span class="n">source_id_to_layout_element</span><span class="p">,</span>
-</span><span id="__span-0-4608"><a id="__codelineno-0-4608" name="__codelineno-0-4608"></a>        <span class="n">with_annotations</span><span class="o">=</span><span class="n">with_annotations</span><span class="p">,</span>
-</span><span id="__span-0-4609"><a id="__codelineno-0-4609" name="__codelineno-0-4609"></a>        <span class="n">with_notes</span><span class="o">=</span><span class="n">with_notes</span><span class="p">,</span>
-</span><span id="__span-0-4610"><a id="__codelineno-0-4610" name="__codelineno-0-4610"></a>        <span class="n">subunit_to_complex</span><span class="o">=</span><span class="n">subunit_to_complex</span><span class="p">,</span>
-</span><span id="__span-0-4611"><a id="__codelineno-0-4611" name="__codelineno-0-4611"></a>    <span class="p">)</span>
-</span><span id="__span-0-4612"><a id="__codelineno-0-4612" name="__codelineno-0-4612"></a>    <span class="c1"># Phase 1: reserve all grammar-valid source ids before any</span>
-</span><span id="__span-0-4613"><a id="__codelineno-0-4613" name="__codelineno-0-4613"></a>    <span class="c1"># emission, so a from-scratch id can never steal a source id&#39;s</span>
-</span><span id="__span-0-4614"><a id="__codelineno-0-4614" name="__codelineno-0-4614"></a>    <span class="c1"># name and round-tripped ids are preserved verbatim.</span>
-</span><span id="__span-0-4615"><a id="__codelineno-0-4615" name="__codelineno-0-4615"></a>    <span class="n">_reserve_source_xml_ids</span><span class="p">(</span><span class="n">writing_context</span><span class="p">)</span>
-</span><span id="__span-0-4616"><a id="__codelineno-0-4616" name="__codelineno-0-4616"></a>    <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">layout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-4617"><a id="__codelineno-0-4617" name="__codelineno-0-4617"></a>        <span class="n">writing_context</span><span class="o">.</span><span class="n">degraded_entries</span> <span class="o">=</span> <span class="n">_collect_degraded_entries</span><span class="p">(</span>
-</span><span id="__span-0-4618"><a id="__codelineno-0-4618" name="__codelineno-0-4618"></a>            <span class="n">writing_context</span>
-</span><span id="__span-0-4619"><a id="__codelineno-0-4619" name="__codelineno-0-4619"></a>        <span class="p">)</span>
-</span><span id="__span-0-4620"><a id="__codelineno-0-4620" name="__codelineno-0-4620"></a>
-</span><span id="__span-0-4621"><a id="__codelineno-0-4621" name="__codelineno-0-4621"></a>    <span class="n">sbml</span> <span class="o">=</span> <span class="n">_build_make_sbml_element</span><span class="p">(</span><span class="n">writing_context</span><span class="p">)</span>
-</span><span id="__span-0-4622"><a id="__codelineno-0-4622" name="__codelineno-0-4622"></a>    <span class="n">tree</span> <span class="o">=</span> <span class="n">lxml</span><span class="o">.</span><span class="n">etree</span><span class="o">.</span><span class="n">ElementTree</span><span class="p">(</span><span class="n">sbml</span><span class="p">)</span>
-</span><span id="__span-0-4623"><a id="__codelineno-0-4623" name="__codelineno-0-4623"></a>    <span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-</span><span id="__span-0-4624"><a id="__codelineno-0-4624" name="__codelineno-0-4624"></a>        <span class="n">file_path</span><span class="p">,</span>
-</span><span id="__span-0-4625"><a id="__codelineno-0-4625" name="__codelineno-0-4625"></a>        <span class="n">pretty_print</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-0-4626"><a id="__codelineno-0-4626" name="__codelineno-0-4626"></a>        <span class="n">xml_declaration</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-0-4627"><a id="__codelineno-0-4627" name="__codelineno-0-4627"></a>        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">,</span>
-</span><span id="__span-0-4628"><a id="__codelineno-0-4628" name="__codelineno-0-4628"></a>    <span class="p">)</span>
-</span><span id="__span-0-4629"><a id="__codelineno-0-4629" name="__codelineno-0-4629"></a>    <span class="k">return</span> <span class="n">WriterResult</span><span class="p">(</span><span class="n">obj</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span> <span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">)</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-39"> 39</a></span>
+<span class="normal"><a href="#__codelineno-0-40"> 40</a></span>
+<span class="normal"><a href="#__codelineno-0-41"> 41</a></span>
+<span class="normal"><a href="#__codelineno-0-42"> 42</a></span>
+<span class="normal"><a href="#__codelineno-0-43"> 43</a></span>
+<span class="normal"><a href="#__codelineno-0-44"> 44</a></span>
+<span class="normal"><a href="#__codelineno-0-45"> 45</a></span>
+<span class="normal"><a href="#__codelineno-0-46"> 46</a></span>
+<span class="normal"><a href="#__codelineno-0-47"> 47</a></span>
+<span class="normal"><a href="#__codelineno-0-48"> 48</a></span>
+<span class="normal"><a href="#__codelineno-0-49"> 49</a></span>
+<span class="normal"><a href="#__codelineno-0-50"> 50</a></span>
+<span class="normal"><a href="#__codelineno-0-51"> 51</a></span>
+<span class="normal"><a href="#__codelineno-0-52"> 52</a></span>
+<span class="normal"><a href="#__codelineno-0-53"> 53</a></span>
+<span class="normal"><a href="#__codelineno-0-54"> 54</a></span>
+<span class="normal"><a href="#__codelineno-0-55"> 55</a></span>
+<span class="normal"><a href="#__codelineno-0-56"> 56</a></span>
+<span class="normal"><a href="#__codelineno-0-57"> 57</a></span>
+<span class="normal"><a href="#__codelineno-0-58"> 58</a></span>
+<span class="normal"><a href="#__codelineno-0-59"> 59</a></span>
+<span class="normal"><a href="#__codelineno-0-60"> 60</a></span>
+<span class="normal"><a href="#__codelineno-0-61"> 61</a></span>
+<span class="normal"><a href="#__codelineno-0-62"> 62</a></span>
+<span class="normal"><a href="#__codelineno-0-63"> 63</a></span>
+<span class="normal"><a href="#__codelineno-0-64"> 64</a></span>
+<span class="normal"><a href="#__codelineno-0-65"> 65</a></span>
+<span class="normal"><a href="#__codelineno-0-66"> 66</a></span>
+<span class="normal"><a href="#__codelineno-0-67"> 67</a></span>
+<span class="normal"><a href="#__codelineno-0-68"> 68</a></span>
+<span class="normal"><a href="#__codelineno-0-69"> 69</a></span>
+<span class="normal"><a href="#__codelineno-0-70"> 70</a></span>
+<span class="normal"><a href="#__codelineno-0-71"> 71</a></span>
+<span class="normal"><a href="#__codelineno-0-72"> 72</a></span>
+<span class="normal"><a href="#__codelineno-0-73"> 73</a></span>
+<span class="normal"><a href="#__codelineno-0-74"> 74</a></span>
+<span class="normal"><a href="#__codelineno-0-75"> 75</a></span>
+<span class="normal"><a href="#__codelineno-0-76"> 76</a></span>
+<span class="normal"><a href="#__codelineno-0-77"> 77</a></span>
+<span class="normal"><a href="#__codelineno-0-78"> 78</a></span>
+<span class="normal"><a href="#__codelineno-0-79"> 79</a></span>
+<span class="normal"><a href="#__codelineno-0-80"> 80</a></span>
+<span class="normal"><a href="#__codelineno-0-81"> 81</a></span>
+<span class="normal"><a href="#__codelineno-0-82"> 82</a></span>
+<span class="normal"><a href="#__codelineno-0-83"> 83</a></span>
+<span class="normal"><a href="#__codelineno-0-84"> 84</a></span>
+<span class="normal"><a href="#__codelineno-0-85"> 85</a></span>
+<span class="normal"><a href="#__codelineno-0-86"> 86</a></span>
+<span class="normal"><a href="#__codelineno-0-87"> 87</a></span>
+<span class="normal"><a href="#__codelineno-0-88"> 88</a></span>
+<span class="normal"><a href="#__codelineno-0-89"> 89</a></span>
+<span class="normal"><a href="#__codelineno-0-90"> 90</a></span>
+<span class="normal"><a href="#__codelineno-0-91"> 91</a></span>
+<span class="normal"><a href="#__codelineno-0-92"> 92</a></span>
+<span class="normal"><a href="#__codelineno-0-93"> 93</a></span>
+<span class="normal"><a href="#__codelineno-0-94"> 94</a></span>
+<span class="normal"><a href="#__codelineno-0-95"> 95</a></span>
+<span class="normal"><a href="#__codelineno-0-96"> 96</a></span>
+<span class="normal"><a href="#__codelineno-0-97"> 97</a></span>
+<span class="normal"><a href="#__codelineno-0-98"> 98</a></span>
+<span class="normal"><a href="#__codelineno-0-99"> 99</a></span>
+<span class="normal"><a href="#__codelineno-0-100">100</a></span>
+<span class="normal"><a href="#__codelineno-0-101">101</a></span>
+<span class="normal"><a href="#__codelineno-0-102">102</a></span>
+<span class="normal"><a href="#__codelineno-0-103">103</a></span>
+<span class="normal"><a href="#__codelineno-0-104">104</a></span>
+<span class="normal"><a href="#__codelineno-0-105">105</a></span>
+<span class="normal"><a href="#__codelineno-0-106">106</a></span>
+<span class="normal"><a href="#__codelineno-0-107">107</a></span>
+<span class="normal"><a href="#__codelineno-0-108">108</a></span>
+<span class="normal"><a href="#__codelineno-0-109">109</a></span>
+<span class="normal"><a href="#__codelineno-0-110">110</a></span>
+<span class="normal"><a href="#__codelineno-0-111">111</a></span>
+<span class="normal"><a href="#__codelineno-0-112">112</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39"></a><span class="nd">@classmethod</span>
+</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40"></a><span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span>
+</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41"></a>    <span class="bp">cls</span><span class="p">,</span>
+</span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42"></a>    <span class="n">obj</span><span class="p">:</span> <span class="n">CellDesignerMap</span><span class="p">,</span>
+</span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43"></a>    <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span>
+</span><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44"></a>    <span class="n">element_to_annotations</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-45"><a id="__codelineno-0-45" name="__codelineno-0-45"></a>    <span class="n">element_to_notes</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-46"><a id="__codelineno-0-46" name="__codelineno-0-46"></a>    <span class="n">source_id_to_model_element</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-47"><a id="__codelineno-0-47" name="__codelineno-0-47"></a>    <span class="n">source_id_to_layout_element</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-48"><a id="__codelineno-0-48" name="__codelineno-0-48"></a>    <span class="n">source_id_to_annotations</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-49"><a id="__codelineno-0-49" name="__codelineno-0-49"></a>    <span class="n">source_id_to_notes</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-50"><a id="__codelineno-0-50" name="__codelineno-0-50"></a>    <span class="n">with_annotations</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-51"><a id="__codelineno-0-51" name="__codelineno-0-51"></a>    <span class="n">with_notes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-52"><a id="__codelineno-0-52" name="__codelineno-0-52"></a>    <span class="o">**</span><span class="n">options</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
+</span><span id="__span-0-53"><a id="__codelineno-0-53" name="__codelineno-0-53"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WriterResult</span><span class="p">:</span>
+</span><span id="__span-0-54"><a id="__codelineno-0-54" name="__codelineno-0-54"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a CellDesigner map to a file.</span>
+</span><span id="__span-0-55"><a id="__codelineno-0-55" name="__codelineno-0-55"></a>
+</span><span id="__span-0-56"><a id="__codelineno-0-56" name="__codelineno-0-56"></a><span class="sd">    Args:</span>
+</span><span id="__span-0-57"><a id="__codelineno-0-57" name="__codelineno-0-57"></a><span class="sd">        obj: A CellDesignerMap instance.</span>
+</span><span id="__span-0-58"><a id="__codelineno-0-58" name="__codelineno-0-58"></a><span class="sd">        file_path: Output file path.</span>
+</span><span id="__span-0-59"><a id="__codelineno-0-59" name="__codelineno-0-59"></a><span class="sd">        element_to_annotations: Annotations dict from reader result.</span>
+</span><span id="__span-0-60"><a id="__codelineno-0-60" name="__codelineno-0-60"></a><span class="sd">        element_to_notes: Notes dict from reader result.</span>
+</span><span id="__span-0-61"><a id="__codelineno-0-61" name="__codelineno-0-61"></a><span class="sd">        source_id_to_model_element: Optional source ID to model</span>
+</span><span id="__span-0-62"><a id="__codelineno-0-62" name="__codelineno-0-62"></a><span class="sd">            element mapping from ReaderResult.</span>
+</span><span id="__span-0-63"><a id="__codelineno-0-63" name="__codelineno-0-63"></a><span class="sd">        source_id_to_layout_element: Optional source ID to layout</span>
+</span><span id="__span-0-64"><a id="__codelineno-0-64" name="__codelineno-0-64"></a><span class="sd">            element mapping from ReaderResult.</span>
+</span><span id="__span-0-65"><a id="__codelineno-0-65" name="__codelineno-0-65"></a><span class="sd">        source_id_to_annotations: Optional per-source-id annotations</span>
+</span><span id="__span-0-66"><a id="__codelineno-0-66" name="__codelineno-0-66"></a><span class="sd">            from ReaderResult.</span>
+</span><span id="__span-0-67"><a id="__codelineno-0-67" name="__codelineno-0-67"></a><span class="sd">        source_id_to_notes: Optional per-source-id notes from</span>
+</span><span id="__span-0-68"><a id="__codelineno-0-68" name="__codelineno-0-68"></a><span class="sd">            ReaderResult.</span>
+</span><span id="__span-0-69"><a id="__codelineno-0-69" name="__codelineno-0-69"></a><span class="sd">        with_annotations: Whether to write annotations.</span>
+</span><span id="__span-0-70"><a id="__codelineno-0-70" name="__codelineno-0-70"></a><span class="sd">        with_notes: Whether to write notes.</span>
+</span><span id="__span-0-71"><a id="__codelineno-0-71" name="__codelineno-0-71"></a><span class="sd">        options: Additional options (accepted and ignored).</span>
+</span><span id="__span-0-72"><a id="__codelineno-0-72" name="__codelineno-0-72"></a>
+</span><span id="__span-0-73"><a id="__codelineno-0-73" name="__codelineno-0-73"></a><span class="sd">    Returns:</span>
+</span><span id="__span-0-74"><a id="__codelineno-0-74" name="__codelineno-0-74"></a><span class="sd">        WriterResult.</span>
+</span><span id="__span-0-75"><a id="__codelineno-0-75" name="__codelineno-0-75"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-76"><a id="__codelineno-0-76" name="__codelineno-0-76"></a>    <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">obj</span><span class="o">.</span><span class="n">layout</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-77"><a id="__codelineno-0-77" name="__codelineno-0-77"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;cannot write a map without both a model and a layout&quot;</span><span class="p">)</span>
+</span><span id="__span-0-78"><a id="__codelineno-0-78" name="__codelineno-0-78"></a>    <span class="n">check_parent_dir_exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+</span><span id="__span-0-79"><a id="__codelineno-0-79" name="__codelineno-0-79"></a>    <span class="k">if</span> <span class="n">element_to_annotations</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-80"><a id="__codelineno-0-80" name="__codelineno-0-80"></a>        <span class="n">element_to_annotations</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="__span-0-81"><a id="__codelineno-0-81" name="__codelineno-0-81"></a>    <span class="k">if</span> <span class="n">element_to_notes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-82"><a id="__codelineno-0-82" name="__codelineno-0-82"></a>        <span class="n">element_to_notes</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="__span-0-83"><a id="__codelineno-0-83" name="__codelineno-0-83"></a>
+</span><span id="__span-0-84"><a id="__codelineno-0-84" name="__codelineno-0-84"></a>    <span class="n">subunit_to_complex</span> <span class="o">=</span> <span class="n">build_subunit_to_complex</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+</span><span id="__span-0-85"><a id="__codelineno-0-85" name="__codelineno-0-85"></a>
+</span><span id="__span-0-86"><a id="__codelineno-0-86" name="__codelineno-0-86"></a>    <span class="n">writing_context</span> <span class="o">=</span> <span class="n">CellDesignerWritingContext</span><span class="p">(</span>
+</span><span id="__span-0-87"><a id="__codelineno-0-87" name="__codelineno-0-87"></a>        <span class="n">map_</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
+</span><span id="__span-0-88"><a id="__codelineno-0-88" name="__codelineno-0-88"></a>        <span class="n">element_to_annotations</span><span class="o">=</span><span class="n">element_to_annotations</span><span class="p">,</span>
+</span><span id="__span-0-89"><a id="__codelineno-0-89" name="__codelineno-0-89"></a>        <span class="n">element_to_notes</span><span class="o">=</span><span class="n">element_to_notes</span><span class="p">,</span>
+</span><span id="__span-0-90"><a id="__codelineno-0-90" name="__codelineno-0-90"></a>        <span class="n">source_id_to_model_element</span><span class="o">=</span><span class="n">source_id_to_model_element</span><span class="p">,</span>
+</span><span id="__span-0-91"><a id="__codelineno-0-91" name="__codelineno-0-91"></a>        <span class="n">source_id_to_layout_element</span><span class="o">=</span><span class="n">source_id_to_layout_element</span><span class="p">,</span>
+</span><span id="__span-0-92"><a id="__codelineno-0-92" name="__codelineno-0-92"></a>        <span class="n">source_id_to_annotations</span><span class="o">=</span><span class="n">source_id_to_annotations</span><span class="p">,</span>
+</span><span id="__span-0-93"><a id="__codelineno-0-93" name="__codelineno-0-93"></a>        <span class="n">source_id_to_notes</span><span class="o">=</span><span class="n">source_id_to_notes</span><span class="p">,</span>
+</span><span id="__span-0-94"><a id="__codelineno-0-94" name="__codelineno-0-94"></a>        <span class="n">with_annotations</span><span class="o">=</span><span class="n">with_annotations</span><span class="p">,</span>
+</span><span id="__span-0-95"><a id="__codelineno-0-95" name="__codelineno-0-95"></a>        <span class="n">with_notes</span><span class="o">=</span><span class="n">with_notes</span><span class="p">,</span>
+</span><span id="__span-0-96"><a id="__codelineno-0-96" name="__codelineno-0-96"></a>        <span class="n">subunit_to_complex</span><span class="o">=</span><span class="n">subunit_to_complex</span><span class="p">,</span>
+</span><span id="__span-0-97"><a id="__codelineno-0-97" name="__codelineno-0-97"></a>    <span class="p">)</span>
+</span><span id="__span-0-98"><a id="__codelineno-0-98" name="__codelineno-0-98"></a>    <span class="c1"># Phase 1: reserve all grammar-valid source ids before any</span>
+</span><span id="__span-0-99"><a id="__codelineno-0-99" name="__codelineno-0-99"></a>    <span class="c1"># emission, so a from-scratch id can never steal a source id&#39;s</span>
+</span><span id="__span-0-100"><a id="__codelineno-0-100" name="__codelineno-0-100"></a>    <span class="c1"># name and round-tripped ids are preserved verbatim.</span>
+</span><span id="__span-0-101"><a id="__codelineno-0-101" name="__codelineno-0-101"></a>    <span class="n">reserve_source_xml_ids</span><span class="p">(</span><span class="n">writing_context</span><span class="p">)</span>
+</span><span id="__span-0-102"><a id="__codelineno-0-102" name="__codelineno-0-102"></a>    <span class="n">writing_context</span><span class="o">.</span><span class="n">degraded_entries</span> <span class="o">=</span> <span class="n">collect_degraded_entries</span><span class="p">(</span><span class="n">writing_context</span><span class="p">)</span>
+</span><span id="__span-0-103"><a id="__codelineno-0-103" name="__codelineno-0-103"></a>
+</span><span id="__span-0-104"><a id="__codelineno-0-104" name="__codelineno-0-104"></a>    <span class="n">sbml</span> <span class="o">=</span> <span class="n">make_sbml_document</span><span class="p">(</span><span class="n">writing_context</span><span class="p">)</span>
+</span><span id="__span-0-105"><a id="__codelineno-0-105" name="__codelineno-0-105"></a>    <span class="n">tree</span> <span class="o">=</span> <span class="n">lxml</span><span class="o">.</span><span class="n">etree</span><span class="o">.</span><span class="n">ElementTree</span><span class="p">(</span><span class="n">sbml</span><span class="p">)</span>
+</span><span id="__span-0-106"><a id="__codelineno-0-106" name="__codelineno-0-106"></a>    <span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+</span><span id="__span-0-107"><a id="__codelineno-0-107" name="__codelineno-0-107"></a>        <span class="n">file_path</span><span class="p">,</span>
+</span><span id="__span-0-108"><a id="__codelineno-0-108" name="__codelineno-0-108"></a>        <span class="n">pretty_print</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-109"><a id="__codelineno-0-109" name="__codelineno-0-109"></a>        <span class="n">xml_declaration</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-110"><a id="__codelineno-0-110" name="__codelineno-0-110"></a>        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">,</span>
+</span><span id="__span-0-111"><a id="__codelineno-0-111" name="__codelineno-0-111"></a>    <span class="p">)</span>
+</span><span id="__span-0-112"><a id="__codelineno-0-112" name="__codelineno-0-112"></a>    <span class="k">return</span> <span class="n">WriterResult</span><span class="p">(</span><span class="n">obj</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span> <span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2662,7 +3030,7 @@ element mapping from ReaderResult.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.instant", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"alias": true, "default": "stable", "provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>
