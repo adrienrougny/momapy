@@ -1701,9 +1701,9 @@ class SBGNML0_2Reader(_SBGNMLReader):
             otherwise.
         """
         try:
-            with open(file_path) as f:
+            with open(file_path, "rb") as f:
                 for line in f:
-                    if "http://sbgn.org/libsbgn/0.2" in line:
+                    if b"http://sbgn.org/libsbgn/0.2" in line:
                         return True
             return False
         except Exception:
@@ -1739,9 +1739,9 @@ class SBGNML0_3Reader(_SBGNMLReader):
             otherwise.
         """
         try:
-            with open(file_path) as f:
+            with open(file_path, "rb") as f:
                 for line in f:
-                    if "http://sbgn.org/libsbgn/0.3" in line:
+                    if b"http://sbgn.org/libsbgn/0.3" in line:
                         return True
             return False
         except Exception:

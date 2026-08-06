@@ -246,9 +246,9 @@ class CellDesignerReader(Reader):
             otherwise.
         """
         try:
-            with open(file_path) as f:
+            with open(file_path, "rb") as f:
                 for line in f:
-                    if "http://www.sbml.org/2001/ns/celldesigner" in line:
+                    if b"http://www.sbml.org/2001/ns/celldesigner" in line:
                         return True
             return False
         except Exception:

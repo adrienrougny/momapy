@@ -56,9 +56,9 @@ class SBMLReader(Reader):
             otherwise.
         """
         try:
-            with open(file_path) as f:
+            with open(file_path, "rb") as f:
                 for line in f:
-                    if "<sbml " in line:
+                    if b"<sbml " in line:
                         return True
             return False
         except Exception:

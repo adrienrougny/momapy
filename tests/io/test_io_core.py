@@ -10,6 +10,10 @@ _CELLDESIGNER_FILE = os.path.join(
     _MAPS_DIR, "celldesigner", "maps", "external_flux.xml"
 )
 _PLAIN_SBML_FILE = os.path.join(_MAPS_DIR, "sbml", "models", "BIOMD0000000595_url.xml")
+# UTF-8 file with bytes that are undecodable in cp1252 (curly quotes).
+_UTF8_ONLY_SBML_FILE = os.path.join(
+    _MAPS_DIR, "sbml", "models", "Zake2021_Metformin_Human_multiple_PO_dose.xml"
+)
 
 
 def _detect_reader_name(file_path):
@@ -107,6 +111,25 @@ def test_reader_registration_order_celldesigner_before_sbml():
     assert "celldesigner" in order
     assert "sbml" in order
     assert order.index("celldesigner") < order.index("sbml")
+
+
+def test_check_file_is_independent_of_locale_encoding(monkeypatch):
+    """check_file must not depend on the platform's locale encoding.
+
+    A UTF-8 map file whose bytes are undecodable in the locale codepage (cp1252
+    on Windows) used to raise UnicodeDecodeError inside check_file, which was
+    swallowed and reported as "no suitable registered reader".
+    """
+    real_open = open
+
+    def cp1252_open(file, mode="r", *args, **kwargs):
+        if "b" not in mode and "encoding" not in kwargs:
+            kwargs["encoding"] = "cp1252"
+        return real_open(file, mode, *args, **kwargs)
+
+    monkeypatch.setattr("builtins.open", cp1252_open)
+    reader = momapy.io.core.get_reader("sbml")
+    assert reader.check_file(_UTF8_ONLY_SBML_FILE) is True
 
 
 def test_sbml_check_file_accepts_celldesigner():
