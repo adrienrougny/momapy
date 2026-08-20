@@ -149,7 +149,7 @@ class PickleReader(Reader):
                 )
             _filter_annotation_mappings(
                 reader_result,
-                include_classes=[ModelElement],
+                include_classes=[ModelElement, Model],
             )
         elif return_type == "layout":
             if isinstance(obj, Map):
