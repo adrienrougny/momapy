@@ -1,11 +1,13 @@
 """Tests for momapy.io.pickle round-tripping of maps and bare objects."""
 
+import frozendict
 import pytest
 
 import momapy.core.layout
 import momapy.geometry
 import momapy.io.pickle
 import momapy.sbgn.pd
+import momapy.sbml.model
 
 
 def _write(obj, tmp_path):
@@ -114,3 +116,85 @@ class TestPickleReaderResultContract:
         assert result.id_to_element is not None
         assert model_id not in result.id_to_element
         assert result.obj.id_ in result.id_to_element
+
+
+class TestPickleAnnotationFiltering:
+    """Projecting a pickle filters the annotation and notes side tables."""
+
+    def _annotation(self):
+        return momapy.sbml.model.RDFAnnotation(
+            qualifier=momapy.sbml.model.BQBiol.IS,
+            resources=frozenset(["urn:miriam:uniprot:P12345"]),
+        )
+
+    def _layout(self):
+        return momapy.core.layout.Layout(
+            position=momapy.geometry.Point(0, 0), width=10, height=10
+        )
+
+    def _write_with_annotations(self, obj, keys, tmp_path):
+        annotation = self._annotation()
+        file_path = tmp_path / "obj.pkl"
+        momapy.io.pickle.PickleWriter.write(
+            obj,
+            file_path,
+            element_to_annotations=frozendict.frozendict(
+                {key: frozenset([annotation]) for key in keys}
+            ),
+            element_to_notes=frozendict.frozendict(
+                {key: frozenset(["a note"]) for key in keys}
+            ),
+        )
+        return file_path
+
+    def test_model_keyed_entries_survive_model_projection(self, tmp_path):
+        """A Model-keyed entry survives return_type='model'.
+
+        `Model` is a `MapElement`, not a `ModelElement`, so filtering the
+        side tables on `ModelElement` alone would delete the entry keyed by
+        the very object being returned.
+        """
+        model = momapy.sbgn.pd.SBGNPDModel()
+        macromolecule = momapy.sbgn.pd.Macromolecule()
+        file_path = self._write_with_annotations(
+            model, [model, macromolecule], tmp_path
+        )
+        result = momapy.io.pickle.PickleReader.read(file_path, return_type="model")
+        assert set(result.element_to_annotations) == {model, macromolecule}
+        assert set(result.element_to_notes) == {model, macromolecule}
+
+    def test_layout_keyed_entries_survive_layout_projection(self, tmp_path):
+        """A Layout-keyed entry survives return_type='layout'.
+
+        `Layout` is a `LayoutElement`, so the layout branch needs no
+        counterpart to the `Model` entry of the model branch.
+        """
+        layout = self._layout()
+        file_path = self._write_with_annotations(layout, [layout], tmp_path)
+        result = momapy.io.pickle.PickleReader.read(file_path, return_type="layout")
+        assert set(result.element_to_annotations) == {layout}
+        assert set(result.element_to_notes) == {layout}
+
+    def test_map_keyed_entries_dropped_on_model_projection(self, tmp_path):
+        """A Map-keyed entry is dropped by return_type='model'.
+
+        Map-level annotations belong to the map, not to its model; a
+        projection does not re-key them onto the model.
+        """
+        map_ = momapy.sbgn.pd.SBGNPDMap(
+            model=momapy.sbgn.pd.SBGNPDModel(), layout=self._layout()
+        )
+        file_path = self._write_with_annotations(map_, [map_], tmp_path)
+        result = momapy.io.pickle.PickleReader.read(file_path, return_type="model")
+        assert not result.element_to_annotations
+        assert not result.element_to_notes
+
+    def test_model_keyed_entries_dropped_on_layout_projection(self, tmp_path):
+        """A Model-keyed entry is dropped by return_type='layout'."""
+        map_ = momapy.sbgn.pd.SBGNPDMap(
+            model=momapy.sbgn.pd.SBGNPDModel(), layout=self._layout()
+        )
+        file_path = self._write_with_annotations(map_, [map_.model], tmp_path)
+        result = momapy.io.pickle.PickleReader.read(file_path, return_type="layout")
+        assert not result.element_to_annotations
+        assert not result.element_to_notes
