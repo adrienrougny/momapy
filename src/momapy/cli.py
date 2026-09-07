@@ -622,16 +622,16 @@ def _build_layout_to_model_id_mapping(
     if layout_model_mapping is None:
         return {}
     layout_id_to_model_id = {}
-    singleton_to_key = layout_model_mapping._singleton_to_key
+    representative_to_key = layout_model_mapping.representative_to_key
     # First pass: frozenset keys (processes, modulations).
-    # Only map the anchor element of each frozenset, not all
+    # Only map the representative element of each frozenset, not all
     # participants, to avoid overwriting other elements' model IDs.
     for key, value in layout_model_mapping.items():
         if not isinstance(key, frozenset):
             continue
         model_id = str(value.id_)
         for layout_element in key:
-            if singleton_to_key.get(layout_element) == key:
+            if representative_to_key.get(layout_element) == key:
                 layout_id_to_model_id[str(layout_element.id_)] = model_id
     # Second pass: singleton keys override frozenset entries,
     # so each element gets its own model ID when available.

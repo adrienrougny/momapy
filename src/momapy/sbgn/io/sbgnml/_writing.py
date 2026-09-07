@@ -297,7 +297,7 @@ def get_layout_elements(
 ) -> "list[LayoutElement]":
     """Get all layout elements for a model element.
 
-    Returns singleton layouts plus the anchors of any frozenset keys
+    Returns singleton layouts plus the representatives of any frozenset keys
     mapped to the model element. Duplicates are removed while preserving
     order.
 
@@ -316,10 +316,10 @@ def get_layout_elements(
     seen = set()
     for item in result:
         if isinstance(item, frozenset):
-            for anchor in mapping._singleton_to_key.inverse.get(item, []):
-                if anchor not in seen:
-                    seen.add(anchor)
-                    layout_elements.append(anchor)
+            for representative in mapping.representative_to_key.inverse.get(item, []):
+                if representative not in seen:
+                    seen.add(representative)
+                    layout_elements.append(representative)
         else:
             if item not in seen:
                 seen.add(item)
@@ -604,7 +604,9 @@ def collect_model_elements(
                 _register(layout_el, sbgnml_glyph)
 
     # 3. Logical operators (with logic arcs)
-    singleton_to_key = writing_context.map_.layout_model_mapping._singleton_to_key
+    representative_to_key = (
+        writing_context.map_.layout_model_mapping.representative_to_key
+    )
     for logical_operator in model.logical_operators:
         for frozenset_key in get_frozenset_keys(writing_context, logical_operator):
             operator_layout = None
@@ -620,7 +622,7 @@ def collect_model_elements(
                     arc_layouts.append(item)
                 elif (
                     isinstance(item, Node)
-                    and singleton_to_key.get(item) == frozenset_key
+                    and representative_to_key.get(item) == frozenset_key
                 ):
                     operator_layout = item
             if operator_layout is None:
@@ -724,7 +726,7 @@ def collect_model_elements(
                             arc_layouts.append(item)
                         elif (
                             isinstance(item, Node)
-                            and singleton_to_key.get(item) == frozenset_key
+                            and representative_to_key.get(item) == frozenset_key
                         ):
                             process_layout = item
                     if process_layout is None:
@@ -752,7 +754,7 @@ def collect_model_elements(
         for frozenset_key in get_frozenset_keys(writing_context, modulation):
             arc_layout = None
             for item in frozenset_key:
-                if singleton_to_key.get(item) == frozenset_key:
+                if representative_to_key.get(item) == frozenset_key:
                     arc_layout = item
                     break
             if arc_layout is None:

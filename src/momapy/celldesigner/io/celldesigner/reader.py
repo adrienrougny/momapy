@@ -1115,6 +1115,7 @@ class CellDesignerReader(Reader):
                         participant_map_elements.append(
                             (reactant_model_element, reactant_layout_element)
                         )
+                        layout_elements_for_mapping.append(reactant_layout_element)
                     layout_elements_for_mapping.append(
                         reading_context.xml_id_to_layout_element[
                             cd_base_reactant.get("alias")
@@ -1137,6 +1138,7 @@ class CellDesignerReader(Reader):
                     participant_map_elements.append(
                         (reactant_model_element, reactant_layout_element)
                     )
+                    layout_elements_for_mapping.append(reactant_layout_element)
                     layout_elements_for_mapping.append(
                         reading_context.xml_id_to_layout_element[
                             cd_reactant_link.get("alias")
@@ -1162,6 +1164,7 @@ class CellDesignerReader(Reader):
                         participant_map_elements.append(
                             (product_model_element, product_layout_element)
                         )
+                        layout_elements_for_mapping.append(product_layout_element)
                     layout_elements_for_mapping.append(
                         reading_context.xml_id_to_layout_element[
                             cd_base_product.get("alias")
@@ -1184,6 +1187,7 @@ class CellDesignerReader(Reader):
                     participant_map_elements.append(
                         (product_model_element, product_layout_element)
                     )
+                    layout_elements_for_mapping.append(product_layout_element)
                     layout_elements_for_mapping.append(
                         reading_context.xml_id_to_layout_element[
                             cd_product_link.get("alias")
@@ -1206,6 +1210,7 @@ class CellDesignerReader(Reader):
                     participant_map_elements.append(
                         (modifier_model_element, modifier_layout_element)
                     )
+                    layout_elements_for_mapping.append(modifier_layout_element)
                     layout_elements_for_mapping.append(modifier_layout_element.source)
             if reading_context.model is not None:
                 model_element = object_from_builder(model_element)
@@ -1237,7 +1242,7 @@ class CellDesignerReader(Reader):
                 expanded = set()
                 for layout_element_for_mapping in layout_elements_for_mapping:
                     existing_key = (
-                        reading_context.layout_model_mapping._singleton_to_key.get(
+                        reading_context.layout_model_mapping.representative_to_key.get(
                             layout_element_for_mapping
                         )
                     )
@@ -1248,7 +1253,7 @@ class CellDesignerReader(Reader):
                 reading_context.layout_model_mapping.add_mapping(
                     frozenset(expanded),
                     model_element,
-                    anchor=layout_element,
+                    representative=layout_element,
                 )
                 for (
                     participant_model_element,
@@ -1715,7 +1720,7 @@ class CellDesignerReader(Reader):
                 layout_element = None
             if reading_context.model is not None and reading_context.layout is not None:
                 source_mapping_key = (
-                    reading_context.layout_model_mapping._singleton_to_key.get(
+                    reading_context.layout_model_mapping.representative_to_key.get(
                         source_layout_element
                     )
                 )
@@ -1724,7 +1729,7 @@ class CellDesignerReader(Reader):
                 else:
                     source_layout_elements = frozenset([source_layout_element])
                 target_mapping_key = (
-                    reading_context.layout_model_mapping._singleton_to_key.get(
+                    reading_context.layout_model_mapping.representative_to_key.get(
                         target_layout_element
                     )
                 )
@@ -1737,6 +1742,6 @@ class CellDesignerReader(Reader):
                     | source_layout_elements
                     | target_layout_elements,
                     model_element,
-                    anchor=layout_element,
+                    representative=layout_element,
                 )
         return model_element, layout_element

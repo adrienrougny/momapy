@@ -31,8 +31,8 @@ Classes:
 - `Map(MapElement)` — `model`, `layout`, `layout_model_mapping`; `is_submap(other) -> bool`, `get_mapping(map_element)`.
 
 ### `src/momapy/core/mapping.py`
-- `LayoutModelMapping(FrozenIdentitySurjectionDict)` — immutable; `get_mapping(map_element)`, `get_child_layout_elements(child_model_element, parent_model_element) -> list[LayoutElement]`, `is_submapping(other)`. Carries `_singleton_to_key: FrozenSurjectionDict` mapping each frozenset anchor to its frozenset key.
-- `LayoutModelMappingBuilder(IdentitySurjectionDict, Builder)` — mutable; `get_mapping(map_element)`, `get_child_layout_elements(child_model_element, parent_model_element) -> list[LayoutElement]`, `add_mapping(layout_element, model_element, anchor=None)`, `build(builder_to_object=None) -> LayoutModelMapping`, `from_object(obj, object_to_builder=None) -> Self`. Carries `_singleton_to_key: SurjectionDict`.
+- `LayoutModelMapping(FrozenIdentitySurjectionDict)` — immutable; `get_mapping(map_element)`, `get_child_layout_elements(child_model_element, parent_model_element) -> list[LayoutElement]`, `is_submapping(other)`, `representative_to_key -> FrozenSurjectionDict` (read-only property mapping each frozenset representative to its frozenset key).
+- `LayoutModelMappingBuilder(IdentitySurjectionDict, Builder)` — mutable; `get_mapping(map_element)`, `get_child_layout_elements(child_model_element, parent_model_element) -> list[LayoutElement]`, `add_mapping(layout_element, model_element, representative=None)`, `build(builder_to_object=None) -> LayoutModelMapping`, `from_object(obj, object_to_builder=None) -> Self`, `representative_to_key -> SurjectionDict` (property).
 
 ### `src/momapy/core/layout.py`
 - `TextLayout(LayoutElement)` — `text`, `position`, font styling, `fill`/`stroke`, alignment, `transform`.

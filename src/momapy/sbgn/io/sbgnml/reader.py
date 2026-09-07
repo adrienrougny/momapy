@@ -1035,15 +1035,6 @@ class _SBGNMLReader(Reader):
                 )
             if model_element is not None and layout_element is not None:
                 for (
-                    terminal_model_el,
-                    terminal_layout_el,
-                    _,
-                ) in terminal_map_elements:
-                    reading_context.layout_model_mapping.add_mapping(
-                        terminal_layout_el,
-                        terminal_model_el,
-                    )
-                for (
                     ref_model,
                     ref_layout,
                     _,
@@ -1063,13 +1054,17 @@ class _SBGNMLReader(Reader):
                         if xml_id == terminal_xml_id
                     ]
                     if not references_for_terminal:
+                        reading_context.layout_model_mapping.add_mapping(
+                            terminal_layout_el,
+                            terminal_model_el,
+                        )
                         continue
                     frozenset_elements = {terminal_layout_el}
                     for _, ref_layout in references_for_terminal:
                         frozenset_elements.add(ref_layout)
                         referenced_entity_layout = ref_layout.target
                         if referenced_entity_layout is not None:
-                            existing_key = reading_context.layout_model_mapping._singleton_to_key.get(
+                            existing_key = reading_context.layout_model_mapping.representative_to_key.get(
                                 referenced_entity_layout
                             )
                             if existing_key is not None:
@@ -1079,7 +1074,7 @@ class _SBGNMLReader(Reader):
                     reading_context.layout_model_mapping.add_mapping(
                         frozenset(frozenset_elements),
                         terminal_model_el,
-                        anchor=terminal_layout_el,
+                        representative=terminal_layout_el,
                     )
                 reading_context.layout_model_mapping.add_mapping(
                     layout_element, model_element
@@ -1155,14 +1150,17 @@ class _SBGNMLReader(Reader):
                         reference_layout_element,
                         reference_model_element,
                     )
-                reading_context.layout_model_mapping.add_mapping(tag_layout, tag_model)
-                if reference_map_elements:
+                if not reference_map_elements:
+                    reading_context.layout_model_mapping.add_mapping(
+                        tag_layout, tag_model
+                    )
+                else:
                     frozenset_elements = {tag_layout}
                     for _, reference_layout_element in reference_map_elements:
                         frozenset_elements.add(reference_layout_element)
                         referenced_entity_layout = reference_layout_element.target
                         if referenced_entity_layout is not None:
-                            existing_key = reading_context.layout_model_mapping._singleton_to_key.get(
+                            existing_key = reading_context.layout_model_mapping.representative_to_key.get(
                                 referenced_entity_layout
                             )
                             if existing_key is not None:
@@ -1172,7 +1170,7 @@ class _SBGNMLReader(Reader):
                     reading_context.layout_model_mapping.add_mapping(
                         frozenset(frozenset_elements),
                         tag_model,
-                        anchor=tag_layout,
+                        representative=tag_layout,
                     )
         else:
             tag_model = None
@@ -1301,7 +1299,7 @@ class _SBGNMLReader(Reader):
                         ]
                     ),
                     model_element,
-                    anchor=layout_element,
+                    representative=layout_element,
                 )
                 for (
                     participant_model_element,
@@ -1497,7 +1495,7 @@ class _SBGNMLReader(Reader):
                         ]
                     ),  # TODO: add whole logical function tree?
                     model_element,
-                    anchor=layout_element,
+                    representative=layout_element,
                 )
                 for (
                     input_model_element,
@@ -1651,7 +1649,7 @@ class _SBGNMLReader(Reader):
                 layout_element = None
             if model_element is not None and layout_element is not None:
                 source_mapping_key = (
-                    reading_context.layout_model_mapping._singleton_to_key.get(
+                    reading_context.layout_model_mapping.representative_to_key.get(
                         source_layout_element
                     )
                 )
@@ -1660,7 +1658,7 @@ class _SBGNMLReader(Reader):
                 else:
                     source_layout_elements = frozenset([source_layout_element])
                 target_mapping_key = (
-                    reading_context.layout_model_mapping._singleton_to_key.get(
+                    reading_context.layout_model_mapping.representative_to_key.get(
                         target_layout_element
                     )
                 )
@@ -1673,7 +1671,7 @@ class _SBGNMLReader(Reader):
                     | source_layout_elements
                     | target_layout_elements,
                     model_element,
-                    anchor=layout_element,
+                    representative=layout_element,
                 )
         else:
             model_element = None

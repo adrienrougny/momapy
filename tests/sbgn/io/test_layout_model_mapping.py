@@ -136,7 +136,7 @@ class TestFrozensetMappings:
             assert found_key is not None, (
                 f"Process {process.id_} not mapped via frozenset key"
             )
-            # The frozenset should contain at least the process layout (anchor)
+            # The frozenset should contain at least the process layout (representative)
             # plus consumption/production arcs and their entity pool targets
             node_count = sum(
                 1 for el in found_key if isinstance(el, momapy.core.layout.Node)
@@ -146,9 +146,9 @@ class TestFrozensetMappings:
                 f"Process {process.id_} frozenset has no node layouts"
             )
 
-    def test_process_singleton_to_key_has_anchor(self, sbgn_map):
-        """Each process frozenset should have exactly one anchor in
-        _singleton_to_key that resolves back to it."""
+    def test_process_representative_to_key_has_representative(self, sbgn_map):
+        """Each process frozenset should have exactly one representative in
+        _representative_to_key that resolves back to it."""
         mapping = sbgn_map.layout_model_mapping
         if not hasattr(sbgn_map.model, "processes"):
             pytest.skip("No processes attribute on model")
@@ -165,14 +165,14 @@ class TestFrozensetMappings:
                     break
             if frozenset_key is None:
                 continue
-            anchors = [
+            representatives = [
                 el
                 for el in frozenset_key
-                if mapping._singleton_to_key.get(el) == frozenset_key
+                if mapping._representative_to_key.get(el) == frozenset_key
             ]
-            assert len(anchors) == 1, (
+            assert len(representatives) == 1, (
                 f"Process {process.id_} frozenset should have exactly 1 "
-                f"anchor in _singleton_to_key, found {len(anchors)}"
+                f"representative in _representative_to_key, found {len(representatives)}"
             )
 
     def test_process_participants_mapped_as_children(self, sbgn_map):
@@ -236,9 +236,9 @@ class TestFrozensetMappings:
                 f"{len(found_key)} element(s), expected > 1"
             )
 
-    def test_modulation_singleton_to_key_has_anchor(self, sbgn_map):
-        """Each modulation frozenset should have exactly one anchor in
-        _singleton_to_key that resolves back to it."""
+    def test_modulation_representative_to_key_has_representative(self, sbgn_map):
+        """Each modulation frozenset should have exactly one representative in
+        _representative_to_key that resolves back to it."""
         mapping = sbgn_map.layout_model_mapping
         if not hasattr(sbgn_map.model, "modulations"):
             pytest.skip("No modulations attribute on model")
@@ -250,14 +250,14 @@ class TestFrozensetMappings:
                     break
             if frozenset_key is None:
                 continue
-            anchors = [
+            representatives = [
                 el
                 for el in frozenset_key
-                if mapping._singleton_to_key.get(el) == frozenset_key
+                if mapping._representative_to_key.get(el) == frozenset_key
             ]
-            assert len(anchors) == 1, (
+            assert len(representatives) == 1, (
                 f"Modulation {modulation.id_} frozenset should have exactly "
-                f"1 anchor in _singleton_to_key, found {len(anchors)}"
+                f"1 representative in _representative_to_key, found {len(representatives)}"
             )
 
     def test_modulation_frozenset_includes_source_and_target(self, sbgn_map):

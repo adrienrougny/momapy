@@ -36,29 +36,34 @@ class LayoutModelMapping(FrozenIdentitySurjectionDict):
       target clusters, a tag or terminal with its reference arcs.
 
     When the key is a frozenset, it is useful to designate one of the
-    layouts as the **anchor** — the element that stands for the cluster
-    on its own. The anchor is typically the "central" layout (the
+    layouts as the **representative** — the element that stands for the cluster
+    on its own. The representative is typically the "central" layout (the
     process glyph for a process, the operator glyph for a logical
     operator, the modulation arc for a modulation, the tag glyph for a
-    tag). Anchors are registered through the ``anchor`` argument of
+    tag). Representatives are registered through the ``representative`` argument of
     [add_mapping][momapy.core.mapping.LayoutModelMappingBuilder.add_mapping]. Once registered,
-    [get_mapping][momapy.core.mapping.LayoutModelMapping.get_mapping] resolves the anchor back to the model element
+    [get_mapping][momapy.core.mapping.LayoutModelMapping.get_mapping] resolves the representative back to the model element
     stored under the frozenset key, and other composite keys can
-    reference the cluster by its anchor rather than by the whole
+    reference the cluster by its representative rather than by the whole
     frozenset.
 
     See the SBGN-PD, SBGN-AF, and CellDesigner module documentation for
-    the per-model-element catalogue of key shapes and anchors.
+    the per-model-element catalogue of key shapes and representatives.
     """
 
     def __init__(self, *args, **kwargs) -> None:
-        """Initialize the mapping and its frozen singleton-to-key index."""
+        """Initialize the mapping and its frozen representative index."""
         super().__init__(*args, **kwargs)
         object.__setattr__(
             self,
-            "_singleton_to_key",
+            "_representative_to_key",
             FrozenSurjectionDict(),
         )
+
+    @property
+    def representative_to_key(self) -> "FrozenSurjectionDict":
+        """Return the read-only table mapping representatives to frozenset keys."""
+        return self._representative_to_key
 
     def get_mapping(
         self,
@@ -73,8 +78,8 @@ class LayoutModelMapping(FrozenIdentitySurjectionDict):
            layout elements (or frozenset keys) whose stored model value
            **is** ``map_element`` by object identity. Two content-equal
            but id-distinct model instances are *not* aliased.
-        3. Anchor fallback: `map_element` was registered as the anchor of a
-           frozenset key via the ``anchor`` argument of ``add_mapping``;
+        3. Representative fallback: `map_element` was registered as the representative of a
+           frozenset key via the ``representative`` argument of ``add_mapping``;
            returns the model element stored under that frozenset key.
 
         Returns ``None`` when no match is found.
@@ -84,7 +89,7 @@ class LayoutModelMapping(FrozenIdentitySurjectionDict):
         result = self.inverse.get(id(map_element))
         if result:
             return list(result)
-        key = self._singleton_to_key.get(map_element)
+        key = self._representative_to_key.get(map_element)
         if key is not None:
             return self[key]
         return None
@@ -102,7 +107,7 @@ class LayoutModelMapping(FrozenIdentitySurjectionDict):
           children of each container layout mapped to the parent, plus the
           members of each frozenset key mapped to the parent.
         - ``S2``: layouts that represent ``child_model_element`` — each
-          singleton layout mapped to the child, plus the anchors of each
+          singleton layout mapped to the child, plus the representatives of each
           frozenset key mapped to the child.
 
         The inverse is identity-keyed, so two content-equal but id-distinct
@@ -112,8 +117,8 @@ class LayoutModelMapping(FrozenIdentitySurjectionDict):
         child_s2 = set()
         for key in self.inverse.get(id(child_model_element), ()):
             if isinstance(key, frozenset):
-                for anchor in self._singleton_to_key.inverse.get(key, []):
-                    child_s2.add(anchor)
+                for representative in self._representative_to_key.inverse.get(key, []):
+                    child_s2.add(representative)
             else:
                 child_s2.add(key)
         parent_s1 = set()
@@ -129,23 +134,23 @@ class LayoutModelMapping(FrozenIdentitySurjectionDict):
         return self.items() <= other.items()
 
     def __reduce__(self) -> tuple[typing.Any, ...]:
-        """Pickle hook that preserves `_singleton_to_key` across round-trips.
+        """Pickle hook that preserves `_representative_to_key` across round-trips.
 
         The inherited `frozendict.__reduce__` only serialises the dict
-        contents, which drops the anchor table added by this subclass.
+        contents, which drops the representative table added by this subclass.
         """
         return (
             type(self),
             (dict(self),),
-            {"_singleton_to_key": dict(self._singleton_to_key)},
+            {"_representative_to_key": dict(self._representative_to_key)},
         )
 
     def __setstate__(self, state: dict[str, typing.Any]) -> None:
-        """Restore `_singleton_to_key` after `__reduce__`-driven unpickle."""
+        """Restore `_representative_to_key` after `__reduce__`-driven unpickle."""
         object.__setattr__(
             self,
-            "_singleton_to_key",
-            FrozenSurjectionDict(state["_singleton_to_key"]),
+            "_representative_to_key",
+            FrozenSurjectionDict(state["_representative_to_key"]),
         )
 
 
@@ -155,7 +160,7 @@ class LayoutModelMappingBuilder(IdentitySurjectionDict, Builder):
     Builds a layout-to-model mapping incrementally, then produces a frozen
     [LayoutModelMapping][momapy.core.LayoutModelMapping] via `build()`. It
     keeps the same key conventions as the frozen mapping (singleton layout
-    keys and frozenset keys, each frozenset anchored in `_singleton_to_key`),
+    keys and frozenset keys, each frozenset with a representative registered in `_representative_to_key`),
     but uses mutable containers so elements can be added or replaced while a
     map is being constructed.
     """
@@ -163,9 +168,14 @@ class LayoutModelMappingBuilder(IdentitySurjectionDict, Builder):
     _cls_to_build: typing.ClassVar[type] = LayoutModelMapping
 
     def __init__(self, *args, **kwargs) -> None:
-        """Initialize the mapping builder and its singleton-to-key index."""
+        """Initialize the mapping builder and its representative index."""
         super().__init__(*args, **kwargs)
-        self._singleton_to_key = SurjectionDict()
+        self._representative_to_key = SurjectionDict()
+
+    @property
+    def representative_to_key(self) -> "SurjectionDict":
+        """Return the table mapping representatives to frozenset keys."""
+        return self._representative_to_key
 
     def get_mapping(
         self,
@@ -200,8 +210,8 @@ class LayoutModelMappingBuilder(IdentitySurjectionDict, Builder):
         child_s2 = set()
         for key in self.inverse.get(id(child_model_element), ()):
             if isinstance(key, frozenset):
-                for anchor in self._singleton_to_key.inverse.get(key, []):
-                    child_s2.add(anchor)
+                for representative in self._representative_to_key.inverse.get(key, []):
+                    child_s2.add(representative)
             else:
                 child_s2.add(key)
         parent_s1 = set()
@@ -216,7 +226,7 @@ class LayoutModelMappingBuilder(IdentitySurjectionDict, Builder):
         self,
         layout_element: "LayoutElement",
         model_element: "ModelElement",
-        anchor: "LayoutElement | None" = None,
+        representative: "LayoutElement | None" = None,
     ) -> None:
         """Add a layout-element to model-element entry to the mapping.
 
@@ -230,17 +240,17 @@ class LayoutModelMappingBuilder(IdentitySurjectionDict, Builder):
                 elements) to use as the key.
             model_element: The model element to associate with the layout
                 element.
-            anchor: When ``layout_element`` is a frozenset and this argument
-                is provided, registers ``anchor`` as the anchor of the
-                frozenset key. This allows ``get_mapping(anchor)`` to resolve
+            representative: When ``layout_element`` is a frozenset and this argument
+                is provided, registers ``representative`` as the representative of the
+                frozenset key. This allows ``get_mapping(representative)`` to resolve
                 to the model element stored under the frozenset key, even when
                 the same element participates in other frozensets (e.g. a
-                logical operator that is both the anchor of its own gate
+                logical operator that is both the representative of its own gate
                 frozenset and a participant in a modulation frozenset).
         """
         self[layout_element] = model_element
-        if anchor is not None:
-            self._singleton_to_key[anchor] = layout_element
+        if representative is not None:
+            self._representative_to_key[representative] = layout_element
 
     def build(
         self,
@@ -264,34 +274,34 @@ class LayoutModelMappingBuilder(IdentitySurjectionDict, Builder):
                 for key, value in self.items()
             }
         )
-        singleton_to_key = FrozenSurjectionDict(
+        representative_to_key = FrozenSurjectionDict(
             {
                 object_from_builder(
-                    singleton, builder_to_object=builder_to_object
+                    representative, builder_to_object=builder_to_object
                 ): object_from_builder(key, builder_to_object=builder_to_object)
-                for singleton, key in self._singleton_to_key.items()
+                for representative, key in self._representative_to_key.items()
             }
         )
-        object.__setattr__(mapping, "_singleton_to_key", singleton_to_key)
+        object.__setattr__(mapping, "_representative_to_key", representative_to_key)
         return mapping
 
     def __reduce__(self) -> tuple[typing.Any, ...]:
-        """Pickle hook that preserves `_singleton_to_key` across round-trips.
+        """Pickle hook that preserves `_representative_to_key` across round-trips.
 
         The default `dict`-subclass pickle emits SETITEMS before BUILD, so
         `IdentitySurjectionDict.__setitem__` fires before
         `_identity_inverse` exists and crashes. Routing through
-        `__init__` fixes both that and the `_singleton_to_key` loss.
+        `__init__` fixes both that and the `_representative_to_key` loss.
         """
         return (
             type(self),
             (dict(self),),
-            {"_singleton_to_key": dict(self._singleton_to_key)},
+            {"_representative_to_key": dict(self._representative_to_key)},
         )
 
     def __setstate__(self, state: dict[str, typing.Any]) -> None:
-        """Restore `_singleton_to_key` after `__reduce__`-driven unpickle."""
-        self._singleton_to_key = SurjectionDict(state["_singleton_to_key"])
+        """Restore `_representative_to_key` after `__reduce__`-driven unpickle."""
+        self._representative_to_key = SurjectionDict(state["_representative_to_key"])
 
     @classmethod
     def from_object(
@@ -330,10 +340,10 @@ class LayoutModelMappingBuilder(IdentitySurjectionDict, Builder):
                 )
             )
         builder = cls(items)
-        singleton_to_key_items = {}
-        for singleton, key in obj._singleton_to_key.items():
-            new_singleton = builder_from_object(
-                singleton, object_to_builder=object_to_builder
+        representative_to_key_items = {}
+        for representative, key in obj._representative_to_key.items():
+            new_representative = builder_from_object(
+                representative, object_to_builder=object_to_builder
             )
             if isinstance(key, frozenset):
                 new_key = frozenset(
@@ -342,8 +352,8 @@ class LayoutModelMappingBuilder(IdentitySurjectionDict, Builder):
                 )
             else:
                 new_key = builder_from_object(key, object_to_builder=object_to_builder)
-            singleton_to_key_items[new_singleton] = new_key
-        builder._singleton_to_key = SurjectionDict(singleton_to_key_items)
+            representative_to_key_items[new_representative] = new_key
+        builder._representative_to_key = SurjectionDict(representative_to_key_items)
         return builder
 
 

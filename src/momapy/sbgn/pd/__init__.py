@@ -6,7 +6,7 @@ Layout-model mapping catalogue
 This section lists, for each model-element category in SBGN-PD, the shape
 of the corresponding key in [LayoutModelMapping][momapy.core.LayoutModelMapping].
 See [LayoutModelMapping][momapy.core.LayoutModelMapping] for the general concepts
-(singleton keys, frozenset keys, anchors).
+(singleton keys, frozenset keys, representatives).
 
 Singleton keys (one layout element represents the model element):
 
@@ -25,11 +25,11 @@ Singleton keys (one layout element represents the model element):
 | [Phenotype][momapy.sbgn.pd.Phenotype] | [PhenotypeLayout][momapy.sbgn.pd.PhenotypeLayout] |
 
 Frozenset keys (a cluster of layout elements jointly represents the
-model element; the **anchor** is the layout that stands for the cluster
-on its own and must be passed as ``anchor=`` when calling
+model element; the **representative** is the layout that stands for the cluster
+on its own and must be passed as ``representative=`` when calling
 [add_mapping][momapy.core.LayoutModelMappingBuilder.add_mapping]):
 
-| Model element | Members of the frozenset key | Anchor |
+| Model element | Members of the frozenset key | Representative |
 |---|---|---|
 | [Process][momapy.sbgn.pd.Process] and subclasses (e.g. [StoichiometricProcess][momapy.sbgn.pd.StoichiometricProcess], [GenericProcess][momapy.sbgn.pd.GenericProcess], [UncertainProcess][momapy.sbgn.pd.UncertainProcess], [Association][momapy.sbgn.pd.Association], [Dissociation][momapy.sbgn.pd.Dissociation], [OmittedProcess][momapy.sbgn.pd.OmittedProcess]) | The process `*Layout` (e.g. [GenericProcessLayout][momapy.sbgn.pd.GenericProcessLayout], [AssociationLayout][momapy.sbgn.pd.AssociationLayout], [DissociationLayout][momapy.sbgn.pd.DissociationLayout]) + every [ConsumptionLayout][momapy.sbgn.pd.ConsumptionLayout] and [ProductionLayout][momapy.sbgn.pd.ProductionLayout] attached to the process + every target layout (the entity-pool layouts those arcs point to) | The process `*Layout` |
 | [LogicalOperator][momapy.sbgn.pd.LogicalOperator] and subclasses (e.g. [AndOperator][momapy.sbgn.pd.AndOperator], [OrOperator][momapy.sbgn.pd.OrOperator], [NotOperator][momapy.sbgn.pd.NotOperator], [EquivalenceOperator][momapy.sbgn.pd.EquivalenceOperator]) | The operator `*Layout` (e.g. [AndOperatorLayout][momapy.sbgn.pd.AndOperatorLayout], [OrOperatorLayout][momapy.sbgn.pd.OrOperatorLayout]) + every [LogicArcLayout][momapy.sbgn.pd.LogicArcLayout] input + every target layout those logic arcs point to | The operator `*Layout` |

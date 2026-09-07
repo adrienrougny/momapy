@@ -131,9 +131,9 @@ class TestFrozensetMappings:
                 f"{len(found_key)} element(s)"
             )
 
-    def test_reaction_singleton_to_key_has_anchor(self, cd_map):
-        """Each reaction frozenset should have exactly one anchor in
-        _singleton_to_key that resolves back to it."""
+    def test_reaction_representative_to_key_has_representative(self, cd_map):
+        """Each reaction frozenset should have exactly one representative in
+        _representative_to_key that resolves back to it."""
         mapping = cd_map.layout_model_mapping
         for reaction in cd_map.model.reactions:
             frozenset_key = None
@@ -143,19 +143,19 @@ class TestFrozensetMappings:
                     break
             if frozenset_key is None:
                 continue
-            anchors = [
+            representatives = [
                 el
                 for el in frozenset_key
-                if mapping._singleton_to_key.get(el) == frozenset_key
+                if mapping._representative_to_key.get(el) == frozenset_key
             ]
-            assert len(anchors) == 1, (
+            assert len(representatives) == 1, (
                 f"Reaction {reaction.id_} frozenset should have exactly 1 "
-                f"anchor in _singleton_to_key, found {len(anchors)}"
+                f"representative in _representative_to_key, found {len(representatives)}"
             )
 
     def test_reaction_participants_mapped_as_children(self, cd_map):
-        """Each consumption/production arc should be mapped as
-        (participant_model, reaction_model) tuple."""
+        """Each participant arc of a reaction frozenset should be mapped to a
+        participant of that reaction."""
         mapping = cd_map.layout_model_mapping
         for reaction in cd_map.model.reactions:
             frozenset_key = None
@@ -165,6 +165,11 @@ class TestFrozensetMappings:
                     break
             if frozenset_key is None:
                 continue
+            participants = (
+                set(reaction.reactants)
+                | set(reaction.products)
+                | set(reaction.modifiers)
+            )
             arcs_in_frozenset = [
                 el for el in frozenset_key if isinstance(el, momapy.core.layout.Arc)
             ]
@@ -172,14 +177,12 @@ class TestFrozensetMappings:
                 if arc not in mapping:
                     continue
                 arc_value = mapping[arc]
-                assert isinstance(arc_value, tuple), (
+                if arc_value is reaction:
+                    continue
+                assert arc_value in participants, (
                     f"Participant arc {type(arc).__name__} mapped to "
-                    f"{type(arc_value).__name__}, expected tuple"
-                )
-                assert arc_value[1] is reaction, (
-                    f"Participant arc parent is "
-                    f"{type(arc_value[1]).__name__}({arc_value[1].id_}), "
-                    f"expected reaction {reaction.id_}"
+                    f"{type(arc_value).__name__}({arc_value.id_}), which is "
+                    f"not a participant of reaction {reaction.id_}"
                 )
 
     def test_every_modulation_is_mapped_via_frozenset(self, cd_map):
@@ -200,9 +203,9 @@ class TestFrozensetMappings:
                 f"(arc + source + target)"
             )
 
-    def test_modulation_singleton_to_key_has_anchor(self, cd_map):
-        """Each modulation frozenset should have exactly one anchor in
-        _singleton_to_key that resolves back to it."""
+    def test_modulation_representative_to_key_has_representative(self, cd_map):
+        """Each modulation frozenset should have exactly one representative in
+        _representative_to_key that resolves back to it."""
         mapping = cd_map.layout_model_mapping
         for modulation in cd_map.model.modulations:
             frozenset_key = None
@@ -212,12 +215,12 @@ class TestFrozensetMappings:
                     break
             if frozenset_key is None:
                 continue
-            anchors = [
+            representatives = [
                 el
                 for el in frozenset_key
-                if mapping._singleton_to_key.get(el) == frozenset_key
+                if mapping._representative_to_key.get(el) == frozenset_key
             ]
-            assert len(anchors) == 1, (
+            assert len(representatives) == 1, (
                 f"Modulation {modulation.id_} frozenset should have exactly "
-                f"1 anchor in _singleton_to_key, found {len(anchors)}"
+                f"1 representative in _representative_to_key, found {len(representatives)}"
             )
