@@ -2429,7 +2429,7 @@
 </ul>
 <h3 id="strings">Strings</h3>
 <p>Quoted strings for font names and other text values:</p>
-<div class="language-css highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nt">font-family</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;DejaVu Sans&quot;</span><span class="o">;</span>
+<div class="language-css highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nt">font-family</span><span class="o">:</span><span class="w"> </span><span class="s2">"DejaVu Sans"</span><span class="o">;</span>
 </span></code></pre></div>
 <h3 id="colors">Colors</h3>
 <p>Colors are given as names (any color defined in <code>momapy.coloring</code>). Hex values are not supported:</p>
@@ -2654,8 +2654,8 @@
 </span></code></pre></div>
 <h2 id="imports">Imports</h2>
 <p>Stylesheets can import other stylesheets using the <code>@import</code> rule:</p>
-<div class="language-css highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="p">@</span><span class="k">import</span><span class="w"> </span><span class="s2">&quot;base.css&quot;</span><span class="p">;</span>
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="p">@</span><span class="k">import</span><span class="w"> </span><span class="s2">&quot;overrides.css&quot;</span><span class="p">;</span>
+<div class="language-css highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="p">@</span><span class="k">import</span><span class="w"> </span><span class="s2">"base.css"</span><span class="p">;</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="p">@</span><span class="k">import</span><span class="w"> </span><span class="s2">"overrides.css"</span><span class="p">;</span>
 </span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
 </span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="nt">MacromoleculeLayout</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="k">fill</span><span class="p">:</span><span class="w"> </span><span class="kc">blue</span><span class="p">;</span>
@@ -2677,14 +2677,14 @@
 <p>Load from file:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">momapy.styling</span><span class="w"> </span><span class="kn">import</span> <span class="n">StyleSheet</span>
 </span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
-</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="n">style_sheet</span> <span class="o">=</span> <span class="n">StyleSheet</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;my_style.css&quot;</span><span class="p">)</span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="n">style_sheet</span> <span class="o">=</span> <span class="n">StyleSheet</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">"my_style.css"</span><span class="p">)</span>
 </span></code></pre></div>
 <p>Load from string:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="n">style_sheet</span> <span class="o">=</span> <span class="n">StyleSheet</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="n">style_sheet</span> <span class="o">=</span> <span class="n">StyleSheet</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">"""</span>
 </span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="s2">MacromoleculeLayout {</span>
 </span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="s2">    fill: blue;</span>
 </span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="s2">}</span>
-</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="s2">"""</span><span class="p">)</span>
 </span></code></pre></div>
 <p><strong>Note:</strong> Both <code>from_file()</code> and <code>from_string()</code> raise a <code>ParseException</code> if the CSS cannot be parsed. Selectors that do not match any element are silently ignored, but a property name that is not a field of a matched element raises <code>AttributeError</code> when the stylesheet is applied. Pass <code>strict=False</code> to <code>apply_style_sheet()</code> to skip such unknown properties instead.</p>
 <p>Bake the styles into the map. <code>apply_style_sheet</code> returns a new, styled copy
@@ -2696,12 +2696,12 @@
 <p>Or apply during rendering, leaving the map unchanged:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">momapy.rendering</span><span class="w"> </span><span class="kn">import</span> <span class="n">render_map</span>
 </span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>
-</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="n">render_map</span><span class="p">(</span><span class="n">map_</span><span class="p">,</span> <span class="s2">&quot;output.svg&quot;</span><span class="p">,</span> <span class="n">style_sheet</span><span class="o">=</span><span class="n">style_sheet</span><span class="p">)</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="n">render_map</span><span class="p">(</span><span class="n">map_</span><span class="p">,</span> <span class="s2">"output.svg"</span><span class="p">,</span> <span class="n">style_sheet</span><span class="o">=</span><span class="n">style_sheet</span><span class="p">)</span>
 </span></code></pre></div>
 <h2 id="complete-example">Complete Example</h2>
 <p>Here's a custom stylesheet for some layout elements of SBGN PD (note that the
 grammar has no comment syntax, so the rules speak for themselves):</p>
-<div class="language-css highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="p">@</span><span class="k">import</span><span class="w"> </span><span class="s2">&quot;my_base_stylesheet.css&quot;</span><span class="p">;</span>
+<div class="language-css highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="p">@</span><span class="k">import</span><span class="w"> </span><span class="s2">"my_base_stylesheet.css"</span><span class="p">;</span>
 </span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>
 </span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="nt">StateVariableLayout</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="w">    </span><span class="k">fill</span><span class="p">:</span><span class="w"> </span><span class="kc">royalblue</span><span class="p">;</span>
