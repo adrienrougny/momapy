@@ -19,3 +19,4 @@ demos/reactome_analysis/data/
 .venv-sandbox/
 poubelle/
 monkeytype.sqlite3
+.harness-sandbox/
