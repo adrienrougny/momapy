@@ -348,7 +348,7 @@ Purpose: SBGN-AF model classes.
 - `get_glyph_key(sbgnml_glyph, map_key)`, `get_subglyph_key(sbgnml_subglyph, map_key)`, `get_arc_key(sbgnml_arc, map_key)`, `get_module(map_key)`, `get_module_from_object(obj)`.
 
 ### `src/momapy/sbgn/io/sbgnml/_writing.py` (serialization helpers, public-named)
-- `make_sbgnml_map(writing_context)`; the XML-id helpers `reserve_source_xml_ids`, `get_xml_id`; the builders `get_layout_elements`, `get_frozenset_keys`, `get_child_layout_element`, `make_sbgnml_glyph`, `make_sbgnml_arc_element`, `make_sbgnml_child_glyphs`, `collect_model_elements`.
+- `make_sbgnml_map(writing_context)`; the XML-id helpers `reserve_source_xml_ids`, `get_xml_id`; the builders `get_layout_elements`, `get_frozenset_keys`, `get_child_layout_element`, `make_sbgnml_glyph`, `make_sbgnml_stoichiometry_glyph`, `make_sbgnml_arc_element`, `make_sbgnml_child_glyphs`, `collect_model_elements`.
 - `NSMAP: dict` — SBGN/RDF/BioModels XML namespaces.
 - `make_lxml_element(tag, namespace=None, attributes=None, text=None, nsmap=None)`
 - `ensure_ncname(id_str) -> str` — coerces an id to XML NCName (`xs:ID`) syntax. (Replaces the removed `get_sbgnml_id`; XML-id assignment now lives in the `_writing.py` helpers `reserve_source_xml_ids`/`get_xml_id`.)
