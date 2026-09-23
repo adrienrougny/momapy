@@ -448,7 +448,7 @@ More complex than SBGN: model and layout often use different XML ID sources (e.g
 
 ## Plans
 
-Write implementation plans to `./plans/` as markdown files. Use descriptive filenames (e.g., `active_border_child_nodes.md`). Also write design debates to `./debates/`.
+Write implementation plans to `./workbench/plans/` as markdown files (never `./plans/`). Use descriptive filenames (e.g., `active_border_child_nodes.md`). Also write design debates to `./workbench/debates/`.
 
 ## DO / DON'T
 
