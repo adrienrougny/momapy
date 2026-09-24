@@ -15,6 +15,7 @@ from momapy.core.fonts import find_font
 
 from momapy.builder import isinstance_or_builder
 from momapy.coloring import Color
+from momapy.drawing import Gradient
 from momapy.drawing import ClosePath
 from momapy.drawing import CurveTo
 from momapy.drawing import drawing_elements_to_geometry
@@ -98,7 +99,7 @@ class TextLayout(LayoutElement):
         default=False,
         metadata={"description": "Whether to justify the text or not"},
     )
-    fill: NoneValueType | Color | None = dataclasses.field(
+    fill: NoneValueType | Color | Gradient | None = dataclasses.field(
         default=None,
         metadata={"description": "The text fill color of the text layout"},
     )
@@ -106,7 +107,7 @@ class TextLayout(LayoutElement):
         default=None,
         metadata={"description": "The filter of the text layout"},
     )  # should be a tuple of filters to follow SVG (to be implemented)
-    stroke: NoneValueType | Color | None = dataclasses.field(
+    stroke: NoneValueType | Color | Gradient | None = dataclasses.field(
         default=None,
         metadata={"description": "The text stroke color of the text layout"},
     )
@@ -401,7 +402,7 @@ class GroupLayout(LayoutElement):
             "description": "The sub-layout elements of the group layout. These are part of the children of the group layout"
         },
     )
-    group_fill: NoneValueType | Color | None = dataclasses.field(
+    group_fill: NoneValueType | Color | Gradient | None = dataclasses.field(
         default=None,
         metadata={"description": "The fill color of the group layout"},
     )
@@ -429,7 +430,7 @@ class GroupLayout(LayoutElement):
         default=None,
         metadata={"description": "The font weight of the group layout"},
     )
-    group_stroke: NoneValueType | Color | None = dataclasses.field(
+    group_stroke: NoneValueType | Color | Gradient | None = dataclasses.field(
         default=None,
         metadata={"description": "The stroke color of the group layout"},
     )
@@ -553,7 +554,7 @@ class Node(GroupLayout):
     optional label and its own border styling.
     """
 
-    fill: NoneValueType | Color | None = dataclasses.field(
+    fill: NoneValueType | Color | Gradient | None = dataclasses.field(
         default=None,
         metadata={"description": "The fill color of the node"},
     )
@@ -569,7 +570,7 @@ class Node(GroupLayout):
     position: Point = dataclasses.field(
         metadata={"description": "The position of the node"}
     )
-    stroke: NoneValueType | Color | None = dataclasses.field(
+    stroke: NoneValueType | Color | Gradient | None = dataclasses.field(
         default=None,
         metadata={"description": "The stroke color of the node"},
     )
@@ -791,21 +792,21 @@ class Arc(GroupLayout):
         default=0.0,
         metadata={"description": "The length the end of the arc will be shorten by"},
     )
-    fill: NoneValueType | Color | None = dataclasses.field(
+    fill: NoneValueType | Color | Gradient | None = dataclasses.field(
         default=None, metadata={"description": "The fill color of the arc"}
     )
     filter_: NoneValueType | Filter | None = dataclasses.field(
         default=None,
         metadata={"description": "The filter of the arc"},
     )
-    path_fill: NoneValueType | Color | None = dataclasses.field(
+    path_fill: NoneValueType | Color | Gradient | None = dataclasses.field(
         default=None,
         metadata={"description": "The path fill color of the arc"},
     )
     path_filter: NoneValueType | Filter | None = dataclasses.field(
         default=None, metadata={"description": "The path filter of the arc"}
     )
-    path_stroke: NoneValueType | Color | None = dataclasses.field(
+    path_stroke: NoneValueType | Color | Gradient | None = dataclasses.field(
         default=None,
         metadata={"description": "The path stroke color of the arc"},
     )
@@ -826,7 +827,7 @@ class Arc(GroupLayout):
             default=None, metadata={"description": "The path transform of the arc"}
         )
     )
-    stroke: NoneValueType | Color | None = dataclasses.field(
+    stroke: NoneValueType | Color | Gradient | None = dataclasses.field(
         default=None,
         metadata={"description": "The stroke color of the arc"},
     )
@@ -963,7 +964,7 @@ class SingleHeadedArc(Arc):
     A single-headed arc is formed of a path and a unique arrowhead at its end.
     """
 
-    arrowhead_fill: NoneValueType | Color | None = dataclasses.field(
+    arrowhead_fill: NoneValueType | Color | Gradient | None = dataclasses.field(
         default=None,
         metadata={"description": "The arrowhead fill color of the arc"},
     )
@@ -971,7 +972,7 @@ class SingleHeadedArc(Arc):
         default=None,
         metadata={"description": "The arrowhead filter of the arc"},
     )
-    arrowhead_stroke: NoneValueType | Color | None = dataclasses.field(
+    arrowhead_stroke: NoneValueType | Color | Gradient | None = dataclasses.field(
         default=None,
         metadata={"description": "The arrowhead stroke color of the arc"},
     )
@@ -1150,7 +1151,7 @@ class DoubleHeadedArc(Arc):
     of the path and one at its end.
     """
 
-    end_arrowhead_fill: NoneValueType | Color | None = dataclasses.field(
+    end_arrowhead_fill: NoneValueType | Color | Gradient | None = dataclasses.field(
         default=None,
         metadata={"description": "The end arrowhead fill color of the arc"},
     )
@@ -1158,7 +1159,7 @@ class DoubleHeadedArc(Arc):
         default=None,
         metadata={"description": "The end arrowhead filter of the arc"},
     )
-    end_arrowhead_stroke: NoneValueType | Color | None = dataclasses.field(
+    end_arrowhead_stroke: NoneValueType | Color | Gradient | None = dataclasses.field(
         default=None,
         metadata={"description": "The end arrowhead stroke color of the arc"},
     )
@@ -1182,7 +1183,7 @@ class DoubleHeadedArc(Arc):
             metadata={"description": "The end arrowhead transform of the arc"},
         )
     )
-    start_arrowhead_fill: NoneValueType | Color | None = dataclasses.field(
+    start_arrowhead_fill: NoneValueType | Color | Gradient | None = dataclasses.field(
         default=None,
         metadata={"description": "The start arrowhead fill color of the arc"},
     )
@@ -1190,7 +1191,7 @@ class DoubleHeadedArc(Arc):
         default=None,
         metadata={"description": "The start arrowhead filter of the arc"},
     )
-    start_arrowhead_stroke: NoneValueType | Color | None = dataclasses.field(
+    start_arrowhead_stroke: NoneValueType | Color | Gradient | None = dataclasses.field(
         default=None,
         metadata={"description": "The start arrowhead stroke color of the arc"},
     )
@@ -1475,7 +1476,7 @@ class Layout(Node):
     A layout is the root node holding all the visual elements of a map.
     """
 
-    fill: NoneValueType | Color | None = NoneValue
+    fill: NoneValueType | Color | Gradient | None = NoneValue
 
     def _border_drawing_elements(self) -> list[DrawingElement]:
         actions = [

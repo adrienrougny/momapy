@@ -24,6 +24,7 @@ from momapy.core.layout import Node
 from momapy.core.layout import Shape
 from momapy.core.layout import SingleHeadedArc
 from momapy.core.layout import TextLayout
+from momapy.drawing import Gradient
 from momapy.drawing import DEFAULT_FONT_FAMILY
 from momapy.drawing import DrawingElement
 from momapy.drawing import Filter
@@ -66,8 +67,8 @@ class SBGNRole(SBGNModelElement):
 class SBGNNode(Node):
     """Abstract base class for SBGN nodes."""
 
-    fill: NoneValueType | Color | None = white
-    stroke: NoneValueType | Color | None = black
+    fill: NoneValueType | Color | Gradient | None = white
+    stroke: NoneValueType | Color | Gradient | None = black
     stroke_width: float | None = 1.25
 
     def _border_drawing_elements(self) -> list[DrawingElement]:
@@ -93,11 +94,11 @@ class SBGNNode(Node):
 class SBGNSingleHeadedArc(SingleHeadedArc):
     """Abstract base class for SBGN single-headed arcs."""
 
-    arrowhead_fill: NoneValueType | Color | None = white
-    arrowhead_stroke: NoneValueType | Color | None = black
+    arrowhead_fill: NoneValueType | Color | Gradient | None = white
+    arrowhead_stroke: NoneValueType | Color | Gradient | None = black
     arrowhead_stroke_width: float | None = 1.25
-    path_fill: NoneValueType | Color | None = NoneValue
-    path_stroke: NoneValueType | Color | None = black
+    path_fill: NoneValueType | Color | Gradient | None = NoneValue
+    path_stroke: NoneValueType | Color | Gradient | None = black
     path_stroke_width: float | None = 1.25
 
 
@@ -105,14 +106,14 @@ class SBGNSingleHeadedArc(SingleHeadedArc):
 class SBGNDoubleHeadedArc(DoubleHeadedArc):
     """Abstract base class for SBGN double-headed arcs."""
 
-    end_arrowhead_fill: NoneValueType | Color | None = white
-    end_arrowhead_stroke: NoneValueType | Color | None = black
+    end_arrowhead_fill: NoneValueType | Color | Gradient | None = white
+    end_arrowhead_stroke: NoneValueType | Color | Gradient | None = black
     end_arrowhead_stroke_width: float | None = 1.25
-    path_fill: NoneValueType | Color | None = NoneValue
-    path_stroke: NoneValueType | Color | None = black
+    path_fill: NoneValueType | Color | Gradient | None = NoneValue
+    path_stroke: NoneValueType | Color | Gradient | None = black
     path_stroke_width: float | None = 1.25
-    start_arrowhead_fill: NoneValueType | Color | None = white
-    start_arrowhead_stroke: NoneValueType | Color | None = black
+    start_arrowhead_fill: NoneValueType | Color | Gradient | None = white
+    start_arrowhead_stroke: NoneValueType | Color | Gradient | None = black
     start_arrowhead_stroke_width: float | None = 1.25
 
 
@@ -154,7 +155,7 @@ class _ConnectorsMixin(_SBGNMixin):
         default=10.0,
         metadata={"description": "Length of the right connector."},
     )
-    left_connector_stroke: NoneValueType | Color | None = dataclasses.field(
+    left_connector_stroke: NoneValueType | Color | Gradient | None = dataclasses.field(
         default=None,
         metadata={"description": "Stroke color for the left connector line."},
     )
@@ -172,7 +173,7 @@ class _ConnectorsMixin(_SBGNMixin):
         default=None,
         metadata={"description": "Dash offset for the left connector line."},
     )
-    left_connector_fill: NoneValueType | Color | None = dataclasses.field(
+    left_connector_fill: NoneValueType | Color | Gradient | None = dataclasses.field(
         default=None,
         metadata={"description": "Fill color for the left connector."},
     )
@@ -186,7 +187,7 @@ class _ConnectorsMixin(_SBGNMixin):
         default=None,
         metadata={"description": "Filter applied to the left connector."},
     )
-    right_connector_stroke: NoneValueType | Color | None = dataclasses.field(
+    right_connector_stroke: NoneValueType | Color | Gradient | None = dataclasses.field(
         default=None,
         metadata={"description": "Stroke color for the right connector line."},
     )
@@ -204,7 +205,7 @@ class _ConnectorsMixin(_SBGNMixin):
         default=None,
         metadata={"description": "Dash offset for the right connector line."},
     )
-    right_connector_fill: NoneValueType | Color | None = dataclasses.field(
+    right_connector_fill: NoneValueType | Color | Gradient | None = dataclasses.field(
         default=None,
         metadata={"description": "Fill color for the right connector."},
     )
@@ -395,9 +396,11 @@ class _MultiMixin(_SBGNMixin):
         default=3.0,
         metadata={"description": "Offset distance between stacked units."},
     )
-    subunits_stroke: tuple[NoneValueType | Color, ...] | None = dataclasses.field(
-        default=None,
-        metadata={"description": "Tuple of stroke colors for each subunit."},
+    subunits_stroke: tuple[NoneValueType | Color | Gradient, ...] | None = (
+        dataclasses.field(
+            default=None,
+            metadata={"description": "Tuple of stroke colors for each subunit."},
+        )
     )
     subunits_stroke_width: tuple[NoneValueType | float, ...] | None = dataclasses.field(
         default=None,
@@ -413,9 +416,11 @@ class _MultiMixin(_SBGNMixin):
         default=None,
         metadata={"description": "Tuple of dash offsets for each subunit."},
     )
-    subunits_fill: tuple[NoneValueType | Color, ...] | None = dataclasses.field(
-        default=None,
-        metadata={"description": "Tuple of fill colors for each subunit."},
+    subunits_fill: tuple[NoneValueType | Color | Gradient, ...] | None = (
+        dataclasses.field(
+            default=None,
+            metadata={"description": "Tuple of fill colors for each subunit."},
+        )
     )
     subunits_transform: (
         tuple[NoneValueType | tuple[Transformation, ...], ...] | None
@@ -515,11 +520,11 @@ class _TextMixin(_SBGNMixin):
         default=DEFAULT_FONT_FAMILY,
         metadata={"description": "Font family for the text."},
     )
-    font_fill: Color | NoneValueType = dataclasses.field(
+    font_fill: Color | Gradient | NoneValueType = dataclasses.field(
         default=black,
         metadata={"description": "Fill color for the text."},
     )
-    font_stroke: Color | NoneValueType = dataclasses.field(
+    font_stroke: Color | Gradient | NoneValueType = dataclasses.field(
         default=NoneValue,
         metadata={"description": "Stroke color for the text outline."},
     )

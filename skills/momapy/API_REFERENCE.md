@@ -59,7 +59,9 @@ Constants: `ROUNDING: int = 4` (in `__all__`; imported by `drawing`), `COMPASS_A
 Functions (all in `__all__`, used cross-module by `drawing`/`celldesigner`): `get_primitives_border(primitives, point, center=None) -> Point | None`, `get_primitives_angle(primitives, angle, unit="degrees", center=None) -> Point | None`, `get_primitives_anchor_point(primitives, anchor_point, center=None) -> Point | None` (where `primitives: list[Segment | QuadraticBezierCurve | CubicBezierCurve | EllipticalArc]`), `get_normalized_angle(angle: float) -> float`, `get_transformation_for_frame(origin, unit_x, unit_y) -> MatrixTransformation`.
 
 ### `src/momapy/drawing.py`
-Classes: `NoneValueType`, `FilterEffect(ABC)` + (`DropShadowEffect`, `CompositeEffect`, `FloodEffect`, `GaussianBlurEffect`, `OffsetEffect`), `FilterEffectInput(Enum)`, `CompositionOperator(Enum)`, `EdgeMode(Enum)`, `FilterUnits(Enum)`, `Filter`, `FontStyle(Enum)`, `FontWeight(Enum)`, `TextAnchor(Enum)`, `FillRule(Enum)`, `DrawingElement(ABC)`, `Text(DrawingElement)`, `Group(DrawingElement)`, `PathAction(ABC)` + (`MoveTo`, `LineTo`, `EllipticalArc`, `CurveTo`, `QuadraticCurveTo`, `ClosePath`), `Path(DrawingElement)`, `Ellipse(DrawingElement)`, `Rectangle(DrawingElement)`.
+Classes: `NoneValueType`, `FilterEffect(ABC)` + (`DropShadowEffect`, `CompositeEffect`, `FloodEffect`, `GaussianBlurEffect`, `OffsetEffect`), `FilterEffectInput(Enum)`, `CompositionOperator(Enum)`, `EdgeMode(Enum)`, `FilterUnits(Enum)`, `Filter`, `GradientUnits(Enum)`, `SpreadMethod(Enum)`, `GradientStop`, `Gradient(ABC)` + (`LinearGradient`, `RadialGradient`), `FontStyle(Enum)`, `FontWeight(Enum)`, `TextAnchor(Enum)`, `FillRule(Enum)`, `DrawingElement(ABC)`, `Text(DrawingElement)`, `Group(DrawingElement)`, `PathAction(ABC)` + (`MoveTo`, `LineTo`, `EllipticalArc`, `CurveTo`, `QuadraticCurveTo`, `ClosePath`), `Path(DrawingElement)`, `Ellipse(DrawingElement)`, `Rectangle(DrawingElement)`.
+
+`DrawingElement.fill`/`stroke` (and the `*fill`/`*stroke` fields of layout elements) accept a `Color`, a `Gradient`, `NoneValue` or `None`. Gradients follow SVG's `linearGradient`/`radialGradient` (no `href`, coordinates are floats).
 
 Functions: `get_initial_value(attr_name: str) -> Any`, `drawing_elements_to_geometry(elements) -> list[Segment|Curve|Arc]`, `get_drawing_elements_border(drawing_elements, point, center=None) -> Point | None`, `get_drawing_elements_angle(drawing_elements, angle, unit="degrees", center=None) -> Point | None`, `get_drawing_elements_bbox(drawing_elements) -> Bbox`, `get_drawing_elements_anchor_point(drawing_elements, anchor_point, center=None) -> Point | None`.
 
@@ -87,6 +89,7 @@ Purpose: CSS-like style sheets.
 - `apply_style_collection(layout_element, style_collection, strict=True)`
 - `apply_style_sheet(map_or_layout_element, style_sheet, strict=True, ancestors=None)`
 - `get_stylable_attributes(layout_element_or_class, presentation_only=False) -> list[str]`
+- Values: named and hex (`#rrggbb`, `#rrggbbaa`) colors; `drop-shadow(...)`; `linear-gradient(...)`, `repeating-linear-gradient(...)`, `radial-gradient(...)` (resolved to `LinearGradient`/`RadialGradient` at parse time).
 
 ### `src/momapy/coloring.py`
 - `Color` — `red`, `green`, `blue`, `alpha=1.0`; `__or__(alpha)`, `to_rgba/to_rgb/to_hex/to_hexa`, `with_alpha`, `from_rgba/from_rgb/from_hex/from_hexa`. Plus 144 named module-level constants.
@@ -203,6 +206,7 @@ Shape classes (extend `Shape`, override `drawing_elements()`): `Rectangle`, `Ell
 ### `src/momapy/rendering/core.py`
 - `Renderer(ABC)` — abstract backend surface: `begin_session()`, `end_session()`, `new_page(width, height)`, `render_layout_element(layout_element)`, `render_drawing_element(drawing_element)`. `render_map(map_)` is a **concrete convenience method** (default renders `map_.layout` via `render_layout_element`), not part of the abstract contract; the file pipeline does not call it. Also two concrete, overridable classmethods resolving the CSS `bolder`/`lighter` keywords against `font_weight_value_mapping`: `get_bolder_font_weight(font_weight) -> float`, `get_lighter_font_weight(font_weight) -> float`. File output is **not** on this contract; non-file renderers subclass `Renderer` directly.
 - `SupportsFileOutput(ABC)` — mixin declaring the file-output *capability* (not an identity — a renderer mixing it in may also target live canvases/in-memory surfaces): `supported_formats: ClassVar[list[str]]`, `default_format: ClassVar[str | None]` (format used when `from_file` gets `format_=None`; subclasses set it) + abstract classmethod `from_file(file_path, width, height, format_=None) -> Self`. Mix into a `Renderer` subclass. The file-output entry points require it; `render_layout_elements` raises `ValueError` for a renderer that does not mix it in.
+- `make_gradient_matrix(gradient, bbox) -> numpy.ndarray` — 3x3 matrix from gradient space to user space (box matrix for `OBJECT_BOUNDING_BOX`, then `gradient_transform`); used by the Skia and Cairo renderers.
 - `StatefulRenderer(Renderer)` — adds state-management helpers: `save()`/`restore()`, `self_save()`/`self_restore()`, `get_current_state()`, `get_current_value(attr_name)`, `get_initial_value(attr_name)`, `set_current_value(attr_name, attr_value)`, `set_current_state(state)`, `set_current_state_from_drawing_element(drawing_element)`.
 
 ### `src/momapy/rendering/cairo.py`
@@ -238,7 +242,7 @@ Purpose: shared SBGN bases and mixins for PD and AF.
 - `SBGNModel(Model)` — abstract base shared by PD and AF.
 
 ### `src/momapy/sbgn/layout.py`
-- `SBGNLayout(Layout)` — abstract base; `fill: Color | None = white`.
+- `SBGNLayout(Layout)` — abstract base; `fill: NoneValueType | Color | Gradient | None = white`.
 - Constants (reader defaults, re-exported from `momapy.sbgn`, `momapy.sbgn.pd`, `momapy.sbgn.af`): `DEFAULT_FONT_SIZE = 11.0` (glyph / entity-pool labels), `DEFAULT_AUXILIARY_UNIT_FONT_SIZE = 8.0` (state variable & unit-of-information labels).
 
 ### `src/momapy/sbgn/map.py`

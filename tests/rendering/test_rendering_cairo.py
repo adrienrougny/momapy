@@ -46,3 +46,16 @@ class TestCairoRendering:
         )
         assert os.path.exists(output_file)
         assert os.path.getsize(output_file) > 0
+
+    def test_render_gradients(self, gradient_rectangles, temp_dir):
+        """Rendering linear and radial gradient paints does not fail."""
+        import momapy.rendering.core
+
+        output_file = os.path.join(temp_dir, "gradients.png")
+        renderer_cls = momapy.rendering.core.get_renderer("cairo")
+        renderer = renderer_cls.from_file(output_file, 100, 100, "png")
+        renderer.begin_session()
+        for rectangle in gradient_rectangles:
+            renderer.render_drawing_element(rectangle)
+        renderer.end_session()
+        assert os.path.getsize(output_file) > 0

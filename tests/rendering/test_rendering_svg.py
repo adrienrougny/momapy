@@ -73,3 +73,31 @@ class TestGaussianBlurEdgeMode:
         )
         element = renderer._make_gaussian_blur_effect_element(effect)
         assert element.attributes["edgeMode"] == "wrap"
+
+
+class TestSVGGradients:
+    """Gradient fills and strokes in the SVG renderer."""
+
+    def test_gradients_are_written_in_defs(self, gradient_rectangles, temp_dir):
+        """Gradients go to defs and are referenced with url()."""
+        import momapy.rendering.svg_native
+
+        output_file = os.path.join(temp_dir, "gradients.svg")
+        renderer = momapy.rendering.svg_native.SVGNativeRenderer.from_file(
+            output_file, 100, 100
+        )
+        renderer.begin_session()
+        for rectangle in gradient_rectangles:
+            renderer.render_drawing_element(rectangle)
+        renderer.end_session()
+        with open(output_file) as file:
+            content = file.read()
+        for rectangle in gradient_rectangles:
+            assert f'fill="url(#{rectangle.fill.id_})"' in content
+            assert f'stroke="url(#{rectangle.fill.id_})"' in content
+            assert f'id="{rectangle.fill.id_}"' in content
+        assert content.count("<linearGradient") == 2
+        assert content.count("<radialGradient") == 1
+        assert 'spreadMethod="repeat"' in content
+        assert 'gradientTransform="rotate(' in content
+        assert "fill-opacity" not in content
