@@ -32,6 +32,8 @@ from momapy.drawing import GaussianBlurEffect
 from momapy.drawing import Gradient
 from momapy.drawing import GradientUnits
 from momapy.drawing import Group
+from momapy.drawing import LineCap
+from momapy.drawing import LineJoin
 from momapy.drawing import LineTo
 from momapy.drawing import LinearGradient
 from momapy.drawing import MoveTo
@@ -150,6 +152,16 @@ class SkiaRenderer(
         SpreadMethod.PAD: skia.TileMode.kClamp,
         SpreadMethod.REFLECT: skia.TileMode.kMirror,
         SpreadMethod.REPEAT: skia.TileMode.kRepeat,
+    }
+    _de_stroke_linecap_mapping: typing.ClassVar[dict[typing.Any, typing.Any]] = {
+        LineCap.BUTT: skia.Paint.kButt_Cap,
+        LineCap.ROUND: skia.Paint.kRound_Cap,
+        LineCap.SQUARE: skia.Paint.kSquare_Cap,
+    }
+    _de_stroke_linejoin_mapping: typing.ClassVar[dict[typing.Any, typing.Any]] = {
+        LineJoin.MITER: skia.Paint.kMiter_Join,
+        LineJoin.ROUND: skia.Paint.kRound_Join,
+        LineJoin.BEVEL: skia.Paint.kBevel_Join,
     }
     _te_font_style_slant_mapping: typing.ClassVar[dict[typing.Any, typing.Any]] = {
         FontStyle.NORMAL: skia.FontStyle.Slant.kUpright_Slant,
@@ -349,6 +361,12 @@ class SkiaRenderer(
         skia_paint = skia.Paint(
             AntiAlias=True,
             StrokeWidth=self.get_current_value("stroke_width"),
+            StrokeCap=self._de_stroke_linecap_mapping[
+                self.get_current_value("stroke_linecap")
+            ],
+            StrokeJoin=self._de_stroke_linejoin_mapping[
+                self.get_current_value("stroke_linejoin")
+            ],
             PathEffect=skia_path_effect,
             Style=skia.Paint.kStroke_Style,
         )

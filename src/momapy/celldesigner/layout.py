@@ -24,6 +24,8 @@ from momapy.core.elements import Direction
 from momapy.core.layout import Layout, Shape, TextLayout
 from momapy.geometry import Point, Rotation, Transformation, get_normalized_angle
 from momapy.coloring import Color, black, white
+from momapy.drawing import LineCap
+from momapy.drawing import LineJoin
 from momapy.drawing import Gradient
 from momapy.drawing import (
     ClosePath,
@@ -2732,6 +2734,14 @@ class _ReactionNodeMixin(_SBGNMixin):
         default=None,
         metadata={"description": "The dash offset of the reaction node's border."},
     )
+    reaction_node_stroke_linecap: LineCap | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The line cap of the reaction node's border."},
+    )
+    reaction_node_stroke_linejoin: LineJoin | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The line join of the reaction node's border."},
+    )
     reaction_node_fill: NoneValueType | Color | Gradient | None = dataclasses.field(
         default=white, metadata={"description": "The fill color of the reaction node."}
     )
@@ -2823,6 +2833,8 @@ class _ReactionNodeMixin(_SBGNMixin):
             stroke_width=self.reaction_node_stroke_width,
             stroke_dasharray=self.reaction_node_stroke_dasharray,
             stroke_dashoffset=self.reaction_node_stroke_dashoffset,
+            stroke_linecap=self.reaction_node_stroke_linecap,
+            stroke_linejoin=self.reaction_node_stroke_linejoin,
             fill=self.reaction_node_fill,
             transform=self.reaction_node_transform,
             filter_=self.reaction_node_filter,

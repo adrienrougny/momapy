@@ -932,3 +932,49 @@ class TestCSSColorsAndGradients:
         """Invalid position combinations raise ValueError."""
         with pytest.raises(ValueError):
             _parse_fill(value)
+
+
+class TestCSSLineJoinsAndCaps:
+    """stroke-linejoin and stroke-linecap keywords."""
+
+    def test_keywords_are_converted(self):
+        """Keywords become LineJoin and LineCap values, prefixes included."""
+        import momapy.drawing
+
+        style_sheet = momapy.styling.StyleSheet.from_string(
+            "A { stroke-linejoin: round; path-stroke-linecap: square; }"
+        )
+        style_collection = list(style_sheet.values())[0]
+        assert style_collection["stroke_linejoin"] == momapy.drawing.LineJoin.ROUND
+        assert style_collection["path_stroke_linecap"] == momapy.drawing.LineCap.SQUARE
+
+    def test_wrong_keyword_raises(self):
+        """A join keyword is not accepted as a cap."""
+        with pytest.raises(ValueError):
+            momapy.styling.StyleSheet.from_string("A { stroke-linecap: miter; }")
+
+    def test_arrowhead_line_join_reaches_drawing_elements(self):
+        """arrowhead-stroke-linejoin ends up on the arrowhead drawing elements."""
+        import pathlib
+        import momapy.drawing
+        import momapy.io.core
+        import momapy.sbgn.pd
+
+        map_file = pathlib.Path(__file__).parent / "sbgn/maps/pd/mapk_cascade.sbgn"
+        map_ = momapy.io.core.read(map_file).obj
+        style_sheet = momapy.styling.StyleSheet.from_string(
+            "ProductionLayout { arrowhead-stroke-linejoin: round; }"
+        )
+        map_ = momapy.styling.apply_style_sheet(map_, style_sheet)
+        production = next(
+            layout_element
+            for layout_element in map_.layout.descendants()
+            if isinstance(layout_element, momapy.sbgn.pd.ProductionLayout)
+        )
+        drawing_elements = list(production.drawing_elements())
+        line_joins = []
+        while drawing_elements:
+            drawing_element = drawing_elements.pop()
+            line_joins.append(drawing_element.stroke_linejoin)
+            drawing_elements.extend(getattr(drawing_element, "elements", ()))
+        assert momapy.drawing.LineJoin.ROUND in line_joins

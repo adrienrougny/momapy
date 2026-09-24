@@ -172,7 +172,24 @@ With the Skia and Cairo renderers, a gradient laid out on the bounding box (perc
 | `stroke` | Stroke/border color or gradient | `stroke: black;` |
 | `stroke-width` | Stroke thickness | `stroke-width: 2.0;` |
 | `stroke-dasharray` | Dash pattern | `stroke-dasharray: 5, 5;` |
+| `stroke-linejoin` | Shape of corners: `miter` (default), `round`, `bevel` | `stroke-linejoin: round;` |
+| `stroke-linecap` | Shape of line ends: `butt` (default), `round`, `square` | `stroke-linecap: round;` |
 | `filter` | Visual effects | `filter: drop-shadow(2.0, 2.0, 3.0, 0.5, gray);` |
+
+Like the other stroke properties, `stroke-linejoin` and `stroke-linecap` also exist with prefixes (`path-stroke-linejoin`, `arrowhead-stroke-linejoin`, ...).
+
+A shape filled and stroked with the same color and `stroke-linejoin: round` gets its corners rounded by half the stroke width. The stroke also makes the shape bigger by half the stroke width on each side:
+
+```css
+GenericProcessLayout {
+    width: 14.0;
+    height: 14.0;
+    fill: #4c4c4c;
+    stroke: #4c4c4c;
+    stroke-width: 6.0;
+    stroke-linejoin: round;
+}
+```
 
 ### Text Properties
 

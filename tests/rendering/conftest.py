@@ -75,3 +75,28 @@ def gradient_rectangles():
         )
         for gradient in gradients
     ]
+
+
+@pytest.fixture
+def line_join_and_cap_paths():
+    """Open paths with each line join and line cap."""
+    import momapy.coloring
+    import momapy.drawing
+    import momapy.geometry
+
+    actions = (
+        momapy.drawing.MoveTo(momapy.geometry.Point(10.0, 90.0)),
+        momapy.drawing.LineTo(momapy.geometry.Point(50.0, 10.0)),
+        momapy.drawing.LineTo(momapy.geometry.Point(90.0, 90.0)),
+    )
+    return [
+        momapy.drawing.Path(
+            actions=actions,
+            stroke=momapy.coloring.black,
+            stroke_width=8.0,
+            fill=momapy.drawing.NoneValue,
+            stroke_linejoin=line_join,
+            stroke_linecap=line_cap,
+        )
+        for line_join, line_cap in zip(momapy.drawing.LineJoin, momapy.drawing.LineCap)
+    ]

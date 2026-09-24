@@ -38,6 +38,8 @@ from momapy.drawing import FontStyle
 from momapy.drawing import Gradient
 from momapy.drawing import GradientUnits
 from momapy.drawing import Group
+from momapy.drawing import LineCap
+from momapy.drawing import LineJoin
 from momapy.drawing import LineTo
 from momapy.drawing import LinearGradient
 from momapy.drawing import MoveTo
@@ -126,6 +128,16 @@ class CairoRenderer(
         SpreadMethod.PAD: cairo.EXTEND_PAD,
         SpreadMethod.REFLECT: cairo.EXTEND_REFLECT,
         SpreadMethod.REPEAT: cairo.EXTEND_REPEAT,
+    }
+    _de_stroke_linecap_mapping: typing.ClassVar[dict[typing.Any, typing.Any]] = {
+        LineCap.BUTT: cairo.LINE_CAP_BUTT,
+        LineCap.ROUND: cairo.LINE_CAP_ROUND,
+        LineCap.SQUARE: cairo.LINE_CAP_SQUARE,
+    }
+    _de_stroke_linejoin_mapping: typing.ClassVar[dict[typing.Any, typing.Any]] = {
+        LineJoin.MITER: cairo.LINE_JOIN_MITER,
+        LineJoin.ROUND: cairo.LINE_JOIN_ROUND,
+        LineJoin.BEVEL: cairo.LINE_JOIN_BEVEL,
     }
     _te_font_style_slant_mapping: typing.ClassVar[dict[typing.Any, typing.Any]] = {
         FontStyle.NORMAL: gi.repository.Pango.Style.NORMAL,
@@ -286,6 +298,16 @@ class CairoRenderer(
 
         if stroke is not NoneValue:
             self.context.set_line_width(stroke_width)
+            self.context.set_line_cap(
+                self._de_stroke_linecap_mapping[
+                    self.get_current_value("stroke_linecap")
+                ]
+            )
+            self.context.set_line_join(
+                self._de_stroke_linejoin_mapping[
+                    self.get_current_value("stroke_linejoin")
+                ]
+            )
             self._set_context_source(stroke, drawing_element)
             if stroke_dasharray is not None and stroke_dasharray is not NoneValue:
                 self.context.set_dash(stroke_dasharray, stroke_dashoffset or 0)

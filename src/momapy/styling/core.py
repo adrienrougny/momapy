@@ -30,6 +30,8 @@ from momapy.drawing import DropShadowEffect
 from momapy.drawing import Filter
 from momapy.drawing import GradientStop
 from momapy.drawing import GradientUnits
+from momapy.drawing import LineCap
+from momapy.drawing import LineJoin
 from momapy.drawing import LinearGradient
 from momapy.drawing import NoneValue
 from momapy.drawing import PRESENTATION_ATTRIBUTES
@@ -626,11 +628,13 @@ _css_radial_gradient_value = (
     + _css_gradient_color_stops_value
     + pyparsing.Literal(")")
 )
+_css_keyword_value = pyparsing.one_of("miter round bevel butt square", as_keyword=True)
 _css_simple_value = (
     _css_linear_gradient_value
     | _css_repeating_linear_gradient_value
     | _css_radial_gradient_value
     | _css_drop_shadow_filter_value
+    | _css_keyword_value
     | _css_unset_value
     | _css_none_value
     | _css_float_value
@@ -927,9 +931,21 @@ def _resolve_css_attribute_name(results: pyparsing.ParseResults) -> str:
 
 @_css_style.set_parse_action
 def _resolve_css_style(results: pyparsing.ParseResults) -> typing.Any:
+    attribute_name = results[0]
+    attribute_value = results[2]
+    for suffix, enum_class in [
+        ("stroke_linecap", LineCap),
+        ("stroke_linejoin", LineJoin),
+    ]:
+        if attribute_name.endswith(suffix) and isinstance(attribute_value, str):
+            if attribute_value.upper() not in enum_class.__members__:
+                raise ValueError(
+                    f"{attribute_value} is not a valid value for {attribute_name}"
+                )
+            attribute_value = enum_class[attribute_value.upper()]
     return (
-        results[0],
-        results[2],
+        attribute_name,
+        attribute_value,
     )
 
 

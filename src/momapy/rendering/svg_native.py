@@ -32,6 +32,8 @@ from momapy.drawing import Gradient
 from momapy.drawing import GradientStop
 from momapy.drawing import GradientUnits
 from momapy.drawing import Group
+from momapy.drawing import LineCap
+from momapy.drawing import LineJoin
 from momapy.drawing import LineTo
 from momapy.drawing import LinearGradient
 from momapy.drawing import MoveTo
@@ -246,6 +248,16 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
         FillRule.NONZERO: "nonzero",
         FillRule.EVENODD: "evenodd",
     }
+    _de_stroke_linecap_value_mapping: typing.ClassVar[dict[typing.Any, str]] = {
+        LineCap.BUTT: "butt",
+        LineCap.ROUND: "round",
+        LineCap.SQUARE: "square",
+    }
+    _de_stroke_linejoin_value_mapping: typing.ClassVar[dict[typing.Any, str]] = {
+        LineJoin.MITER: "miter",
+        LineJoin.ROUND: "round",
+        LineJoin.BEVEL: "bevel",
+    }
 
     svg: SVGElement = dataclasses.field(
         metadata={
@@ -438,6 +450,10 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
                         attr_value = self._te_text_anchor_value_mapping[attr_value]
                     elif attr_name == "fill_rule":
                         attr_value = self._de_fill_rule_value_mapping[attr_value]
+                    elif attr_name == "stroke_linecap":
+                        attr_value = self._de_stroke_linecap_value_mapping[attr_value]
+                    elif attr_name == "stroke_linejoin":
+                        attr_value = self._de_stroke_linejoin_value_mapping[attr_value]
                     elif attr_name == "stroke_dasharray":
                         attr_value = " ".join(
                             [

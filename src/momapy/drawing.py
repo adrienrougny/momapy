@@ -92,6 +92,8 @@ __all__ = [
     "GradientStop",
     "GradientUnits",
     "Group",
+    "LineCap",
+    "LineJoin",
     "LineTo",
     "LinearGradient",
     "MoveTo",
@@ -612,6 +614,28 @@ class FillRule(enum.Enum):
     EVENODD = 1
 
 
+class LineJoin(enum.Enum):
+    """Line join options.
+
+    Enumerates the shapes used at the corners of stroked paths.
+    """
+
+    MITER = "MITER"
+    ROUND = "ROUND"
+    BEVEL = "BEVEL"
+
+
+class LineCap(enum.Enum):
+    """Line cap options.
+
+    Enumerates the shapes used at the ends of stroked open paths.
+    """
+
+    BUTT = "BUTT"
+    ROUND = "ROUND"
+    SQUARE = "SQUARE"
+
+
 PRESENTATION_ATTRIBUTES: dict[str, dict[str, typing.Any]] = {
     "fill": {
         "initial": black,
@@ -651,6 +675,14 @@ PRESENTATION_ATTRIBUTES: dict[str, dict[str, typing.Any]] = {
     },
     "stroke_dashoffset": {
         "initial": 0.0,
+        "inherited": True,
+    },
+    "stroke_linecap": {
+        "initial": LineCap.BUTT,
+        "inherited": True,
+    },
+    "stroke_linejoin": {
+        "initial": LineJoin.MITER,
         "inherited": True,
     },
     "stroke_width": {
@@ -749,6 +781,14 @@ class DrawingElement(abc.ABC):
     stroke_dashoffset: NoneValueType | float | None = dataclasses.field(
         default=None,
         metadata={"description": "The stroke dashoffset of the drawing element"},
+    )
+    stroke_linecap: LineCap | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The stroke line cap of the drawing element"},
+    )
+    stroke_linejoin: LineJoin | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The stroke line join of the drawing element"},
     )
     stroke_width: NoneValueType | float | None = dataclasses.field(
         default=None,

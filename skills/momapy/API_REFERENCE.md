@@ -59,9 +59,11 @@ Constants: `ROUNDING: int = 4` (in `__all__`; imported by `drawing`), `COMPASS_A
 Functions (all in `__all__`, used cross-module by `drawing`/`celldesigner`): `get_primitives_border(primitives, point, center=None) -> Point | None`, `get_primitives_angle(primitives, angle, unit="degrees", center=None) -> Point | None`, `get_primitives_anchor_point(primitives, anchor_point, center=None) -> Point | None` (where `primitives: list[Segment | QuadraticBezierCurve | CubicBezierCurve | EllipticalArc]`), `get_normalized_angle(angle: float) -> float`, `get_transformation_for_frame(origin, unit_x, unit_y) -> MatrixTransformation`.
 
 ### `src/momapy/drawing.py`
-Classes: `NoneValueType`, `FilterEffect(ABC)` + (`DropShadowEffect`, `CompositeEffect`, `FloodEffect`, `GaussianBlurEffect`, `OffsetEffect`), `FilterEffectInput(Enum)`, `CompositionOperator(Enum)`, `EdgeMode(Enum)`, `FilterUnits(Enum)`, `Filter`, `GradientUnits(Enum)`, `SpreadMethod(Enum)`, `GradientStop`, `Gradient(ABC)` + (`LinearGradient`, `RadialGradient`), `FontStyle(Enum)`, `FontWeight(Enum)`, `TextAnchor(Enum)`, `FillRule(Enum)`, `DrawingElement(ABC)`, `Text(DrawingElement)`, `Group(DrawingElement)`, `PathAction(ABC)` + (`MoveTo`, `LineTo`, `EllipticalArc`, `CurveTo`, `QuadraticCurveTo`, `ClosePath`), `Path(DrawingElement)`, `Ellipse(DrawingElement)`, `Rectangle(DrawingElement)`.
+Classes: `NoneValueType`, `FilterEffect(ABC)` + (`DropShadowEffect`, `CompositeEffect`, `FloodEffect`, `GaussianBlurEffect`, `OffsetEffect`), `FilterEffectInput(Enum)`, `CompositionOperator(Enum)`, `EdgeMode(Enum)`, `FilterUnits(Enum)`, `Filter`, `GradientUnits(Enum)`, `SpreadMethod(Enum)`, `GradientStop`, `Gradient(ABC)` + (`LinearGradient`, `RadialGradient`), `FontStyle(Enum)`, `FontWeight(Enum)`, `TextAnchor(Enum)`, `FillRule(Enum)`, `LineJoin(Enum)`, `LineCap(Enum)`, `DrawingElement(ABC)`, `Text(DrawingElement)`, `Group(DrawingElement)`, `PathAction(ABC)` + (`MoveTo`, `LineTo`, `EllipticalArc`, `CurveTo`, `QuadraticCurveTo`, `ClosePath`), `Path(DrawingElement)`, `Ellipse(DrawingElement)`, `Rectangle(DrawingElement)`.
 
 `DrawingElement.fill`/`stroke` (and the `*fill`/`*stroke` fields of layout elements) accept a `Color`, a `Gradient`, `NoneValue` or `None`. Gradients follow SVG's `linearGradient`/`radialGradient` (no `href`, coordinates are floats).
+
+`DrawingElement.stroke_linejoin: LineJoin | None` and `stroke_linecap: LineCap | None` follow SVG's `stroke-linejoin`/`stroke-linecap` (inherited; initial `MITER`/`BUTT`). Layout elements carry matching `*stroke_linejoin`/`*stroke_linecap` fields wherever they have a `*stroke_dashoffset` field.
 
 Functions: `get_initial_value(attr_name: str) -> Any`, `drawing_elements_to_geometry(elements) -> list[Segment|Curve|Arc]`, `get_drawing_elements_border(drawing_elements, point, center=None) -> Point | None`, `get_drawing_elements_angle(drawing_elements, angle, unit="degrees", center=None) -> Point | None`, `get_drawing_elements_bbox(drawing_elements) -> Bbox`, `get_drawing_elements_anchor_point(drawing_elements, anchor_point, center=None) -> Point | None`.
 
@@ -89,7 +91,7 @@ Purpose: CSS-like style sheets.
 - `apply_style_collection(layout_element, style_collection, strict=True)`
 - `apply_style_sheet(map_or_layout_element, style_sheet, strict=True, ancestors=None)`
 - `get_stylable_attributes(layout_element_or_class, presentation_only=False) -> list[str]`
-- Values: named and hex (`#rrggbb`, `#rrggbbaa`) colors; `drop-shadow(...)`; `linear-gradient(...)`, `repeating-linear-gradient(...)`, `radial-gradient(...)` (resolved to `LinearGradient`/`RadialGradient` at parse time).
+- Values: named and hex (`#rrggbb`, `#rrggbbaa`) colors; `miter`/`round`/`bevel`/`butt`/`square` keywords for `*stroke-linejoin`/`*stroke-linecap` (resolved to `LineJoin`/`LineCap` from the property name); `drop-shadow(...)`; `linear-gradient(...)`, `repeating-linear-gradient(...)`, `radial-gradient(...)` (resolved to `LinearGradient`/`RadialGradient` at parse time).
 
 ### `src/momapy/coloring.py`
 - `Color` — `red`, `green`, `blue`, `alpha=1.0`; `__or__(alpha)`, `to_rgba/to_rgb/to_hex/to_hexa`, `with_alpha`, `from_rgba/from_rgb/from_hex/from_hexa`. Plus 144 named module-level constants.

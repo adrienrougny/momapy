@@ -15,6 +15,8 @@ from momapy.core.fonts import find_font
 
 from momapy.builder import isinstance_or_builder
 from momapy.coloring import Color
+from momapy.drawing import LineCap
+from momapy.drawing import LineJoin
 from momapy.drawing import Gradient
 from momapy.drawing import ClosePath
 from momapy.drawing import CurveTo
@@ -118,6 +120,14 @@ class TextLayout(LayoutElement):
     stroke_dashoffset: NoneValueType | float | None = dataclasses.field(
         default=None,
         metadata={"description": "The text stroke dashoffset of the text layout"},
+    )
+    stroke_linecap: LineCap | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The text stroke line cap of the text layout"},
+    )
+    stroke_linejoin: LineJoin | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The text stroke line join of the text layout"},
     )
     stroke_width: float | None = dataclasses.field(
         default=None,
@@ -245,6 +255,8 @@ class TextLayout(LayoutElement):
             stroke=self.stroke,
             stroke_dasharray=self.stroke_dasharray,
             stroke_dashoffset=self.stroke_dashoffset,
+            stroke_linecap=self.stroke_linecap,
+            stroke_linejoin=self.stroke_linejoin,
             stroke_width=self.stroke_width,
             text_anchor=self.text_anchor,
             transform=self.transform,
@@ -444,6 +456,14 @@ class GroupLayout(LayoutElement):
         default=None,
         metadata={"description": "The stroke dashoffset of the group layout"},
     )
+    group_stroke_linecap: LineCap | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The stroke line cap of the group layout"},
+    )
+    group_stroke_linejoin: LineJoin | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The stroke line join of the group layout"},
+    )
     group_stroke_width: NoneValueType | float | None = dataclasses.field(
         default=None,
         metadata={"description": "The stroke width of the group layout"},
@@ -532,6 +552,8 @@ class GroupLayout(LayoutElement):
             stroke=self.group_stroke,
             stroke_dasharray=self.group_stroke_dasharray,
             stroke_dashoffset=self.group_stroke_dashoffset,
+            stroke_linecap=self.group_stroke_linecap,
+            stroke_linejoin=self.group_stroke_linejoin,
             stroke_width=self.group_stroke_width,
             text_anchor=self.group_text_anchor,
             transform=self.group_transform,
@@ -582,6 +604,14 @@ class Node(GroupLayout):
         default=None,
         metadata={"description": "The stroke dashoffset of the node"},
     )
+    stroke_linecap: LineCap | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The stroke line cap of the node"},
+    )
+    stroke_linejoin: LineJoin | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The stroke line join of the node"},
+    )
     stroke_width: NoneValueType | float | None = dataclasses.field(
         default=None, metadata={"description": "The stroke width of the node"}
     )
@@ -616,6 +646,8 @@ class Node(GroupLayout):
             stroke=self.stroke,
             stroke_dasharray=self.stroke_dasharray,
             stroke_dashoffset=self.stroke_dashoffset,
+            stroke_linecap=self.stroke_linecap,
+            stroke_linejoin=self.stroke_linejoin,
             stroke_width=self.stroke_width,
             transform=self.transform,
         )
@@ -818,6 +850,14 @@ class Arc(GroupLayout):
         default=None,
         metadata={"description": "The path stroke dashoffset of the arc"},
     )
+    path_stroke_linecap: LineCap | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The path stroke line cap of the arc"},
+    )
+    path_stroke_linejoin: LineJoin | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The path stroke line join of the arc"},
+    )
     path_stroke_width: float | None = dataclasses.field(
         default=None,
         metadata={"description": "The path stroke width of the arc"},
@@ -838,6 +878,14 @@ class Arc(GroupLayout):
     stroke_dashoffset: NoneValueType | float | None = dataclasses.field(
         default=None,
         metadata={"description": "The stroke dashoffset of the arc"},
+    )
+    stroke_linecap: LineCap | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The stroke line cap of the arc"},
+    )
+    stroke_linejoin: LineJoin | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The stroke line join of the arc"},
     )
     stroke_width: NoneValueType | float | None = dataclasses.field(
         default=None, metadata={"description": "The stroke width of the arc"}
@@ -986,6 +1034,14 @@ class SingleHeadedArc(Arc):
         default=None,
         metadata={"description": "The arrowhead stroke dashoffset of the arc"},
     )
+    arrowhead_stroke_linecap: LineCap | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The arrowhead stroke line cap of the arc"},
+    )
+    arrowhead_stroke_linejoin: LineJoin | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The arrowhead stroke line join of the arc"},
+    )
     arrowhead_stroke_width: NoneValueType | float | None = dataclasses.field(
         default=None,
         metadata={"description": "The arrowhead stroke width of the arc"},
@@ -1076,6 +1132,8 @@ class SingleHeadedArc(Arc):
             stroke=self.arrowhead_stroke,
             stroke_dasharray=self.arrowhead_stroke_dasharray,
             stroke_dashoffset=self.arrowhead_stroke_dashoffset,
+            stroke_linecap=self.arrowhead_stroke_linecap,
+            stroke_linejoin=self.arrowhead_stroke_linejoin,
             stroke_width=self.arrowhead_stroke_width,
             transform=self.arrowhead_transform,
         )
@@ -1118,6 +1176,8 @@ class SingleHeadedArc(Arc):
             stroke=self.path_stroke,
             stroke_dasharray=self.path_stroke_dasharray,
             stroke_dashoffset=self.path_stroke_dashoffset,
+            stroke_linecap=self.path_stroke_linecap,
+            stroke_linejoin=self.path_stroke_linejoin,
             stroke_width=self.path_stroke_width,
             transform=self.path_transform,
         )
@@ -1137,6 +1197,8 @@ class SingleHeadedArc(Arc):
             stroke=self.stroke,
             stroke_dasharray=self.stroke_dasharray,
             stroke_dashoffset=self.stroke_dashoffset,
+            stroke_linecap=self.stroke_linecap,
+            stroke_linejoin=self.stroke_linejoin,
             stroke_width=self.stroke_width,
             transform=self.transform,
         )
@@ -1173,6 +1235,14 @@ class DoubleHeadedArc(Arc):
         default=None,
         metadata={"description": "The end arrowhead stroke dashoffset of the arc"},
     )
+    end_arrowhead_stroke_linecap: LineCap | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The end arrowhead stroke line cap of the arc"},
+    )
+    end_arrowhead_stroke_linejoin: LineJoin | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The end arrowhead stroke line join of the arc"},
+    )
     end_arrowhead_stroke_width: NoneValueType | float | None = dataclasses.field(
         default=None,
         metadata={"description": "The end arrowhead stroke width of the arc"},
@@ -1204,6 +1274,14 @@ class DoubleHeadedArc(Arc):
     start_arrowhead_stroke_dashoffset: NoneValueType | float | None = dataclasses.field(
         default=None,
         metadata={"description": "The start arrowhead stroke dashoffset of the arc"},
+    )
+    start_arrowhead_stroke_linecap: LineCap | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The start arrowhead stroke line cap of the arc"},
+    )
+    start_arrowhead_stroke_linejoin: LineJoin | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The start arrowhead stroke line join of the arc"},
     )
     start_arrowhead_stroke_width: NoneValueType | float | None = dataclasses.field(
         default=None,
@@ -1356,6 +1434,8 @@ class DoubleHeadedArc(Arc):
             stroke=self.start_arrowhead_stroke,
             stroke_dasharray=self.start_arrowhead_stroke_dasharray,
             stroke_dashoffset=self.start_arrowhead_stroke_dashoffset,
+            stroke_linecap=self.start_arrowhead_stroke_linecap,
+            stroke_linejoin=self.start_arrowhead_stroke_linejoin,
             stroke_width=self.start_arrowhead_stroke_width,
             transform=self.start_arrowhead_transform,
         )
@@ -1397,6 +1477,8 @@ class DoubleHeadedArc(Arc):
             stroke_width=self.end_arrowhead_stroke_width,
             stroke_dasharray=self.end_arrowhead_stroke_dasharray,
             stroke_dashoffset=self.end_arrowhead_stroke_dashoffset,
+            stroke_linecap=self.end_arrowhead_stroke_linecap,
+            stroke_linejoin=self.end_arrowhead_stroke_linejoin,
             transform=self.end_arrowhead_transform,
         )
         transformation = self._get_end_arrowhead_transformation()
@@ -1441,6 +1523,8 @@ class DoubleHeadedArc(Arc):
             stroke=self.path_stroke,
             stroke_dasharray=self.path_stroke_dasharray,
             stroke_dashoffset=self.path_stroke_dashoffset,
+            stroke_linecap=self.path_stroke_linecap,
+            stroke_linejoin=self.path_stroke_linejoin,
             stroke_width=self.path_stroke_width,
             transform=self.path_transform,
         )
@@ -1463,6 +1547,8 @@ class DoubleHeadedArc(Arc):
             stroke=self.stroke,
             stroke_dasharray=self.stroke_dasharray,
             stroke_dashoffset=self.stroke_dashoffset,
+            stroke_linecap=self.stroke_linecap,
+            stroke_linejoin=self.stroke_linejoin,
             stroke_width=self.stroke_width,
             transform=self.transform,
         )

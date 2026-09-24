@@ -24,6 +24,8 @@ from momapy.core.layout import Node
 from momapy.core.layout import Shape
 from momapy.core.layout import SingleHeadedArc
 from momapy.core.layout import TextLayout
+from momapy.drawing import LineCap
+from momapy.drawing import LineJoin
 from momapy.drawing import Gradient
 from momapy.drawing import DEFAULT_FONT_FAMILY
 from momapy.drawing import DrawingElement
@@ -173,6 +175,14 @@ class _ConnectorsMixin(_SBGNMixin):
         default=None,
         metadata={"description": "Dash offset for the left connector line."},
     )
+    left_connector_stroke_linecap: LineCap | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Line cap for the left connector line."},
+    )
+    left_connector_stroke_linejoin: LineJoin | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Line join for the left connector line."},
+    )
     left_connector_fill: NoneValueType | Color | Gradient | None = dataclasses.field(
         default=None,
         metadata={"description": "Fill color for the left connector."},
@@ -204,6 +214,14 @@ class _ConnectorsMixin(_SBGNMixin):
     right_connector_stroke_dashoffset: float | None = dataclasses.field(
         default=None,
         metadata={"description": "Dash offset for the right connector line."},
+    )
+    right_connector_stroke_linecap: LineCap | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Line cap for the right connector line."},
+    )
+    right_connector_stroke_linejoin: LineJoin | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Line join for the right connector line."},
     )
     right_connector_fill: NoneValueType | Color | Gradient | None = dataclasses.field(
         default=None,
@@ -341,6 +359,8 @@ class _ConnectorsMixin(_SBGNMixin):
             stroke_width=obj.left_connector_stroke_width,
             stroke_dasharray=obj.left_connector_stroke_dasharray,
             stroke_dashoffset=obj.left_connector_stroke_dashoffset,
+            stroke_linecap=obj.left_connector_stroke_linecap,
+            stroke_linejoin=obj.left_connector_stroke_linejoin,
             fill=obj.left_connector_fill,
             transform=obj.left_connector_transform,
             filter_=obj.left_connector_filter,
@@ -351,6 +371,8 @@ class _ConnectorsMixin(_SBGNMixin):
             stroke_width=obj.right_connector_stroke_width,
             stroke_dasharray=obj.right_connector_stroke_dasharray,
             stroke_dashoffset=obj.right_connector_stroke_dashoffset,
+            stroke_linecap=obj.right_connector_stroke_linecap,
+            stroke_linejoin=obj.right_connector_stroke_linejoin,
             fill=obj.right_connector_fill,
             transform=obj.right_connector_transform,
             filter_=obj.right_connector_filter,
@@ -416,6 +438,14 @@ class _MultiMixin(_SBGNMixin):
         default=None,
         metadata={"description": "Tuple of dash offsets for each subunit."},
     )
+    subunits_stroke_linecap: tuple[LineCap, ...] | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Tuple of line caps for each subunit."},
+    )
+    subunits_stroke_linejoin: tuple[LineJoin, ...] | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Tuple of line joins for each subunit."},
+    )
     subunits_fill: tuple[NoneValueType | Color | Gradient, ...] | None = (
         dataclasses.field(
             default=None,
@@ -476,6 +506,8 @@ class _MultiMixin(_SBGNMixin):
                 "stroke_width",
                 "stroke_dasharray",
                 "stroke_dashoffset",
+                "stroke_linecap",
+                "stroke_linejoin",
                 "fill",
                 "transform",
                 "filter",

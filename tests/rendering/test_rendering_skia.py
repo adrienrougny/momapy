@@ -72,3 +72,16 @@ class TestSkiaRendering:
             renderer.render_drawing_element(rectangle)
         renderer.end_session()
         assert os.path.getsize(output_file) > 0
+
+    def test_render_line_joins_and_caps(self, line_join_and_cap_paths, temp_dir):
+        """Rendering each line join and line cap does not fail."""
+        import momapy.rendering.core
+
+        output_file = os.path.join(temp_dir, "joins.png")
+        renderer_cls = momapy.rendering.core.get_renderer("skia")
+        renderer = renderer_cls.from_file(output_file, 100, 100, "png")
+        renderer.begin_session()
+        for path in line_join_and_cap_paths:
+            renderer.render_drawing_element(path)
+        renderer.end_session()
+        assert os.path.getsize(output_file) > 0
