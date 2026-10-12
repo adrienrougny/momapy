@@ -6,9 +6,11 @@ remapping during the read process.  They are not part of the public API.
 
 import collections
 import dataclasses
+import os
 import typing
 
 import frozendict
+import lxml.etree
 
 from momapy.core.elements import LayoutElement
 from momapy.core.elements import MapElement
@@ -195,6 +197,33 @@ class ReadingContext:
     evicted_elements: dict[int, ModelElement] = dataclasses.field(default_factory=dict)
     """Maps id(evicted_object) -> evicted_object.  Keeps evicted objects
     alive to prevent Python from reusing their memory address."""
+
+
+def get_xml_root_element(
+    file_path: str | os.PathLike,
+) -> lxml.etree._Element | None:
+    """Return the root element of an XML file, parsing only its start.
+
+    Used by the readers' `check_file` to detect a format from the root
+    element. Only the beginning of the file is parsed, entities are not
+    resolved and nothing is fetched from the network.
+
+    Args:
+        file_path: Path of the file to inspect.
+
+    Returns:
+        The root element (with its tag and namespace map, but no children),
+        or `None` if the file cannot be read or does not start as XML.
+    """
+    try:
+        with open(file_path, "rb") as file:
+            for _, element in lxml.etree.iterparse(
+                file, events=("start",), resolve_entities=False, no_network=True
+            ):
+                return element
+    except (OSError, lxml.etree.LxmlError):
+        return None
+    return None
 
 
 def build_id_to_element(obj: MapElement) -> frozendict.frozendict:

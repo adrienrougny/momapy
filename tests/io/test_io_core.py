@@ -1,6 +1,9 @@
 """Tests for momapy.io.core module."""
 
+import glob
 import os
+
+import pytest
 
 import momapy.io
 import momapy.io.core
@@ -148,3 +151,79 @@ def test_read_autodetects_celldesigner_for_cd_file():
 def test_read_autodetects_sbml_for_plain_sbml_file():
     """Auto-detection picks SBML for a plain (non-CD) SBML file."""
     assert _detect_reader_name(_PLAIN_SBML_FILE) == "sbml"
+
+
+_XML_READER_NAMES = ["sbgnml-0.2", "sbgnml-0.3", "celldesigner", "sbml"]
+_EXPECTED_READER_FILES = (
+    [
+        (path, "sbgnml")
+        for path in glob.glob(
+            os.path.join(_MAPS_DIR, "sbgn", "**", "*.sbgn"), recursive=True
+        )
+    ]
+    + [
+        (path, "celldesigner")
+        for path in glob.glob(
+            os.path.join(_MAPS_DIR, "celldesigner", "**", "*.xml"), recursive=True
+        )
+    ]
+    + [
+        (path, "sbml")
+        for path in glob.glob(
+            os.path.join(_MAPS_DIR, "sbml", "**", "*.xml"), recursive=True
+        )
+    ]
+)
+
+
+@pytest.mark.parametrize("file_path, reader_name", _EXPECTED_READER_FILES)
+def test_read_autodetects_reader_from_root_element(file_path, reader_name):
+    """Every test map is detected with the reader of its format."""
+    assert _detect_reader_name(file_path) == reader_name
+
+
+def test_xml_check_file_rejects_binary_file_with_namespaces(tmp_path):
+    """A non-XML file mentioning every format namespace is rejected."""
+    file_path = tmp_path / "binary.bin"
+    file_path.write_bytes(
+        b"\x80\x04<sbml http://www.sbml.org/2001/ns/celldesigner\n"
+        b"http://sbgn.org/libsbgn/0.2 http://sbgn.org/libsbgn/0.3\n"
+    )
+    for name in _XML_READER_NAMES:
+        assert momapy.io.core.get_reader(name).check_file(file_path) is False
+
+
+def test_read_rejects_pickled_celldesigner_result_with_notes(tmp_path):
+    """A pickled CellDesigner result with notes is not taken for CellDesigner."""
+    result = momapy.io.read(_CELLDESIGNER_FILE)
+    file_path = tmp_path / "map.pkl"
+    momapy.io.write(
+        result.obj,
+        file_path,
+        writer="pickle",
+        element_to_notes={
+            result.obj.model: [
+                '<html xmlns:celldesigner="http://www.sbml.org/2001/ns/celldesigner"/>'
+            ]
+        },
+    )
+    with pytest.raises(ValueError, match="suitable registered reader"):
+        momapy.io.read(file_path)
+
+
+def test_sbml_with_namespaces_in_notes_is_detected_as_sbml(tmp_path):
+    """Namespaces mentioned below the root do not change the detected format."""
+    file_path = tmp_path / "model.xml"
+    file_path.write_text(
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<sbml xmlns="http://www.sbml.org/sbml/level2/version4" level="2" version="4">\n'
+        '  <model id="m">\n'
+        "    <notes>\n"
+        '      <p xmlns="http://www.w3.org/1999/xhtml"'
+        ' xmlns:celldesigner="http://www.sbml.org/2001/ns/celldesigner">'
+        "http://sbgn.org/libsbgn/0.3</p>\n"
+        "    </notes>\n"
+        "  </model>\n"
+        "</sbml>\n"
+    )
+    assert _detect_reader_name(file_path) == "sbml"

@@ -69,6 +69,7 @@ import typing
 import warnings
 
 import frozendict
+import lxml.etree
 import lxml.objectify
 
 from momapy.core.mapping import LayoutModelMappingBuilder
@@ -76,6 +77,7 @@ from momapy.io.core import Reader, ReaderResult
 from momapy.io._utils import (
     apply_remap_to_layout_model_mapping,
     build_id_mappings,
+    get_xml_root_element,
     register_model_element,
 )
 from momapy.builder import new_builder_object
@@ -242,17 +244,19 @@ class CellDesignerReader(Reader):
             file_path: Path of the file to check.
 
         Returns:
-            `True` if the file references the CellDesigner namespace, `False`
-            otherwise.
+            `True` if the root element of the file is an SBML `sbml` element
+            declaring the CellDesigner namespace, `False` otherwise.
         """
-        try:
-            with open(file_path, "rb") as f:
-                for line in f:
-                    if b"http://www.sbml.org/2001/ns/celldesigner" in line:
-                        return True
+        root_element = get_xml_root_element(file_path)
+        if root_element is None:
             return False
-        except Exception:
-            return False
+        root_tag = lxml.etree.QName(root_element)
+        return (
+            root_tag.localname == "sbml"
+            and (root_tag.namespace or "").startswith("http://www.sbml.org/sbml/")
+            and "http://www.sbml.org/2001/ns/celldesigner"
+            in root_element.nsmap.values()
+        )
 
     @classmethod
     def read(

@@ -39,6 +39,7 @@ from momapy.io.core import ReaderResult
 from momapy.utils import check_file_exists
 from momapy.io._utils import apply_remap_to_layout_model_mapping
 from momapy.io._utils import build_id_mappings
+from momapy.io._utils import get_xml_root_element
 from momapy.io._utils import register_model_element
 from momapy.sbgn.io.sbgnml._reading_context import SBGNMLReadingContext
 from momapy.positioning import set_fit
@@ -1695,17 +1696,14 @@ class SBGNML0_2Reader(_SBGNMLReader):
             file_path: Path of the file to check.
 
         Returns:
-            `True` if the file references the SBGN-ML 0.2 namespace, `False`
-            otherwise.
+            `True` if the root element of the file is an `sbgn` element in the
+            SBGN-ML 0.2 namespace, `False` otherwise.
         """
-        try:
-            with open(file_path, "rb") as f:
-                for line in f:
-                    if b"http://sbgn.org/libsbgn/0.2" in line:
-                        return True
-            return False
-        except Exception:
-            return False
+        root_element = get_xml_root_element(file_path)
+        return (
+            root_element is not None
+            and root_element.tag == "{http://sbgn.org/libsbgn/0.2}sbgn"
+        )
 
 
 class SBGNML0_3Reader(_SBGNMLReader):
@@ -1733,14 +1731,11 @@ class SBGNML0_3Reader(_SBGNMLReader):
             file_path: Path of the file to check.
 
         Returns:
-            `True` if the file references the SBGN-ML 0.3 namespace, `False`
-            otherwise.
+            `True` if the root element of the file is an `sbgn` element in the
+            SBGN-ML 0.3 namespace, `False` otherwise.
         """
-        try:
-            with open(file_path, "rb") as f:
-                for line in f:
-                    if b"http://sbgn.org/libsbgn/0.3" in line:
-                        return True
-            return False
-        except Exception:
-            return False
+        root_element = get_xml_root_element(file_path)
+        return (
+            root_element is not None
+            and root_element.tag == "{http://sbgn.org/libsbgn/0.3}sbgn"
+        )

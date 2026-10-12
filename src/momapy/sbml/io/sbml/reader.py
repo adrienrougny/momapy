@@ -11,11 +11,13 @@ import typing
 import collections
 
 import frozendict
+import lxml.etree
 import lxml.objectify
 
 from momapy.builder import new_builder_object
 from momapy.builder import object_from_builder
 from momapy.io._utils import build_id_mappings
+from momapy.io._utils import get_xml_root_element
 from momapy.io.core import Reader
 from momapy.io.core import ReaderResult
 from momapy.utils import check_file_exists
@@ -52,17 +54,16 @@ class SBMLReader(Reader):
             file_path: Path of the file to check.
 
         Returns:
-            `True` if the file contains an `<sbml ` element, `False`
-            otherwise.
+            `True` if the root element of the file is an `sbml` element in an
+            SBML namespace (with or without a prefix), `False` otherwise.
         """
-        try:
-            with open(file_path, "rb") as f:
-                for line in f:
-                    if b"<sbml " in line:
-                        return True
+        root_element = get_xml_root_element(file_path)
+        if root_element is None:
             return False
-        except Exception:
-            return False
+        root_tag = lxml.etree.QName(root_element)
+        return root_tag.localname == "sbml" and (root_tag.namespace or "").startswith(
+            "http://www.sbml.org/sbml/"
+        )
 
     @classmethod
     def read(
