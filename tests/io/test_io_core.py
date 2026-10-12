@@ -143,6 +143,41 @@ def test_sbml_check_file_accepts_celldesigner():
     assert sbml_reader.check_file(_CELLDESIGNER_FILE) is True
 
 
+_SBML_FILE_CONTENTS = {
+    "newline_after_tag": (
+        "<sbml\n"
+        '  xmlns="http://www.sbml.org/sbml/level2/version4" level="2" version="4">\n'
+        '  <model id="m"/>\n'
+        "</sbml>\n"
+    ),
+    "prefixed_root": (
+        '<s:sbml xmlns:s="http://www.sbml.org/sbml/level2/version4"'
+        ' level="2" version="4">\n'
+        '  <s:model id="m"/>\n'
+        "</s:sbml>\n"
+    ),
+}
+
+
+@pytest.mark.parametrize("content_name", sorted(_SBML_FILE_CONTENTS))
+def test_sbml_check_file_accepts_valid_root_tags(tmp_path, content_name):
+    """A root tag followed by a newline or carrying a prefix is SBML."""
+    file_path = tmp_path / "model.xml"
+    file_path.write_text(_SBML_FILE_CONTENTS[content_name])
+    assert momapy.io.core.get_reader("sbml").check_file(file_path) is True
+    result = momapy.io.read(file_path)
+    assert result.obj.model is not None
+
+
+def test_sbml_check_file_rejects_other_root_tag(tmp_path):
+    """A root tag that only starts with "sbml" is not SBML."""
+    file_path = tmp_path / "model.xml"
+    file_path.write_text(
+        '<sbmlfoo xmlns="http://www.sbml.org/sbml/level2/version4"></sbmlfoo>\n'
+    )
+    assert momapy.io.core.get_reader("sbml").check_file(file_path) is False
+
+
 def test_read_autodetects_celldesigner_for_cd_file():
     """Auto-detection picks CellDesigner for a CD file (registration order)."""
     assert _detect_reader_name(_CELLDESIGNER_FILE) == "celldesigner"
