@@ -72,7 +72,8 @@ If you ever feel tempted to do `object.__setattr__(obj, "field", value)` to bypa
 ```python
 from momapy.io import read
 
-# Format auto-detected from file extension; pass reader="sbgnml" / "celldesigner" / "pickle" to force.
+# Format auto-detected from the file content; pass reader="sbgnml" / "celldesigner" to force.
+# Pickle is never auto-detected: read it with reader="pickle" (trusted files only).
 result = read("map.sbgn")
 ```
 

@@ -258,7 +258,9 @@ def read(
     accepts the file. Registration order matters: a more specific reader must
     be registered before a more general one it specializes. For example a
     CellDesigner file is also a valid SBML file, so the CellDesigner reader is
-    registered (and therefore checked) before the SBML reader.
+    registered (and therefore checked) before the SBML reader. The `"pickle"`
+    reader is never chosen by auto-detection, since unpickling can run code:
+    pass `reader="pickle"` to read a pickle.
 
     Return contract: the shape of `result.obj` is governed by the universal
     `return_type` option, uniformly across every format:
@@ -281,7 +283,8 @@ def read(
     Args:
         file_path: Path of the file to read.
         reader: Name of registered reader to use (e.g., "sbgnml"). If None,
-            auto-detects based on file format.
+            auto-detects based on file format. Pickle files are never
+            auto-detected and need `reader="pickle"`.
         options: Additional options passed to the reader (see the universal
             option set above, plus any format-specific options).
 

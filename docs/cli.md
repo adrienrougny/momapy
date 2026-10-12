@@ -26,6 +26,22 @@ momapy style [<input_file_path>] [options]
 momapy visualize [<input_file_path>] [options]
 ```
 
+## Piping between commands
+
+Every command that reads a map reads from stdin when no input file is given, and every command that writes a map writes to stdout when no output file is given. By default the map is passed as text in its own format and re-parsed by the next command:
+
+```bash
+momapy export map.xml | momapy tidy fit-species | momapy render -o out.svg
+```
+
+With `-P`, a command writes a pickled `ReaderResult` instead, which is faster and keeps annotations, notes and source ids. Pickles are never detected automatically, so the next command must read them with `-R pickle`:
+
+```bash
+momapy export map.xml -P | momapy tidy fit-species -R pickle -P | momapy render -R pickle -o out.svg
+```
+
+Reading a pickle can run code: only read pickles from a trusted source.
+
 ## Subcommand: `render`
 
 Renders one or more molecular maps to an image file.
@@ -41,6 +57,7 @@ Renders one or more molecular maps to an image file.
 | Option | Short | Description |
 |--------|-------|-------------|
 | `--output-file-path` | `-o` | Output file path (required) |
+| `--reader` | `-R` | Reader to use for the input (default: detected from the content). Pickle input is never detected: use `-R pickle` |
 | `--renderer` | `-r` | Renderer to use: `svg-native`, `svg-native-compat`, `skia`, `cairo` (auto-detected if omitted) |
 | `--format` | `-f` | Output format: `svg`, `pdf`, `png`, `ps`, `jpeg`, `webp` (inferred from extension if omitted) |
 | `--multi-pages` | `-m` | Render one map per page (for multi-input PDF) |
@@ -144,7 +161,8 @@ Reads a map and writes it back in the same format. This is useful for roundtrip 
 | Option | Short | Description |
 |--------|-------|-------------|
 | `--output-file-path` | `-o` | Output file path (default: stdout) |
-| `--text` | `-T` | Write human-readable XML to stdout instead of a pickled `ReaderResult` (the default when piping); no effect with `-o` |
+| `--reader` | `-R` | Reader to use for the input (default: detected from the content). Pickle input is never detected: use `-R pickle` |
+| `--pipe` | `-P` | Write a pickled `ReaderResult` to stdout instead of the map in its format (to pipe into another `momapy` command read with `-R pickle`); no effect with `-o` |
 | `--tidy` | `-t` | Tidy the map (reroute arcs, fit labels, etc.) |
 | `--to-top-left` | `-l` | Move elements to the top-left of the page |
 | `--style-sheet-file-path` | `-s` | Custom CSS style sheet file path (repeatable) |
@@ -152,7 +170,7 @@ Reads a map and writes it back in the same format. This is useful for roundtrip 
 
 The writer is inferred automatically from the map type: SBGN maps are exported using the `sbgnml` writer, CellDesigner maps using the `celldesigner` writer. SBML is read-only and cannot be exported.
 
-If no output file is specified, the result is written to standard output. When the output is a pipe, a pickled `ReaderResult` is written by default (so `momapy` commands can be chained); pass `-T` to emit XML text instead.
+If no output file is specified, the map is written to standard output in its own format. Pass `-P` to write a pickled `ReaderResult` instead.
 
 ### Examples
 
@@ -208,6 +226,7 @@ Prints a summary of a map file's contents, including the map type, model element
 | Option | Short | Description |
 |--------|-------|-------------|
 | `--output-file-path` | `-o` | Output file path (default: stdout) |
+| `--reader` | `-R` | Reader to use for the input (default: detected from the content). Pickle input is never detected: use `-R pickle` |
 | `--format` | `-f` | Output format: `text` (default) or `json` |
 
 ### Examples
@@ -411,7 +430,8 @@ All operations accept:
 | Option | Short | Description |
 |--------|-------|-------------|
 | `--output-file-path` | `-o` | Output file path (default: stdout) |
-| `--text` | `-T` | Write human-readable XML to stdout instead of a pickled `ReaderResult` (the default when piping); no effect with `-o` |
+| `--reader` | `-R` | Reader to use for the input (default: detected from the content). Pickle input is never detected: use `-R pickle` |
+| `--pipe` | `-P` | Write a pickled `ReaderResult` to stdout instead of the map in its format (to pipe into another `momapy` command read with `-R pickle`); no effect with `-o` |
 
 The `all`, `fit-species`, `fit-epns`, `fit-auxiliary`, `fit-complexes`, `fit-compartments`, `fit-submaps`, and `fit-layout` operations also accept:
 
@@ -473,7 +493,8 @@ Applies CSS stylesheets (and/or built-in presets) to a map, baking the styles in
 | Option | Short | Description |
 |--------|-------|-------------|
 | `--output-file-path` | `-o` | Output file path (default: stdout) |
-| `--text` | `-T` | Write human-readable XML to stdout instead of a pickled `ReaderResult` (the default when piping); no effect with `-o` |
+| `--reader` | `-R` | Reader to use for the input (default: detected from the content). Pickle input is never detected: use `-R pickle` |
+| `--pipe` | `-P` | Write a pickled `ReaderResult` to stdout instead of the map in its format (to pipe into another `momapy` command read with `-R pickle`); no effect with `-o` |
 | `--style-sheet-file-path` | `-s` | Custom CSS file path (repeatable) |
 | `--preset` | `-p` | Built-in preset name (repeatable); see `momapy list styles` |
 
@@ -523,6 +544,7 @@ Opens an interactive viewer for a molecular map in the default web browser. The 
 
 | Option | Short | Description |
 |--------|-------|-------------|
+| `--reader` | `-R` | Reader to use for the input (default: detected from the content). Pickle input is never detected: use `-R pickle` |
 | `--tidy` | `-t` | Tidy the map (reroute arcs, fit labels, etc.) |
 | `--to-top-left` | `-l` | Move elements to the top-left of the page |
 | `--style-sheet-file-path` | `-s` | Custom CSS style sheet file path (repeatable) |

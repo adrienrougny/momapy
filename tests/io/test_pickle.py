@@ -7,6 +7,7 @@ import pytest
 
 import momapy.core.layout
 import momapy.geometry
+import momapy.io
 import momapy.io.pickle
 import momapy.sbgn.pd
 import momapy.sbml.model
@@ -214,21 +215,31 @@ class TestPickleAnnotationFiltering:
 
 
 class TestPickleReaderSafety:
-    """Detection reads only the header, and the payload is validated."""
+    """Pickle is never auto-detected, and the payload is validated."""
 
-    def test_check_file_does_not_unpickle(self, tmp_path):
-        """check_file accepts a pickle without executing it."""
+    def test_check_file_rejects_pickle_without_unpickling(self, tmp_path):
+        """check_file rejects a real pickle without executing it."""
         _UNPICKLE_SIDE_EFFECTS.clear()
         file_path = tmp_path / "probe.pkl"
         file_path.write_bytes(pickle.dumps(_UnpickleProbe()))
-        assert momapy.io.pickle.PickleReader.check_file(file_path) is True
+        assert momapy.io.pickle.PickleReader.check_file(file_path) is False
         assert _UNPICKLE_SIDE_EFFECTS == []
 
-    def test_check_file_rejects_non_pickle(self, tmp_path):
-        """A file without the protocol header is rejected."""
-        file_path = tmp_path / "not_pickle.txt"
-        file_path.write_text("hello")
-        assert momapy.io.pickle.PickleReader.check_file(file_path) is False
+    def test_read_without_reader_does_not_unpickle(self, tmp_path):
+        """Auto-detection finds no reader for a pickle and does not run it."""
+        _UNPICKLE_SIDE_EFFECTS.clear()
+        file_path = tmp_path / "probe.pkl"
+        file_path.write_bytes(pickle.dumps(_UnpickleProbe()))
+        with pytest.raises(ValueError, match="suitable registered reader"):
+            momapy.io.read(file_path)
+        assert _UNPICKLE_SIDE_EFFECTS == []
+
+    def test_read_with_pickle_reader(self, tmp_path):
+        """An explicit reader='pickle' still reads the pickle."""
+        model = momapy.sbgn.pd.SBGNPDModel()
+        file_path = _write(model, tmp_path)
+        result = momapy.io.read(file_path, reader="pickle", return_type="model")
+        assert isinstance(result.obj, momapy.sbgn.pd.SBGNPDModel)
 
     def test_read_rejects_non_reader_result(self, tmp_path):
         """A pickle that is not a ReaderResult raises ValueError."""

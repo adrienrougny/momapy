@@ -1,8 +1,10 @@
 """Tests for momapy CLI module."""
 
+import io
 import json
 import os
 import pathlib
+import pickle
 from unittest import mock
 
 import pytest
@@ -188,16 +190,56 @@ class TestCLIExportCommand:
         "glycolysis.sbgn",
     )
 
-    def test_export_to_stdout(self, capsys):
-        """Test export command outputs XML to stdout when stdout is a TTY."""
+    @pytest.mark.parametrize("is_terminal", [True, False])
+    def test_export_to_stdout(self, capsys, is_terminal):
+        """Test export writes XML to stdout, whether or not it is a terminal."""
         with (
             mock.patch("sys.argv", ["momapy", "export", self.SBGN_MAP_PATH]),
-            mock.patch("sys.stdout.isatty", return_value=True),
+            mock.patch("sys.stdout.isatty", return_value=is_terminal),
         ):
             momapy.cli.main()
         captured = capsys.readouterr()
         assert "<?xml" in captured.out
         assert "<sbgn" in captured.out
+
+    def _export_pipe(self):
+        stdout = mock.Mock()
+        stdout.buffer = io.BytesIO()
+        with (
+            mock.patch("sys.argv", ["momapy", "export", self.SBGN_MAP_PATH, "-P"]),
+            mock.patch("sys.stdout", stdout),
+        ):
+            momapy.cli.main()
+        return stdout.buffer.getvalue()
+
+    def test_export_pipe_writes_pickle(self):
+        """Test export -P writes a pickled ReaderResult to stdout."""
+        result = pickle.loads(self._export_pipe())
+        assert isinstance(result, momapy.io.ReaderResult)
+
+    def _info_from_stdin(self, data, extra_arguments):
+        stdin = mock.Mock()
+        stdin.isatty.return_value = False
+        stdin.buffer = io.BytesIO(data)
+        with (
+            mock.patch("sys.argv", ["momapy", "info", *extra_arguments]),
+            mock.patch("sys.stdin", stdin),
+        ):
+            momapy.cli.main()
+
+    def test_info_reads_piped_pickle_with_reader(self, capsys):
+        """Test info -R pickle reads a pickle from stdin."""
+        data = self._export_pipe()
+        self._info_from_stdin(data, ["-R", "pickle"])
+        assert "SBGN PD" in capsys.readouterr().out
+
+    def test_info_rejects_piped_pickle_without_reader(self, capsys):
+        """Test info without -R pickle does not detect a pickle on stdin."""
+        data = self._export_pipe()
+        with pytest.raises(SystemExit) as exc_info:
+            self._info_from_stdin(data, [])
+        assert exc_info.value.code == 1
+        assert "suitable registered reader" in capsys.readouterr().err
 
     def test_export_to_file(self, tmp_path):
         """Test export command writes to file when -o is given."""

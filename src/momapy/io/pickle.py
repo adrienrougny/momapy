@@ -4,6 +4,10 @@ Pickle is format-agnostic: the class of the pickled `obj` (SBGN map,
 CellDesigner map, ...) survives the round-trip unchanged, so one pair
 of classes handles all formats. Registered under the single name
 `"pickle"` in `momapy.io`.
+
+Pickle is never auto-detected by `momapy.io.read`, since unpickling can run
+code: read a pickle with `read(file_path, reader="pickle")`, and only from a
+trusted source.
 """
 
 import collections.abc
@@ -24,8 +28,6 @@ from momapy.io.core import ReaderResult
 from momapy.io.core import Writer
 from momapy.io.core import WriterResult
 from momapy.utils import check_parent_dir_exists
-
-_PICKLE_PROTOCOL_HEADER = b"\x80"
 
 
 def _filter_mapping_by_classes(
@@ -79,24 +81,19 @@ class PickleReader(Reader):
 
     @classmethod
     def check_file(cls, file_path: str | os.PathLike) -> bool:
-        r"""Return `True` if the file starts with a pickle protocol header.
+        """Return `False`: pickle files are never auto-detected.
 
-        Only the first byte is read and the file is never unpickled, so
-        auto-detection cannot execute code from the file. The `PROTO` opcode
-        `b"\x80"` is the first byte of every pickle protocol since protocol 2,
-        including the Python default protocol used by `PickleWriter`. Protocols
-        0 and 1 do not carry it and are therefore not auto-detected; reading
-        them still works through an explicit `reader="pickle"`.
+        Unpickling can run code, so a pickle is only read when asked for
+        explicitly with `read(file_path, reader="pickle")`. Only read pickles
+        from a trusted source.
 
         Args:
-            file_path: Path of the file to check.
+            file_path: Path of the file to check (not opened).
 
         Returns:
-            `True` if the file starts with the pickle protocol header.
+            Always `False`.
         """
-        with open(file_path, "rb") as f:
-            header = f.read(1)
-        return header == _PICKLE_PROTOCOL_HEADER
+        return False
 
     @classmethod
     def read(
@@ -110,6 +107,10 @@ class PickleReader(Reader):
         **options: typing.Any,
     ) -> ReaderResult:
         """Load a pickled `ReaderResult` and project it per the flags.
+
+        This reader is never chosen by auto-detection: it must be requested
+        with `read(file_path, reader="pickle")`, and only for a pickle from a
+        trusted source, since unpickling can run code.
 
         Pickle is shape-agnostic: the pickled `obj` may be a `Map`, a bare
         `Model`, or a bare `Layout`. When `obj` is a `Map` it is projected as
