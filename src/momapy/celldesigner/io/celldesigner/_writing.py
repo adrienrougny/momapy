@@ -1716,7 +1716,7 @@ def get_participant_arcs(
 
     Args:
         writing_context: The writing context.
-        participants: The reactants or products of the reaction.
+        participants: The reactants, products or modifiers of the reaction.
         reaction: The reaction model element.
         frozenset_mapping: The frozenset key of the drawn copy.
 
@@ -1729,9 +1729,7 @@ def get_participant_arcs(
         for arc in layout_model_mapping.get_child_layout_elements(
             participant, reaction
         ):
-            if arc in frozenset_mapping and isinstance(
-                arc, (ConsumptionLayout, ProductionLayout)
-            ):
+            if arc in frozenset_mapping:
                 participant_arcs.append((participant, arc))
     participant_arcs.sort(
         key=lambda participant_arc: writing_context.layout_order_index.get(
@@ -3417,6 +3415,12 @@ def make_celldesigner_reaction(
     # listOfModification
     mod_list = make_celldesigner_element("listOfModification")
     modifiers = sorted(reaction.modifiers, key=lambda m: m.id_ or "")
+    modifier_to_arcs = {}
+    if frozenset_mapping is not None:
+        for modifier, modifier_arc in get_participant_arcs(
+            writing_context, reaction.modifiers, reaction, frozenset_mapping
+        ):
+            modifier_to_arcs.setdefault(id(modifier), []).append(modifier_arc)
     for modifier in modifiers:
         species = modifier.referred_element
         if isinstance(species, BooleanLogicGate):
@@ -3427,11 +3431,16 @@ def make_celldesigner_reaction(
             for gm in gate_mods:
                 mod_list.append(gm)
         else:
-            modification_element = make_celldesigner_modification(
-                writing_context, modifier, reaction_layout, frozenset_mapping
-            )
-            if modification_element is not None:
-                mod_list.append(modification_element)
+            for modifier_arc in modifier_to_arcs.get(id(modifier), [None]):
+                mod_list.append(
+                    make_celldesigner_modification(
+                        writing_context,
+                        modifier,
+                        modifier_arc,
+                        reaction_layout,
+                        frozenset_mapping,
+                    )
+                )
     extension.append(mod_list)
 
     # line
@@ -3556,36 +3565,52 @@ def make_celldesigner_reaction(
                     list_of_modifiers.append(modifier_species_reference)
                 continue
             sbml_species = writing_context.subunit_to_complex.get(id(species), species)
-            alias_layout = (
-                find_layout_for_species_in_frozenset(
-                    writing_context, species, frozenset_mapping
+            for index, modifier_arc in enumerate(
+                modifier_to_arcs.get(id(modifier), [None])
+            ):
+                if modifier_arc is not None:
+                    alias_layout = modifier_arc.source
+                else:
+                    alias_layout = (
+                        find_layout_for_species_in_frozenset(
+                            writing_context, species, frozenset_mapping
+                        )
+                        if frozenset_mapping
+                        else None
+                    )
+                alias_id = get_alias_id(writing_context, alias_layout)
+                modifier_reference_attributes = {
+                    "species": get_species_id(sbml_species, writing_context)
+                }
+                if modifier.metaid is not None:
+                    if index == 0:
+                        modifier_reference_attributes["metaid"] = get_xml_id(
+                            writing_context,
+                            modifier,
+                            candidate=modifier.metaid,
+                            share=False,
+                            memoize=False,
+                        )
+                    else:
+                        modifier_reference_attributes["metaid"] = get_xml_id(
+                            writing_context,
+                            modifier_arc,
+                            candidate=modifier_arc.id_.removesuffix("_layout"),
+                            share=False,
+                            memoize=False,
+                        )
+                modifier_species_reference = make_lxml_element(
+                    "modifierSpeciesReference",
+                    attributes=modifier_reference_attributes,
                 )
-                if frozenset_mapping
-                else None
-            )
-            alias_id = get_alias_id(writing_context, alias_layout)
-            modifier_reference_attributes = {
-                "species": get_species_id(sbml_species, writing_context)
-            }
-            if modifier.metaid is not None:
-                modifier_reference_attributes["metaid"] = get_xml_id(
-                    writing_context,
-                    modifier,
-                    candidate=modifier.metaid,
-                    share=False,
-                    memoize=False,
+                modifier_reference_annotation = make_lxml_element("annotation")
+                modifier_reference_extension = make_celldesigner_element("extension")
+                modifier_reference_extension.append(
+                    make_celldesigner_element("alias", text=alias_id)
                 )
-            modifier_species_reference = make_lxml_element(
-                "modifierSpeciesReference", attributes=modifier_reference_attributes
-            )
-            modifier_reference_annotation = make_lxml_element("annotation")
-            modifier_reference_extension = make_celldesigner_element("extension")
-            modifier_reference_extension.append(
-                make_celldesigner_element("alias", text=alias_id)
-            )
-            modifier_reference_annotation.append(modifier_reference_extension)
-            modifier_species_reference.append(modifier_reference_annotation)
-            list_of_modifiers.append(modifier_species_reference)
+                modifier_reference_annotation.append(modifier_reference_extension)
+                modifier_species_reference.append(modifier_reference_annotation)
+                list_of_modifiers.append(modifier_species_reference)
         reaction_element.append(list_of_modifiers)
 
     return reaction_element
@@ -4570,42 +4595,47 @@ def make_celldesigner_participant_link_from_layout(
 def make_celldesigner_modification(
     writing_context: typing.Any,
     modifier: typing.Any,
+    modifier_arc: typing.Any,
     reaction_layout: typing.Any,
     frozenset_mapping: typing.Any,
 ) -> lxml.etree._Element | None:
-    """Build a CD modification element for a reaction modifier."""
+    """Build a CD modification element for one drawing of a reaction modifier.
+
+    Args:
+        writing_context: The writing context.
+        modifier: The modifier model element.
+        modifier_arc: The modifier arc layout of the drawing, or None when the
+            modifier is not drawn.
+        reaction_layout: The ReactionLayout element, or None.
+        frozenset_mapping: The frozenset key of the drawn copy, or None.
+
+    Returns:
+        The modification element, or None for a boolean gate modifier.
+    """
     species = modifier.referred_element
     if isinstance(species, BooleanLogicGate):
         return None
-    alias_layout = (
-        find_layout_for_species_in_frozenset(
-            writing_context, species, frozenset_mapping
+    if modifier_arc is not None:
+        alias_layout = modifier_arc.source
+    else:
+        alias_layout = (
+            find_layout_for_species_in_frozenset(
+                writing_context, species, frozenset_mapping
+            )
+            if frozenset_mapping
+            else None
         )
-        if frozenset_mapping
-        else None
-    )
     alias_id = get_alias_id(writing_context, alias_layout)
     modifier_type = _CLASS_TO_MODIFIER_TYPE.get(type(modifier), "CATALYSIS")
-    # Find modifier arc layout and compute edit points
     edit_points = []
     source_anchor_name = None
-    modifier_arc = None
-    if reaction_layout is not None and alias_layout is not None:
-        for layout_element_item in writing_context.map_.layout.layout_elements:
-            if (
-                hasattr(layout_element_item, "source")
-                and hasattr(layout_element_item, "target")
-                and layout_element_item.source is alias_layout
-                and layout_element_item.target is reaction_layout
-            ):
-                modifier_arc = layout_element_item
-                edit_points, source_anchor_name = inverse_edit_points_modifier(
-                    layout_element_item,
-                    alias_layout,
-                    reaction_layout,
-                    has_boolean_input=False,
-                )
-                break
+    if modifier_arc is not None and reaction_layout is not None:
+        edit_points, source_anchor_name = inverse_edit_points_modifier(
+            modifier_arc,
+            alias_layout,
+            reaction_layout,
+            has_boolean_input=False,
+        )
     target_line_index = "-1,2"
     if modifier_arc is not None and reaction_layout is not None:
         target_line_index = compute_target_line_index(reaction_layout, modifier_arc)

@@ -697,20 +697,23 @@ def get_species_reference(
     cd_participant: lxml.objectify.ObjectifiedElement,
     cd_species_references: list[lxml.objectify.ObjectifiedElement],
 ) -> lxml.objectify.ObjectifiedElement | None:
-    """Return the speciesReference of a base participant or participant link.
+    """Return the species reference of a participant entry.
 
-    The speciesReference is matched by its ``celldesigner:alias``. When none
-    matches, the first one with the same species is returned.
+    The participant entry is a base participant, a participant link or a
+    modification. The species reference is matched by its
+    ``celldesigner:alias``. When none matches, the first one with the same
+    species is returned.
 
     Args:
-        cd_participant: The base participant or participant link element.
-        cd_species_references: The speciesReference elements of the reaction
-            side.
+        cd_participant: The base participant, participant link or
+            modification element.
+        cd_species_references: The speciesReference or
+            modifierSpeciesReference elements of the reaction.
 
     Returns:
         The matching speciesReference element, or ``None``.
     """
-    alias_id = cd_participant.get("alias")
+    alias_id = cd_participant.get("alias") or cd_participant.get("aliases")
     for cd_species_reference in cd_species_references:
         cd_extension = get_extension(cd_species_reference)
         cd_alias = getattr(cd_extension, f"{{{CD_NAMESPACE}}}alias", None)
@@ -720,6 +723,7 @@ def get_species_reference(
         cd_participant.get("species")
         or cd_participant.get("reactant")
         or cd_participant.get("product")
+        or cd_participant.get("modifiers")
     )
     for cd_species_reference in cd_species_references:
         if cd_species_reference.get("species") == cd_species_id:
@@ -781,6 +785,9 @@ def get_modifier_metaid(
 ) -> str | None:
     """Resolve the SBML modifierSpeciesReference metaid for a modifier.
 
+    The modifierSpeciesReference is the one matched by alias, else the first
+    one with the same species.
+
     Args:
         cd_reaction_modification: The modification element.
         cd_reaction: The parent reaction element.
@@ -788,9 +795,9 @@ def get_modifier_metaid(
     Returns:
         The metaid string, or None if not found.
     """
-    cd_modifier_species_id = cd_reaction_modification.get("modifiers")
-    if cd_modifier_species_id is not None:
-        for modifier_species_reference in get_modifier_species_references(cd_reaction):
-            if modifier_species_reference.get("species") == cd_modifier_species_id:
-                return modifier_species_reference.get("metaid")
-    return None
+    cd_modifier_species_reference = get_species_reference(
+        cd_reaction_modification, get_modifier_species_references(cd_reaction)
+    )
+    if cd_modifier_species_reference is None:
+        return None
+    return cd_modifier_species_reference.get("metaid")

@@ -23,6 +23,7 @@ Singleton keys (one layout element represents the model element):
 | [StructuralState][momapy.celldesigner.StructuralState] | [StructuralStateLayout][momapy.celldesigner.StructuralStateLayout] |
 | [Reactant][momapy.celldesigner.Reactant] | [ConsumptionLayout][momapy.celldesigner.ConsumptionLayout] |
 | [Product][momapy.celldesigner.Product] | [ProductionLayout][momapy.celldesigner.ProductionLayout] |
+| Modifiers (e.g. [Catalyzer][momapy.celldesigner.Catalyzer], [Trigger][momapy.celldesigner.Trigger], [Inhibitor][momapy.celldesigner.Inhibitor]) | The modifier arc layout (e.g. [CatalysisLayout][momapy.celldesigner.CatalysisLayout], [TriggeringLayout][momapy.celldesigner.TriggeringLayout], [InhibitionLayout][momapy.celldesigner.InhibitionLayout]). One key per drawn arc: a modifier drawn from several aliases has several keys |
 | [BooleanLogicGateInput][momapy.celldesigner.BooleanLogicGateInput] | [LogicArcLayout][momapy.celldesigner.LogicArcLayout] |
 
 When a reaction uses the same species through several aliases, there is one

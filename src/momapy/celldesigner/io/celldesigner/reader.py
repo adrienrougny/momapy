@@ -46,10 +46,10 @@ Element-specific patterns:
   ``speciesReference/@metaid`` (or
   ``f"{reaction/@id}_{speciesReference/@species}"`` fallback),
   layout ``id_`` = ``f"{model_id}_layout"`` (when present).
-- **Modulator**: model ``id_`` =
-  ``modifierSpeciesReference/@metaid``,
-  layout ``id_`` =
-  ``f"{modifierSpeciesReference/@metaid}_layout"``.
+- **Modulator**: model ``id_`` = ``modifierSpeciesReference/@metaid`` of
+  the first ``modifierSpeciesReference`` read for the modifier, layout
+  ``id_`` = ``f"{metaid}_layout"`` with the ``metaid`` of the
+  ``modifierSpeciesReference`` matched by ``celldesigner:alias``.
 - **Reaction**: model ``id_`` = ``reaction/@id``,
   layout ``id_`` = ``f"{reaction/@id}_layout"``.
 - **Modulation**: model ``id_`` = ``reaction/@id``,
@@ -1495,10 +1495,9 @@ class CellDesignerReader(Reader):
                 model_element = add_or_replace_element_in_set(
                     model_element,
                     super_model_element.modifiers,
-                    func=lambda new, old: new.id_ < old.id_,
                 )
                 reading_context.xml_id_to_model_element.add(
-                    model_element.id_, model_element
+                    modifier_metaid, model_element
                 )
             else:
                 model_element = None
