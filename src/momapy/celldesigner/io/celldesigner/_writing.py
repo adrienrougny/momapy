@@ -13,6 +13,7 @@ import lxml.etree
 
 from momapy.coloring import Color
 from momapy.geometry import Point, Rotation, get_transformation_for_frame
+from momapy.io._utils import choose_compartment_layout
 from momapy.io._utils import make_unique_xml_id
 from momapy.sbml.io.sbml._qualifiers import QUALIFIER_MEMBER_TO_QUALIFIER_ATTRIBUTE
 from momapy.celldesigner.elements import CellDesignerNode
@@ -2399,22 +2400,28 @@ def make_celldesigner_list_of_species_aliases(
         if key in seen_degraded:
             continue
         seen_degraded.add(key)
-        list_elem.append(
-            make_celldesigner_degraded_alias(writing_context, entry.degraded_layout)
-        )
+        list_elem.append(make_celldesigner_degraded_alias(writing_context, entry))
     layout_order_index = build_layout_order_index(writing_context.map_.layout)
     sort_aliases_by_layout_order(list_elem, layout_order_index)
     return list_elem
 
 
 def make_celldesigner_degraded_alias(
-    writing_context: typing.Any, degraded_layout: typing.Any
+    writing_context: typing.Any, degraded_entry: DegradedEntry
 ) -> lxml.etree._Element:
+    degraded_layout = degraded_entry.degraded_layout
     species_id = degraded_species_id(writing_context, degraded_layout)
     attrs = {
         "id": get_xml_id(writing_context, degraded_layout),
         "species": species_id,
     }
+    compartment_alias_id = find_compartment_alias_id(
+        writing_context,
+        find_degraded_species_compartment(degraded_entry),
+        degraded_layout,
+    )
+    if compartment_alias_id is not None:
+        attrs["compartmentAlias"] = compartment_alias_id
     alias = make_celldesigner_element("speciesAlias", attributes=attrs)
     activity_text = (
         "active" if isinstance(degraded_layout, DegradedActiveLayout) else "inactive"
@@ -2480,31 +2487,24 @@ def make_celldesigner_degraded_alias(
 
 
 def find_compartment_alias_id(
-    writing_context: typing.Any, species_layout: typing.Any
+    writing_context: typing.Any,
+    compartment: typing.Any,
+    species_layout: typing.Any,
 ) -> str | None:
-    """Find the compartment alias containing this species layout."""
-    species_center = species_layout.center()
-    best_id = None
-    best_area = float("inf")
-    for comp in writing_context.map_.model.compartments:
-        if comp.id_ == "default":
-            continue
-        for layout_key in get_layouts(writing_context, comp):
-            if isinstance(layout_key, frozenset):
-                continue
-            if isinstance(layout_key, COMPARTMENT_LAYOUT_CLASSES):
-                bbox = layout_key.bbox()
-                north_west = bbox.north_west()
-                south_east = bbox.south_east()
-                if (
-                    north_west.x <= species_center.x <= south_east.x
-                    and north_west.y <= species_center.y <= south_east.y
-                ):
-                    area = bbox.width * bbox.height
-                    if area < best_area:
-                        best_area = area
-                        best_id = get_xml_id(writing_context, layout_key)
-    return best_id
+    """Return the id of the compartment alias the species layout is drawn in."""
+    if compartment is None:
+        return None
+    compartment_layouts = [
+        layout_element
+        for layout_element in get_layouts(writing_context, compartment)
+        if isinstance(layout_element, COMPARTMENT_LAYOUT_CLASSES)
+    ]
+    if not compartment_layouts:
+        return None
+    compartment_layout = choose_compartment_layout(
+        compartment_layouts, species_layout.center()
+    )
+    return get_xml_id(writing_context, compartment_layout)
 
 
 def make_celldesigner_alias(
@@ -2521,7 +2521,9 @@ def make_celldesigner_alias(
     if complex_alias_id is not None:
         attrs["complexSpeciesAlias"] = complex_alias_id
     elif tag == "speciesAlias" or tag == "complexSpeciesAlias":
-        comp_alias = find_compartment_alias_id(writing_context, layout)
+        comp_alias = find_compartment_alias_id(
+            writing_context, model.compartment, layout
+        )
         if comp_alias is not None:
             attrs["compartmentAlias"] = comp_alias
     alias = make_celldesigner_element(tag, attributes=attrs)

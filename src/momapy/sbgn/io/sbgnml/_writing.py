@@ -8,6 +8,7 @@ import lxml.etree
 from momapy.core.layout import DoubleHeadedArc
 from momapy.core.layout import Node
 from momapy.core.layout import SingleHeadedArc
+from momapy.io._utils import choose_compartment_layout
 from momapy.io._utils import make_unique_xml_id
 from momapy.sbgn.pd import CardinalityLayout
 from momapy.sbgn.pd import ConsumptionLayout
@@ -415,7 +416,10 @@ def make_sbgnml_glyph(
             )
             if compartment_layout_elements:
                 compartment_id = get_xml_id(
-                    writing_context, compartment_layout_elements[0]
+                    writing_context,
+                    choose_compartment_layout(
+                        compartment_layout_elements, layout_element.center()
+                    ),
                 )
                 attributes["compartmentRef"] = compartment_id
     sbgnml_glyph = make_lxml_element("glyph", attributes=attributes)

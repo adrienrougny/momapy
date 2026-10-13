@@ -1,5 +1,6 @@
 """Round-trip tests for CellDesigner import/export."""
 
+import lxml.etree
 import pytest
 import tempfile
 import os
@@ -45,3 +46,54 @@ class TestCellDesignerRoundTrip:
         result2 = momapy.io.core.read(output_file)
         map2 = result2.obj
         assert map1.model == map2.model
+
+
+COMPARTMENT_ALIAS_FILES = [
+    os.path.join(TEST_DIR, "..", "fixtures", "inhibition_phenotype.xml"),
+    os.path.join(TEST_DIR, "..", "fixtures", "self_modulation.xml"),
+    os.path.join(CD_MAPS_DIR, "Apoptosis_pathway.xml"),
+    os.path.join(CD_MAPS_DIR, "FOXO3_activity.xml"),
+]
+
+
+def get_top_level_compartment_aliases(root):
+    sbml_namespace = root.nsmap[None]
+    celldesigner_namespace = "http://www.sbml.org/2001/ns/celldesigner"
+    species_id_to_compartment_id = {
+        species.get("id"): species.get("compartment")
+        for species in root.iter(f"{{{sbml_namespace}}}species")
+    }
+    compartment_alias_id_to_compartment_id = {
+        compartment_alias.get("id"): compartment_alias.get("compartment")
+        for compartment_alias in root.iter(
+            f"{{{celldesigner_namespace}}}compartmentAlias"
+        )
+    }
+    alias_id_to_compartment_alias_id = {}
+    for tag in ("speciesAlias", "complexSpeciesAlias"):
+        for alias in root.iter(f"{{{celldesigner_namespace}}}{tag}"):
+            compartment_alias_id = alias.get("compartmentAlias")
+            if compartment_alias_id is None:
+                continue
+            alias_id_to_compartment_alias_id[alias.get("id")] = (
+                compartment_alias_id,
+                compartment_alias_id_to_compartment_id.get(compartment_alias_id)
+                == species_id_to_compartment_id.get(alias.get("species")),
+            )
+    return alias_id_to_compartment_alias_id
+
+
+@pytest.mark.parametrize("input_file", COMPARTMENT_ALIAS_FILES)
+def test_roundtrip_keeps_compartment_alias(input_file, temp_dir):
+    map_ = momapy.io.core.read(input_file).obj
+    output_file = os.path.join(temp_dir, "output.xml")
+    momapy.io.core.write(map_, output_file, writer="celldesigner")
+    input_aliases = get_top_level_compartment_aliases(
+        lxml.etree.parse(input_file).getroot()
+    )
+    output_aliases = get_top_level_compartment_aliases(
+        lxml.etree.parse(output_file).getroot()
+    )
+    for alias_id, (compartment_alias_id, is_consistent) in input_aliases.items():
+        if is_consistent:
+            assert output_aliases[alias_id][0] == compartment_alias_id
