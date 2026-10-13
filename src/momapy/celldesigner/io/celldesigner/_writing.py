@@ -1698,35 +1698,41 @@ def get_reaction_layout(frozenset_mapping: typing.Any) -> typing.Any:
     return None
 
 
-def collect_arcs_for_reaction(
+def get_participant_arcs(
     writing_context: typing.Any,
-    reaction_layout: typing.Any,
-    arc_cls: typing.Any,
-    exclude_alias: typing.Any = None,
-) -> list[typing.Any]:
-    """Collect arc layouts of a given type connected to a reaction layout.
+    participants: typing.Any,
+    reaction: typing.Any,
+    frozenset_mapping: typing.Any,
+) -> list[tuple[typing.Any, typing.Any]]:
+    """Return the (participant, arc) pairs of one drawn copy of a reaction.
+
+    The pairs are sorted in layout order.
 
     Args:
         writing_context: The writing context.
-        reaction_layout: The ReactionLayout element.
-        arc_cls: The arc class to filter (ConsumptionLayout or ProductionLayout).
-        exclude_alias: An optional alias layout to exclude (e.g. the base
-            reactant/product alias which is already handled separately).
+        participants: The reactants or products of the reaction.
+        reaction: The reaction model element.
+        frozenset_mapping: The frozenset key of the drawn copy.
 
     Returns:
-        A list of arc layouts.
+        The (participant, arc) pairs.
     """
-    arcs = []
-    for layout_element_item in writing_context.map_.layout.layout_elements:
-        if (
-            isinstance(layout_element_item, arc_cls)
-            and layout_element_item.source is reaction_layout
-            and (
-                exclude_alias is None or layout_element_item.target is not exclude_alias
-            )
+    layout_model_mapping = get_layout_model_mapping(writing_context)
+    participant_arcs = []
+    for participant in participants:
+        for arc in layout_model_mapping.get_child_layout_elements(
+            participant, reaction
         ):
-            arcs.append(layout_element_item)
-    return arcs
+            if arc in frozenset_mapping and isinstance(
+                arc, (ConsumptionLayout, ProductionLayout)
+            ):
+                participant_arcs.append((participant, arc))
+    participant_arcs.sort(
+        key=lambda participant_arc: writing_context.layout_order_index.get(
+            participant_arc[1].id_, float("inf")
+        )
+    )
+    return participant_arcs
 
 
 def species_class_string(species: typing.Any) -> str:
@@ -2277,8 +2283,7 @@ def make_celldesigner_list_of_complex_species_aliases(
             complex_alias_list=list_elem,
             species_alias_list=None,
         )
-    layout_order_index = build_layout_order_index(writing_context.map_.layout)
-    sort_aliases_by_layout_order(list_elem, layout_order_index)
+    sort_aliases_by_layout_order(list_elem, writing_context.layout_order_index)
     return list_elem
 
 
@@ -2401,8 +2406,7 @@ def make_celldesigner_list_of_species_aliases(
             continue
         seen_degraded.add(key)
         list_elem.append(make_celldesigner_degraded_alias(writing_context, entry))
-    layout_order_index = build_layout_order_index(writing_context.map_.layout)
-    sort_aliases_by_layout_order(list_elem, layout_order_index)
+    sort_aliases_by_layout_order(list_elem, writing_context.layout_order_index)
     return list_elem
 
 
@@ -3104,8 +3108,7 @@ def make_celldesigner_list_of_reactions(
                 )
                 if mod_rxn is not None:
                     list_elem.append(mod_rxn)
-    layout_order_index = build_layout_order_index(writing_context.map_.layout)
-    sort_reactions_by_layout_order(list_elem, layout_order_index)
+    sort_reactions_by_layout_order(list_elem, writing_context.layout_order_index)
     return list_elem
 
 
@@ -3192,34 +3195,61 @@ def make_celldesigner_reaction(
         ),
     )
 
-    # baseReactants — for left-T with 1 model reactant but 2 visual
-    # copies (stoichiometry), use consumption arcs to find all aliases.
+    if reaction_layout is not None:
+        reactant_arcs = get_participant_arcs(
+            writing_context, reaction.reactants, reaction, frozenset_mapping
+        )
+        if is_left_t:
+            base_reactant_entries = [
+                (reactant, arc.target)
+                for reactant, arc in reactant_arcs
+                if reactant.base
+            ]
+            link_reactant_arcs = [
+                (reactant, arc) for reactant, arc in reactant_arcs if not reactant.base
+            ]
+        else:
+            base_reactant_entries = [
+                (reactant, reaction_layout.source) for reactant in base_reactants
+            ]
+            link_reactant_arcs = [
+                (reactant, arc)
+                for reactant, arc in reactant_arcs
+                if arc.target is not reaction_layout.source
+            ]
+        product_arcs = get_participant_arcs(
+            writing_context, reaction.products, reaction, frozenset_mapping
+        )
+        if is_right_t:
+            base_product_entries = [
+                (product, arc.target) for product, arc in product_arcs if product.base
+            ]
+            link_product_arcs = [
+                (product, arc) for product, arc in product_arcs if not product.base
+            ]
+        else:
+            base_product_entries = [
+                (product, reaction_layout.target) for product in base_products
+            ]
+            link_product_arcs = [
+                (product, arc)
+                for product, arc in product_arcs
+                if arc.target is not reaction_layout.target
+            ]
+
     base_reactants_element = make_celldesigner_element("baseReactants")
-    if is_left_t and len(base_reactants) == 1 and reaction_layout is not None:
-        base_species = base_reactants[0].referred_element
-        for layout_element_item in writing_context.map_.layout.layout_elements:
-            if (
-                isinstance(layout_element_item, ConsumptionLayout)
-                and layout_element_item.source is reaction_layout
-            ):
-                # Only base arcs: target must map to the base species
-                target_model = get_layout_model_mapping(writing_context).get_mapping(
-                    layout_element_item.target
+    if reaction_layout is not None:
+        for reactant, alias_layout in base_reactant_entries:
+            base_reactants_element.append(
+                make_celldesigner_base_participant_from_layout(
+                    writing_context,
+                    reactant.referred_element,
+                    alias_layout,
+                    "baseReactant",
+                    reaction_layout,
+                    is_start=True,
                 )
-                if target_model is not None:
-                    if target_model is not base_species:
-                        continue
-                alias_layout = layout_element_item.target
-                base_reactants_element.append(
-                    make_celldesigner_base_participant_from_layout(
-                        writing_context,
-                        base_species,
-                        alias_layout,
-                        "baseReactant",
-                        reaction_layout,
-                        is_start=True,
-                    )
-                )
+            )
     else:
         for reactant in base_reactants:
             base_reactants_element.append(
@@ -3246,32 +3276,19 @@ def make_celldesigner_reaction(
             )
     extension.append(base_reactants_element)
 
-    # baseProducts — same for right-T with 1 model product but 2 aliases.
     base_products_element = make_celldesigner_element("baseProducts")
-    if is_right_t and len(base_products) == 1 and reaction_layout is not None:
-        base_species = base_products[0].referred_element
-        for layout_element_item in writing_context.map_.layout.layout_elements:
-            if (
-                isinstance(layout_element_item, ProductionLayout)
-                and layout_element_item.source is reaction_layout
-            ):
-                target_model = get_layout_model_mapping(writing_context).get_mapping(
-                    layout_element_item.target
+    if reaction_layout is not None:
+        for product, alias_layout in base_product_entries:
+            base_products_element.append(
+                make_celldesigner_base_participant_from_layout(
+                    writing_context,
+                    product.referred_element,
+                    alias_layout,
+                    "baseProduct",
+                    reaction_layout,
+                    is_start=False,
                 )
-                if target_model is not None:
-                    if target_model is not base_species:
-                        continue
-                alias_layout = layout_element_item.target
-                base_products_element.append(
-                    make_celldesigner_base_participant_from_layout(
-                        writing_context,
-                        base_species,
-                        alias_layout,
-                        "baseProduct",
-                        reaction_layout,
-                        is_start=False,
-                    )
-                )
+            )
     else:
         for product in base_products:
             base_products_element.append(
@@ -3298,51 +3315,13 @@ def make_celldesigner_reaction(
             )
     extension.append(base_products_element)
 
-    # For left-T reactions, compute base reactant aliases to distinguish
-    # base arcs from link arcs (both are ConsumptionLayout).
-    base_reactant_aliases = set()
-    if is_left_t and reaction_layout is not None:
-        base_species_set = {r.referred_element for r in base_reactants}
-        for arc in writing_context.map_.layout.layout_elements:
-            if (
-                isinstance(arc, ConsumptionLayout)
-                and arc.source is reaction_layout
-                and arc.target is not None
-            ):
-                target_model = get_layout_model_mapping(writing_context).get_mapping(
-                    arc.target
-                )
-                if target_model is not None and target_model in base_species_set:
-                    base_reactant_aliases.add(arc.target)
-
-    # listOfReactantLinks — derive from layout arcs to handle
-    # multiple visual copies of the same model element.
     reactant_links_element = make_celldesigner_element("listOfReactantLinks")
     if reaction_layout is not None:
-        if is_left_t:
-            link_consumption_arcs = [
-                arc
-                for arc in collect_arcs_for_reaction(
-                    writing_context,
-                    reaction_layout,
-                    ConsumptionLayout,
-                )
-                if arc.target not in base_reactant_aliases
-            ]
-        else:
-            base_reactant_alias = reaction_layout.source
-            link_consumption_arcs = collect_arcs_for_reaction(
-                writing_context,
-                reaction_layout,
-                ConsumptionLayout,
-                exclude_alias=base_reactant_alias,
-            )
-        for arc_layout in link_consumption_arcs:
-            if is_degraded_layout(arc_layout.target):
-                continue
+        for reactant, arc_layout in link_reactant_arcs:
             reactant_links_element.append(
                 make_celldesigner_participant_link_from_layout(
                     writing_context,
+                    reactant,
                     arc_layout,
                     "reactantLink",
                     "reactant",
@@ -3376,50 +3355,13 @@ def make_celldesigner_reaction(
             )
     extension.append(reactant_links_element)
 
-    # listOfProductLinks — same arc-driven approach.
     product_links_element = make_celldesigner_element("listOfProductLinks")
     if reaction_layout is not None:
-        if is_right_t:
-            # Right-T: exclude all base product arcs by their target alias
-            base_product_aliases = set()
-            base_product_species_set = {p.referred_element for p in base_products}
-            for arc in writing_context.map_.layout.layout_elements:
-                if (
-                    isinstance(arc, ProductionLayout)
-                    and arc.source is reaction_layout
-                    and arc.target is not None
-                ):
-                    target_model = get_layout_model_mapping(
-                        writing_context
-                    ).get_mapping(arc.target)
-                    if (
-                        target_model is not None
-                        and target_model in base_product_species_set
-                    ):
-                        base_product_aliases.add(arc.target)
-            link_production_arcs = [
-                arc
-                for arc in collect_arcs_for_reaction(
-                    writing_context,
-                    reaction_layout,
-                    ProductionLayout,
-                )
-                if arc.target not in base_product_aliases
-            ]
-        else:
-            base_product_alias = reaction_layout.target
-            link_production_arcs = collect_arcs_for_reaction(
-                writing_context,
-                reaction_layout,
-                ProductionLayout,
-                exclude_alias=base_product_alias,
-            )
-        for arc_layout in link_production_arcs:
-            if is_degraded_layout(arc_layout.target):
-                continue
+        for product, arc_layout in link_product_arcs:
             product_links_element.append(
                 make_celldesigner_participant_link_from_layout(
                     writing_context,
+                    product,
                     arc_layout,
                     "productLink",
                     "product",
@@ -3497,88 +3439,18 @@ def make_celldesigner_reaction(
     append_rdf_to_annotation(writing_context, annotation, reaction, xml_id)
     reaction_element.append(annotation)
 
-    # SBML listOfReactants — base first, then links.
-    # For left-T with stoichiometry, duplicate from arcs.
     list_of_reactants = make_lxml_element("listOfReactants")
-    if is_left_t and len(base_reactants) == 1 and reaction_layout is not None:
-        base_species = base_reactants[0].referred_element
-        for layout_element_item in writing_context.map_.layout.layout_elements:
-            if (
-                isinstance(layout_element_item, ConsumptionLayout)
-                and layout_element_item.source is reaction_layout
-            ):
-                target_model = get_layout_model_mapping(writing_context).get_mapping(
-                    layout_element_item.target
-                )
-                if target_model is not None:
-                    if target_model is not base_species:
-                        continue
-                sbml_species = writing_context.subunit_to_complex.get(
-                    id(base_species), base_species
-                )
-                alias_id = get_alias_id(writing_context, layout_element_item.target)
-                species_reference = make_lxml_element(
-                    "speciesReference",
-                    attributes={
-                        "species": get_species_id(sbml_species, writing_context)
-                    },
-                )
-                species_reference_annotation = make_lxml_element("annotation")
-                species_reference_extension = make_celldesigner_element("extension")
-                species_reference_extension.append(
-                    make_celldesigner_element("alias", text=alias_id)
-                )
-                species_reference_annotation.append(species_reference_extension)
-                species_reference.append(species_reference_annotation)
-                list_of_reactants.append(species_reference)
-    else:
-        for reactant in base_reactants:
+    if reaction_layout is not None:
+        for reactant, alias_layout in base_reactant_entries + [
+            (reactant, arc.target) for reactant, arc in link_reactant_arcs
+        ]:
             list_of_reactants.append(
-                make_sbml_document_species_reference(
-                    writing_context,
-                    reactant,
-                    frozenset_mapping,
-                    reaction=reaction,
-                    reaction_layout=reaction_layout,
-                    is_start=True,
+                make_sbml_document_species_reference_from_layout(
+                    writing_context, reactant, alias_layout
                 )
             )
-    if reaction_layout is not None:
-        if is_left_t:
-            # Reuse already-computed base reactant aliases to exclude
-            for arc_layout in collect_arcs_for_reaction(
-                writing_context,
-                reaction_layout,
-                ConsumptionLayout,
-            ):
-                if arc_layout.target in base_reactant_aliases:
-                    continue
-                if is_degraded_layout(arc_layout.target):
-                    continue
-                list_of_reactants.append(
-                    make_sbml_document_species_reference_from_layout(
-                        writing_context,
-                        arc_layout,
-                    )
-                )
-        else:
-            base_reactant_alias = reaction_layout.source
-            for arc_layout in collect_arcs_for_reaction(
-                writing_context,
-                reaction_layout,
-                ConsumptionLayout,
-                exclude_alias=base_reactant_alias,
-            ):
-                if is_degraded_layout(arc_layout.target):
-                    continue
-                list_of_reactants.append(
-                    make_sbml_document_species_reference_from_layout(
-                        writing_context,
-                        arc_layout,
-                    )
-                )
     else:
-        for reactant in link_reactants:
+        for reactant in base_reactants + link_reactants:
             list_of_reactants.append(
                 make_sbml_document_species_reference(
                     writing_context,
@@ -3600,87 +3472,18 @@ def make_celldesigner_reaction(
     )
     reaction_element.append(list_of_reactants)
 
-    # SBML listOfProducts — same for right-T.
     list_of_products = make_lxml_element("listOfProducts")
-    if is_right_t and len(base_products) == 1 and reaction_layout is not None:
-        base_species = base_products[0].referred_element
-        for layout_element_item in writing_context.map_.layout.layout_elements:
-            if (
-                isinstance(layout_element_item, ProductionLayout)
-                and layout_element_item.source is reaction_layout
-            ):
-                target_model = get_layout_model_mapping(writing_context).get_mapping(
-                    layout_element_item.target
-                )
-                if target_model is not None:
-                    if target_model is not base_species:
-                        continue
-                sbml_species = writing_context.subunit_to_complex.get(
-                    id(base_species), base_species
-                )
-                alias_id = get_alias_id(writing_context, layout_element_item.target)
-                species_reference = make_lxml_element(
-                    "speciesReference",
-                    attributes={
-                        "species": get_species_id(sbml_species, writing_context)
-                    },
-                )
-                species_reference_annotation = make_lxml_element("annotation")
-                species_reference_extension = make_celldesigner_element("extension")
-                species_reference_extension.append(
-                    make_celldesigner_element("alias", text=alias_id)
-                )
-                species_reference_annotation.append(species_reference_extension)
-                species_reference.append(species_reference_annotation)
-                list_of_products.append(species_reference)
-    else:
-        for product in base_products:
+    if reaction_layout is not None:
+        for product, alias_layout in base_product_entries + [
+            (product, arc.target) for product, arc in link_product_arcs
+        ]:
             list_of_products.append(
-                make_sbml_document_species_reference(
-                    writing_context,
-                    product,
-                    frozenset_mapping,
-                    reaction=reaction,
-                    reaction_layout=reaction_layout,
-                    is_start=False,
+                make_sbml_document_species_reference_from_layout(
+                    writing_context, product, alias_layout
                 )
             )
-    if reaction_layout is not None:
-        if is_right_t:
-            # Reuse already-computed base product aliases to exclude
-            for arc_layout in collect_arcs_for_reaction(
-                writing_context,
-                reaction_layout,
-                ProductionLayout,
-            ):
-                if arc_layout.target in base_product_aliases:
-                    continue
-                if is_degraded_layout(arc_layout.target):
-                    continue
-                list_of_products.append(
-                    make_sbml_document_species_reference_from_layout(
-                        writing_context,
-                        arc_layout,
-                    )
-                )
-        else:
-            base_product_alias = reaction_layout.target
-            for arc_layout in collect_arcs_for_reaction(
-                writing_context,
-                reaction_layout,
-                ProductionLayout,
-                exclude_alias=base_product_alias,
-            ):
-                if is_degraded_layout(arc_layout.target):
-                    continue
-                list_of_products.append(
-                    make_sbml_document_species_reference_from_layout(
-                        writing_context,
-                        arc_layout,
-                    )
-                )
     else:
-        for product in link_products:
+        for product in base_products + link_products:
             list_of_products.append(
                 make_sbml_document_species_reference(
                     writing_context,
@@ -3874,36 +3677,31 @@ def make_sbml_document_species_reference(
 
 
 def make_sbml_document_species_reference_from_layout(
-    writing_context: typing.Any, arc_layout: typing.Any
+    writing_context: typing.Any, participant: typing.Any, alias_layout: typing.Any
 ) -> lxml.etree._Element:
-    """Build an SBML speciesReference from a known arc layout.
-
-    Used when deriving link participants from layout arcs rather than
-    from model participants (which may have been deduplicated).
+    """Build an SBML speciesReference for a participant drawn by an alias.
 
     Args:
         writing_context: The writing context.
-        arc_layout: The ConsumptionLayout or ProductionLayout arc.
+        participant: The Reactant or Product model element.
+        alias_layout: The alias layout of the participant.
 
     Returns:
         The lxml speciesReference element.
     """
-    alias_layout = arc_layout.target
     alias_id = get_alias_id(writing_context, alias_layout)
-    species = get_layout_model_mapping(writing_context).get_mapping(alias_layout)
+    species = participant.referred_element
     sbml_species = writing_context.subunit_to_complex.get(id(species), species)
     sr_attrs = {"species": get_species_id(sbml_species, writing_context)}
-    arc_model = get_layout_model_mapping(writing_context).get_mapping(arc_layout)
-    if arc_model is not None and hasattr(arc_model, "id_"):
-        participant_metaid = arc_model.metaid or arc_model.id_
-        if participant_metaid:
-            sr_attrs["metaid"] = get_xml_id(
-                writing_context,
-                arc_model,
-                candidate=participant_metaid,
-                share=False,
-                memoize=False,
-            )
+    participant_metaid = participant.metaid or participant.id_
+    if participant_metaid:
+        sr_attrs["metaid"] = get_xml_id(
+            writing_context,
+            participant,
+            candidate=participant_metaid,
+            share=False,
+            memoize=False,
+        )
     species_reference = make_lxml_element("speciesReference", attributes=sr_attrs)
     species_reference_annotation = make_lxml_element("annotation")
     species_reference_extension = make_celldesigner_element("extension")
@@ -4681,18 +4479,17 @@ def make_celldesigner_participant_link(
 
 def make_celldesigner_participant_link_from_layout(
     writing_context: typing.Any,
+    participant: typing.Any,
     arc_layout: typing.Any,
     tag: str,
     attr_name: str,
     reaction_layout: typing.Any,
 ) -> lxml.etree._Element:
-    """Build a reactantLink or productLink from a known arc layout.
-
-    Used when deriving link participants from layout arcs rather than
-    from model participants (which may have been deduplicated).
+    """Build a reactantLink or productLink for a participant drawn by an arc.
 
     Args:
         writing_context: The writing context.
+        participant: The Reactant or Product model element.
         arc_layout: The ConsumptionLayout or ProductionLayout arc.
         tag: XML tag name ("reactantLink" or "productLink").
         attr_name: Attribute name for the species ("reactant" or "product").
@@ -4703,7 +4500,7 @@ def make_celldesigner_participant_link_from_layout(
     """
     alias_layout = arc_layout.target
     alias_id = get_alias_id(writing_context, alias_layout)
-    species = get_layout_model_mapping(writing_context).get_mapping(alias_layout)
+    species = participant.referred_element
     link = make_celldesigner_element(
         tag,
         attributes={

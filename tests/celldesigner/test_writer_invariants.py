@@ -192,3 +192,41 @@ class TestModificationStateString:
             cd_string.upper().replace(" ", "_").replace("'", "_")
         ]
         assert recovered is ModificationState.SULFATED
+
+
+class TestParticipantsWrittenFromModel:
+    """A drawn reaction writes the participants of the model reaction only."""
+
+    def test_participant_removed_from_model_is_not_written(self, tmp_path):
+        map_builder = momapy.builder.builder_from_object(
+            momapy.io.core.read(os.path.join(_CD_MAPS_DIR, "Apoptosis_pathway.xml")).obj
+        )
+        reaction_builder = next(
+            reaction
+            for reaction in map_builder.model.reactions
+            if reaction.id_ == "re30"
+        )
+        for reactant in list(reaction_builder.reactants):
+            if reactant.id_ == "re30_s_id_sa47":
+                reaction_builder.reactants.remove(reactant)
+        output_file = tmp_path / "output.xml"
+        momapy.io.core.write(
+            map_builder.build(), str(output_file), writer="celldesigner"
+        )
+        root = lxml.etree.parse(str(output_file)).getroot()
+        sbml_namespace = root.nsmap[None]
+        reaction = root.find(f".//{{{sbml_namespace}}}reaction[@id='re30']")
+        species_references = reaction.iterfind(
+            f"{{{sbml_namespace}}}listOfReactants/{{{sbml_namespace}}}speciesReference"
+        )
+        reactant_links = reaction.iter(f"{{{_CD_NS}}}reactantLink")
+        written_species_ids = [
+            species_reference.get("species") for species_reference in species_references
+        ]
+        linked_species_ids = [
+            reactant_link.get("reactant") for reactant_link in reactant_links
+        ]
+        assert "s_id_sa47" not in written_species_ids
+        assert "s_id_sa47" not in linked_species_ids
+        assert "s_id_sa27" in written_species_ids
+        assert "s_id_sa27" in linked_species_ids

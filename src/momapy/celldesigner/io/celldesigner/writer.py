@@ -18,6 +18,7 @@ from momapy.celldesigner.io.celldesigner._writing_context import (
     CellDesignerWritingContext,
 )
 from momapy.celldesigner.io.celldesigner._writing import (
+    build_layout_order_index,
     build_subunit_to_complex,
     collect_degraded_entries,
     make_sbml_document,
@@ -100,6 +101,8 @@ class CellDesignerWriter(Writer):
         # name and round-tripped ids are preserved verbatim.
         reserve_source_xml_ids(writing_context)
         writing_context.degraded_entries = collect_degraded_entries(writing_context)
+        if obj.layout is not None:
+            writing_context.layout_order_index = build_layout_order_index(obj.layout)
 
         sbml = make_sbml_document(writing_context)
         tree = lxml.etree.ElementTree(sbml)

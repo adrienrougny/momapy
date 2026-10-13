@@ -24,7 +24,11 @@ class CellDesignerWritingContext(WritingContext):
     The unique-id machinery (``element_to_xml_id``, ``used_xml_ids``)
     lives on the base ``WritingContext``; the former species-id memo and
     metaid set are subsumed by it.
+
+    ``layout_order_index`` maps a layout element id to its position in the
+    layout.
     """
 
     subunit_to_complex: dict = dataclasses.field(default_factory=dict)
     degraded_entries: list = dataclasses.field(default_factory=list)
+    layout_order_index: dict = dataclasses.field(default_factory=dict)
