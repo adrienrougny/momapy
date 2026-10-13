@@ -18,6 +18,7 @@ from momapy.io._utils import make_unique_xml_id
 from momapy.sbml.io.sbml._qualifiers import QUALIFIER_MEMBER_TO_QUALIFIER_ATTRIBUTE
 from momapy.celldesigner.elements import CellDesignerNode
 from momapy.celldesigner.io.celldesigner._constants import (
+    CD_MODIFICATION_STATE_TO_MODIFICATION_STATE,
     CD_NAMESPACE,
     LINK_ANCHOR_POSITION_TO_ANCHOR_NAME,
     TEXT_TO_CHARACTER,
@@ -299,21 +300,9 @@ CLASS_TO_MODULATION_REACTION_TYPES = {
     UnknownNegativeInfluence: ("UNKNOWN_NEGATIVE_INFLUENCE", None),
 }
 
+# Reverse of _constants.CD_MODIFICATION_STATE_TO_MODIFICATION_STATE
 _MODIFICATION_STATE_TO_CD = {
-    "PHOSPHORYLATED": "phosphorylated",
-    "UBIQUITINATED": "ubiquitinated",
-    "ACETYLATED": "acetylated",
-    "METHYLATED": "methylated",
-    "HYDROXYLATED": "hydroxylated",
-    "GLYCOSYLATED": "glycosylated",
-    "MYRISTOYLATED": "myristoylated",
-    "PALMITOYLATED": "palmitoylated",
-    "PRENYLATED": "prenylated",
-    "PROTONATED": "protonated",
-    "SULFATED": "sulfated",
-    "DON_T_CARE": "don't care",
-    "UNKNOWN": "unknown",
-    "none": "empty",
+    v: k for k, v in CD_MODIFICATION_STATE_TO_MODIFICATION_STATE.items()
 }
 
 
@@ -1764,10 +1753,7 @@ def template_ref_tag(template: typing.Any) -> str:
 
 def modification_state_string(state: typing.Any) -> str:
     """Convert modification state to CellDesigner string."""
-    if state is None:
-        return "empty"
-    name = state.name if hasattr(state, "name") else str(state)
-    return _MODIFICATION_STATE_TO_CD.get(name, "empty")
+    return _MODIFICATION_STATE_TO_CD.get(state, "empty")
 
 
 def anchor_name_to_position(anchor_name: typing.Any) -> str | None:

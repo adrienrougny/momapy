@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sbml xmlns="http://www.sbml.org/sbml/level2/version4" xmlns:celldesigner="http://www.sbml.org/2001/ns/celldesigner" level="2" version="4">
+<model metaid="modification_states" id="modification_states">
+<annotation>
+<celldesigner:extension>
+<celldesigner:modelVersion>4.0</celldesigner:modelVersion>
+<celldesigner:modelDisplay sizeX="400" sizeY="300"/>
+<celldesigner:listOfCompartmentAliases/>
+<celldesigner:listOfComplexSpeciesAliases/>
+<celldesigner:listOfSpeciesAliases>
+<celldesigner:speciesAlias id="sa1" species="s1">
+<celldesigner:activity>inactive</celldesigner:activity>
+<celldesigner:bounds x="100.0" y="100.0" w="200.0" h="100.0"/>
+<celldesigner:font size="12"/>
+<celldesigner:view state="usual"/>
+<celldesigner:usualView>
+<celldesigner:innerPosition x="0.0" y="0.0"/>
+<celldesigner:boxSize width="200.0" height="100.0"/>
+<celldesigner:singleLine width="1.0"/>
+<celldesigner:paint color="ffccffcc" scheme="Color"/>
+</celldesigner:usualView>
+<celldesigner:briefView>
+<celldesigner:innerPosition x="0.0" y="0.0"/>
+<celldesigner:boxSize width="80.0" height="60.0"/>
+<celldesigner:singleLine width="0.0"/>
+<celldesigner:paint color="3fff0000" scheme="Color"/>
+</celldesigner:briefView>
+<celldesigner:info state="empty" angle="-1.5707963267948966"/>
+</celldesigner:speciesAlias>
+</celldesigner:listOfSpeciesAliases>
+<celldesigner:listOfGroups/>
+<celldesigner:listOfProteins>
+<celldesigner:protein id="pr1" name="p1" type="GENERIC">
+<celldesigner:listOfModificationResidues>
+<celldesigner:modificationResidue angle="0.0" id="rs1" name="r1" side="none"/>
+<celldesigner:modificationResidue angle="0.4487989505128276" id="rs2" name="r2" side="none"/>
+<celldesigner:modificationResidue angle="0.8975979010256552" id="rs3" name="r3" side="none"/>
+<celldesigner:modificationResidue angle="1.3463968515384828" id="rs4" name="r4" side="none"/>
+<celldesigner:modificationResidue angle="1.7951958020513104" id="rs5" name="r5" side="none"/>
+<celldesigner:modificationResidue angle="2.243994752564138" id="rs6" name="r6" side="none"/>
+<celldesigner:modificationResidue angle="2.6927937030769655" id="rs7" name="r7" side="none"/>
+<celldesigner:modificationResidue angle="3.141592653589793" id="rs8" name="r8" side="none"/>
+<celldesigner:modificationResidue angle="3.5903916041026207" id="rs9" name="r9" side="none"/>
+<celldesigner:modificationResidue angle="4.039190554615448" id="rs10" name="r10" side="none"/>
+<celldesigner:modificationResidue angle="4.487989505128276" id="rs11" name="r11" side="none"/>
+<celldesigner:modificationResidue angle="4.936788455641103" id="rs12" name="r12" side="none"/>
+<celldesigner:modificationResidue angle="5.385587406153931" id="rs13" name="r13" side="none"/>
+<celldesigner:modificationResidue angle="5.8343863566667595" id="rs14" name="r14" side="none"/>
+</celldesigner:listOfModificationResidues>
+</celldesigner:protein>
+</celldesigner:listOfProteins>
+<celldesigner:listOfGenes/>
+<celldesigner:listOfRNAs/>
+<celldesigner:listOfAntisenseRNAs/>
+<celldesigner:listOfLayers/>
+<celldesigner:listOfBlockDiagrams/>
+</celldesigner:extension>
+</annotation>
+<listOfCompartments>
+<compartment metaid="default" id="default" size="1"/>
+</listOfCompartments>
+<listOfSpecies>
+<species metaid="s1" id="s1" name="p1" compartment="default" initialAmount="0">
+<annotation>
+<celldesigner:extension>
+<celldesigner:positionToCompartment>inside</celldesigner:positionToCompartment>
+<celldesigner:speciesIdentity>
+<celldesigner:class>PROTEIN</celldesigner:class>
+<celldesigner:proteinReference>pr1</celldesigner:proteinReference>
+<celldesigner:state>
+<celldesigner:listOfModifications>
+<celldesigner:modification residue="rs1" state="phosphorylated"/>
+<celldesigner:modification residue="rs2" state="acetylated"/>
+<celldesigner:modification residue="rs3" state="ubiquitinated"/>
+<celldesigner:modification residue="rs4" state="methylated"/>
+<celldesigner:modification residue="rs5" state="hydroxylated"/>
+<celldesigner:modification residue="rs6" state="glycosylated"/>
+<celldesigner:modification residue="rs7" state="myristoylated"/>
+<celldesigner:modification residue="rs8" state="palmytoylated"/>
+<celldesigner:modification residue="rs9" state="prenylated"/>
+<celldesigner:modification residue="rs10" state="protonated"/>
+<celldesigner:modification residue="rs11" state="sulfated"/>
+<celldesigner:modification residue="rs12" state="don&apos;t care"/>
+<celldesigner:modification residue="rs13" state="unknown"/>
+<celldesigner:modification residue="rs14" state="empty"/>
+</celldesigner:listOfModifications>
+</celldesigner:state>
+</celldesigner:speciesIdentity>
+</celldesigner:extension>
+</annotation>
+</species>
+</listOfSpecies>
+</model>
+</sbml>

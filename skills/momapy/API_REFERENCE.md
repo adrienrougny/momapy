@@ -478,7 +478,7 @@ Functions (accept `CellDesignerMap | Builder`, return same):
 - Internal constants: `_LAYOUT_TO_ACTIVE_LAYOUT`, `_CD_CLASS_TO_CORNER`, `_CD_CLASS_TO_SIDE`, `_TARGET_LINE_INDEX_TO_ANCHOR_NAME`.
 
 ### `src/momapy/celldesigner/io/celldesigner/_constants.py`
-- Shared CellDesigner format constants (internal module, public-named content), imported by the reader and writer: `CD_NAMESPACE: str`, `TEXT_TO_CHARACTER: dict[str, str]` (special-character decoding table), `LINK_ANCHOR_POSITION_TO_ANCHOR_NAME: dict[str, str]` (link-anchor position codes -> momapy anchor names). `celldesigner.utils` no longer imports any of these — it uses `momapy.geometry.COMPASS_ANCHOR_NAMES` for its anchor list.
+- Shared CellDesigner format constants (internal module, public-named content), imported by the reader and writer: `CD_NAMESPACE: str`, `TEXT_TO_CHARACTER: dict[str, str]` (special-character decoding table), `LINK_ANCHOR_POSITION_TO_ANCHOR_NAME: dict[str, str]` (link-anchor position codes -> momapy anchor names), `CD_MODIFICATION_STATE_TO_MODIFICATION_STATE: dict[str, ModificationState | None]` (CellDesigner `state` strings -> `ModificationState`, keeping CellDesigner's `"palmytoylated"` spelling; `"empty"` -> `None`; the writer's `_MODIFICATION_STATE_TO_CD` is its reverse). `celldesigner.utils` no longer imports any of these — it uses `momapy.geometry.COMPASS_ANCHOR_NAMES` for its anchor list.
 
 ### `src/momapy/celldesigner/io/celldesigner/_reading_parsing.py`
 - `get_name(name: str|None) -> str|None` — handles CellDesigner name encoding.

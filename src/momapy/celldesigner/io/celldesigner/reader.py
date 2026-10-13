@@ -136,6 +136,9 @@ from momapy.celldesigner.io.celldesigner._reading_parsing import (
     get_id_to_element_mapping,
     get_name,
 )
+from momapy.celldesigner.io.celldesigner._constants import (
+    CD_MODIFICATION_STATE_TO_MODIFICATION_STATE,
+)
 from momapy.celldesigner.io.celldesigner import _reading_model
 from momapy.celldesigner.io.celldesigner import _reading_layout
 from momapy.celldesigner.io.celldesigner._reading_classification import KEY_TO_CLASS
@@ -147,7 +150,6 @@ from momapy.celldesigner.io.celldesigner._reading_context import (
 )
 from momapy.celldesigner.model import (
     CellDesignerModel,
-    ModificationState,
     Product,
     Reactant,
     Reaction,
@@ -948,14 +950,9 @@ class CellDesignerReader(Reader):
     ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None or reading_context.layout is not None:
             cd_species_modification_state = cd_species_modification.get("state")
-            if cd_species_modification_state == "empty":
-                modification_state = None
-            else:
-                modification_state = ModificationState[
-                    cd_species_modification_state.upper()
-                    .replace(" ", "_")  # for DON'T CARE
-                    .replace("'", "_")
-                ]
+            modification_state = CD_MODIFICATION_STATE_TO_MODIFICATION_STATE[
+                cd_species_modification_state
+            ]
             cd_species_template = get_template_from_species_alias(
                 super_cd_element,
                 reading_context.xml_id_to_xml_element,

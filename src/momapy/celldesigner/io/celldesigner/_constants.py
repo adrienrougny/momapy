@@ -1,14 +1,16 @@
 """Shared CellDesigner format constants.
 
 Format-level constants needed by both the CellDesigner reader and writer:
-the CellDesigner XML namespace, the special-character decoding table, and
-the link-anchor position-code mapping. Keeping them here (rather than in
-``_reading_parsing``) lets the writer share them without importing from a
-reading module.
+the CellDesigner XML namespace, the special-character decoding table, the
+link-anchor position-code mapping, and the modification-state mapping.
+Keeping them here (rather than in ``_reading_parsing``) lets the writer share
+them without importing from a reading module.
 
 Internal module (underscore filename): its module-level contents are
 public-named but the module itself is not part of the public API.
 """
+
+from momapy.celldesigner.model import ModificationState
 
 CD_NAMESPACE = "http://www.sbml.org/2001/ns/celldesigner"
 """The CellDesigner extension XML namespace."""
@@ -91,3 +93,26 @@ LINK_ANCHOR_POSITION_TO_ANCHOR_NAME: dict[str, str] = {
     "WNW": "west_north_west",
 }
 """Mapping from CellDesigner link-anchor position codes to momapy anchor names."""
+
+CD_MODIFICATION_STATE_TO_MODIFICATION_STATE: dict[str, ModificationState | None] = {
+    "phosphorylated": ModificationState.PHOSPHORYLATED,
+    "acetylated": ModificationState.ACETYLATED,
+    "ubiquitinated": ModificationState.UBIQUITINATED,
+    "methylated": ModificationState.METHYLATED,
+    "hydroxylated": ModificationState.HYDROXYLATED,
+    "glycosylated": ModificationState.GLYCOSYLATED,
+    "myristoylated": ModificationState.MYRISTOYLATED,
+    "palmytoylated": ModificationState.PALMITOYLATED,
+    "prenylated": ModificationState.PRENYLATED,
+    "protonated": ModificationState.PROTONATED,
+    "sulfated": ModificationState.SULFATED,
+    "don't care": ModificationState.DON_T_CARE,
+    "unknown": ModificationState.UNKNOWN,
+    "empty": None,
+}
+"""Mapping from CellDesigner modification-state strings to momapy states.
+
+CellDesigner spells palmitoylation ``"palmytoylated"`` (as in its XML schema);
+the string is kept verbatim here so that files read and written by
+CellDesigner are understood.
+"""
