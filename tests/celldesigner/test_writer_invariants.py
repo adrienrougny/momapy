@@ -230,3 +230,29 @@ class TestParticipantsWrittenFromModel:
         assert "s_id_sa47" not in linked_species_ids
         assert "s_id_sa27" in written_species_ids
         assert "s_id_sa27" in linked_species_ids
+
+
+class TestDrawnCopiesOfOneReaction:
+    """Each drawn copy of a reaction is written with its own identifiers."""
+
+    def test_each_copy_gets_its_own_participant_metaids(self, neuro_map, tmp_path):
+        output_file = tmp_path / "output.xml"
+        momapy.io.core.write(neuro_map, str(output_file), writer="celldesigner")
+        root = lxml.etree.parse(str(output_file)).getroot()
+        sbml_namespace = root.nsmap[None]
+        for reaction_id in ["ne6db", "ne67d"]:
+            reaction = root.find(
+                f".//{{{sbml_namespace}}}reaction[@id='{reaction_id}']"
+            )
+            metaids = [
+                species_reference.get("metaid")
+                for species_reference in reaction.iter(
+                    f"{{{sbml_namespace}}}speciesReference"
+                )
+            ]
+            assert metaids
+            assert all(metaid.startswith(f"{reaction_id}_") for metaid in metaids)
+        all_metaids = [
+            element.get("metaid") for element in root.iter() if element.get("metaid")
+        ]
+        assert len(all_metaids) == len(set(all_metaids))

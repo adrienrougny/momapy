@@ -1151,7 +1151,7 @@ def reserve_source_xml_ids(writing_context: typing.Any) -> None:
 
 def get_xml_id(
     writing_context: typing.Any,
-    element: typing.Any,
+    element: typing.Any | None,
     candidate: str | None = None,
     share: bool = True,
     memoize: bool = True,
@@ -1171,6 +1171,7 @@ def get_xml_id(
     Args:
         writing_context: The current writing context.
         element: The element to emit an id for (keyed by ``id(element)``).
+            ``None`` gives a fresh id from ``candidate``, ignoring the memos.
         candidate: Optional raw id to project instead of ``element.id_``
             (e.g. the ``_active``-stripped species id, or a participant's
             preferred metaid).  Ignored on a memo hit.
@@ -1190,6 +1191,10 @@ def get_xml_id(
     Returns:
         The XML id string to emit.
     """
+    if element is None:
+        return make_unique_xml_id(
+            ensure_sbml_sid(candidate), writing_context.used_xml_ids
+        )
     element_id = id(element)
     existing = writing_context.element_to_xml_id.get(element_id)
     if existing is not None:
@@ -3039,24 +3044,29 @@ def make_sbml_document_species(
     return species_element
 
 
-def reaction_xml_id(writing_context: typing.Any, reaction: typing.Any) -> str:
-    """Return the XML id a reaction is emitted with.
+def reaction_xml_ids(writing_context: typing.Any, reaction: typing.Any) -> list[str]:
+    """Return the XML ids a reaction is emitted with, one per drawn copy.
 
-    Computed as the ``<reaction>`` definition does: from the reaction's layout
+    Computed as the ``<reaction>`` definitions do: from each reaction layout
     (stripping ``_layout``) when available, else from the reaction model. Used so
     references to a reaction (e.g. a species' ``catalyzed`` list) match its
-    definition.
+    definitions.
     """
+    xml_ids = []
     for layout_key in get_layouts(writing_context, reaction):
         if isinstance(layout_key, frozenset):
             reaction_layout = get_reaction_layout(layout_key)
             if reaction_layout is not None:
-                return get_xml_id(
-                    writing_context,
-                    reaction_layout,
-                    candidate=reaction_layout.id_.removesuffix("_layout"),
+                xml_ids.append(
+                    get_xml_id(
+                        writing_context,
+                        reaction_layout,
+                        candidate=reaction_layout.id_.removesuffix("_layout"),
+                    )
                 )
-    return get_xml_id(writing_context, reaction)
+    if not xml_ids:
+        xml_ids.append(get_xml_id(writing_context, reaction))
+    return xml_ids
 
 
 def find_catalyzed_reactions(
@@ -3067,7 +3077,7 @@ def find_catalyzed_reactions(
     for reaction in writing_context.map_.model.reactions:
         for modifier in reaction.modifiers:
             if isinstance(modifier, Catalyzer) and modifier.referred_element is species:
-                result.append(reaction_xml_id(writing_context, reaction))
+                result.extend(reaction_xml_ids(writing_context, reaction))
     return sorted(result)
 
 
@@ -3138,6 +3148,13 @@ def make_celldesigner_reaction(
         "reversible": "true" if reaction.reversible else "false",
     }
     reaction_element = make_lxml_element("reaction", attributes=attrs)
+    has_several_copies = (
+        sum(
+            isinstance(layout_key, frozenset)
+            for layout_key in get_layouts(writing_context, reaction)
+        )
+        > 1
+    )
 
     # notes
     notes_element = build_sbml_notes(writing_context, reaction)
@@ -3461,7 +3478,10 @@ def make_celldesigner_reaction(
         ]:
             list_of_reactants.append(
                 make_sbml_document_species_reference_from_layout(
-                    writing_context, reactant, alias_layout
+                    writing_context,
+                    reactant,
+                    alias_layout,
+                    xml_id if has_several_copies else None,
                 )
             )
     else:
@@ -3494,7 +3514,10 @@ def make_celldesigner_reaction(
         ]:
             list_of_products.append(
                 make_sbml_document_species_reference_from_layout(
-                    writing_context, product, alias_layout
+                    writing_context,
+                    product,
+                    alias_layout,
+                    xml_id if has_several_copies else None,
                 )
             )
     else:
@@ -3708,7 +3731,10 @@ def make_sbml_document_species_reference(
 
 
 def make_sbml_document_species_reference_from_layout(
-    writing_context: typing.Any, participant: typing.Any, alias_layout: typing.Any
+    writing_context: typing.Any,
+    participant: typing.Any,
+    alias_layout: typing.Any,
+    reaction_xml_id: str | None,
 ) -> lxml.etree._Element:
     """Build an SBML speciesReference for a participant drawn by an alias.
 
@@ -3716,6 +3742,9 @@ def make_sbml_document_species_reference_from_layout(
         writing_context: The writing context.
         participant: The Reactant or Product model element.
         alias_layout: The alias layout of the participant.
+        reaction_xml_id: The XML id of the drawn copy of the reaction when the
+            reaction has several drawn copies, else None. When given, the
+            metaid is built from it and the species id.
 
     Returns:
         The lxml speciesReference element.
@@ -3723,9 +3752,18 @@ def make_sbml_document_species_reference_from_layout(
     alias_id = get_alias_id(writing_context, alias_layout)
     species = participant.referred_element
     sbml_species = writing_context.subunit_to_complex.get(id(species), species)
-    sr_attrs = {"species": get_species_id(sbml_species, writing_context)}
+    species_xml_id = get_species_id(sbml_species, writing_context)
+    sr_attrs = {"species": species_xml_id}
     participant_metaid = participant.metaid or participant.id_
-    if participant_metaid:
+    if reaction_xml_id is not None:
+        sr_attrs["metaid"] = get_xml_id(
+            writing_context,
+            None,
+            candidate=f"{reaction_xml_id}_{species_xml_id}",
+            share=False,
+            memoize=False,
+        )
+    elif participant_metaid:
         sr_attrs["metaid"] = get_xml_id(
             writing_context,
             participant,
@@ -4734,17 +4772,17 @@ def make_celldesigner_gate_modifications(
                 isinstance(layout_element_item, LogicArcLayout)
                 and layout_element_item.source is gate_layout
             ):
-                input_alias_layout = layout_element_item.target
                 input_model = get_layout_model_mapping(writing_context).get_mapping(
-                    input_alias_layout
+                    layout_element_item.target
                 )
                 if input_model is not None:
-                    logic_arc_inputs.append((input_model, input_alias_layout))
+                    logic_arc_inputs.append((input_model, layout_element_item))
 
     # Collect input aliases using LogicArcLayout when available,
     # falling back to frozenset/global lookup.
     input_species_ids = []
     input_alias_ids = []
+    input_arcs = []
     for inp in sorted(gate.inputs, key=lambda s: s.id_ or ""):
         input_species = inp.referred_element
         sbml_inp = writing_context.subunit_to_complex.get(
@@ -4753,11 +4791,14 @@ def make_celldesigner_gate_modifications(
         input_species_ids.append(get_species_id(sbml_inp, writing_context))
         # Try LogicArcLayout first (correct alias for multi-alias species)
         alias_layout = None
+        input_arc = None
         for arc_model, arc_layout in logic_arc_inputs:
             if arc_model is input_species:
-                alias_layout = arc_layout
+                alias_layout = arc_layout.target
+                input_arc = arc_layout
                 logic_arc_inputs.remove((arc_model, arc_layout))
                 break
+        input_arcs.append(input_arc)
         # Fallback: try frozenset, then global
         if alias_layout is None:
             alias_layout = (
@@ -4844,19 +4885,6 @@ def make_celldesigner_gate_modifications(
         )
         connect_scheme.append(line_direction_list)
         inp_mod.append(connect_scheme)
-        # linkTarget — find the input-to-gate arc for line attributes
-        input_to_gate_arc = None
-        if input_alias_ids[i]:
-            for layout_element_item in writing_context.map_.layout.layout_elements:
-                if (
-                    hasattr(layout_element_item, "source")
-                    and hasattr(layout_element_item, "target")
-                    and layout_element_item.target is gate_layout
-                    and getattr(layout_element_item.source, "id_", None)
-                    == input_alias_ids[i]
-                ):
-                    input_to_gate_arc = layout_element_item
-                    break
         link_target = make_celldesigner_element(
             "linkTarget",
             attributes={
@@ -4868,7 +4896,7 @@ def make_celldesigner_gate_modifications(
         inp_mod.append(
             make_celldesigner_element(
                 "line",
-                attributes=get_line_attributes(input_to_gate_arc, include_type=True),
+                attributes=get_line_attributes(input_arcs[i], include_type=True),
             )
         )
         result.append(inp_mod)
