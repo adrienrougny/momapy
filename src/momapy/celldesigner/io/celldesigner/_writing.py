@@ -1289,13 +1289,17 @@ def is_degraded_layout(layout_element: typing.Any) -> bool:
     return isinstance(layout_element, (DegradedLayout, DegradedActiveLayout))
 
 
-def find_degraded_species_compartment(degraded_entry: DegradedEntry) -> typing.Any:
+def find_degraded_species_compartment(
+    writing_context: typing.Any, degraded_entry: DegradedEntry
+) -> typing.Any:
     """Return the compartment of a degraded species.
 
     It is the compartment of the first species, by id, on the other side of
-    the reaction.
+    the reaction. For a species included in a complex, it is the compartment
+    of the top-level complex.
 
     Args:
+        writing_context: The writing context.
         degraded_entry: The degraded participant.
 
     Returns:
@@ -1309,7 +1313,9 @@ def find_degraded_species_compartment(degraded_entry: DegradedEntry) -> typing.A
     else:
         participants = degraded_entry.reaction.reactants
     for participant in sorted(participants, key=lambda p: p.id_ or ""):
-        compartment = participant.referred_element.compartment
+        species = participant.referred_element
+        sbml_species = writing_context.subunit_to_complex.get(id(species), species)
+        compartment = sbml_species.compartment
         if compartment is not None:
             return compartment
     raise ValueError(
@@ -2421,7 +2427,7 @@ def make_celldesigner_degraded_alias(
     }
     compartment_alias_id = find_compartment_alias_id(
         writing_context,
-        find_degraded_species_compartment(degraded_entry),
+        find_degraded_species_compartment(writing_context, degraded_entry),
         degraded_layout,
     )
     if compartment_alias_id is not None:
@@ -2966,7 +2972,7 @@ def make_sbml_document_degraded_species(
     writing_context: typing.Any, degraded_entry: DegradedEntry
 ) -> lxml.etree._Element:
     species_id = degraded_species_id(writing_context, degraded_entry.degraded_layout)
-    compartment = find_degraded_species_compartment(degraded_entry)
+    compartment = find_degraded_species_compartment(writing_context, degraded_entry)
     attrs = {
         "metaid": species_id,
         "id": species_id,

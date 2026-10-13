@@ -132,3 +132,16 @@ def test_species_compartments_are_written_after_renaming(tmp_path):
     assert len(species_elements) == 4
     for species_element in species_elements:
         assert species_element.get("compartment") in compartment_ids
+
+
+def test_degraded_species_takes_the_compartment_of_a_complex(tmp_path):
+    fixture = os.path.join(TEST_DIR, "..", "fixtures", "degraded_complex_subunit.xml")
+    out = tmp_path / "out.xml"
+    _write(_read(fixture), str(out))
+
+    root = lxml.etree.parse(str(out)).getroot()
+    ns = {"sbml": _SBML_NS}
+    degraded_species = root.find(
+        ".//sbml:listOfSpecies/sbml:species[@id='degraded_sa_deg1']", ns
+    )
+    assert degraded_species.get("compartment") == "c_inner"
