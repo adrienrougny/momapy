@@ -42,10 +42,12 @@ Element-specific patterns:
   ``f"{speciesAlias/@id}_{structuralState/@structuralState}_layout"``.
   Keyed on the alias for the same reason as Modification.
   Spaces in the value are replaced with ``_``.
-- **Reactant / Product**: model ``id_`` =
-  ``speciesReference/@metaid`` (or
-  ``f"{reaction/@id}_{speciesReference/@species}"`` fallback),
-  layout ``id_`` = ``f"{model_id}_layout"`` (when present).
+- **Reactant / Product**: model ``id_`` = ``speciesReference/@metaid`` of
+  the first entry of the group of entries of one reaction side referring to
+  the same species (or ``f"{reaction/@id}_{speciesReference/@species}"``
+  fallback), layout ``id_`` = ``f"{metaid}_layout"`` with the ``metaid`` of
+  the ``speciesReference`` matched by ``celldesigner:alias`` (or
+  ``f"{reaction/@id}_{alias/@id}_layout"`` fallback), when present.
 - **Modulator**: model ``id_`` = ``modifierSpeciesReference/@metaid`` of
   the first ``modifierSpeciesReference`` read for the modifier, layout
   ``id_`` = ``f"{metaid}_layout"`` with the ``metaid`` of the
