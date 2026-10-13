@@ -1288,6 +1288,35 @@ def is_degraded_layout(layout_element: typing.Any) -> bool:
     return isinstance(layout_element, (DegradedLayout, DegradedActiveLayout))
 
 
+def find_degraded_species_compartment(degraded_entry: DegradedEntry) -> typing.Any:
+    """Return the compartment of a degraded species.
+
+    It is the compartment of the first species, by id, on the other side of
+    the reaction.
+
+    Args:
+        degraded_entry: The degraded participant.
+
+    Returns:
+        The compartment model element.
+
+    Raises:
+        ValueError: When no species on the other side has a compartment.
+    """
+    if degraded_entry.side == "reactant":
+        participants = degraded_entry.reaction.products
+    else:
+        participants = degraded_entry.reaction.reactants
+    for participant in sorted(participants, key=lambda p: p.id_ or ""):
+        compartment = participant.referred_element.compartment
+        if compartment is not None:
+            return compartment
+    raise ValueError(
+        f"cannot find a compartment for the degraded species of reaction "
+        f"{degraded_entry.reaction.id_}"
+    )
+
+
 def collect_degraded_entries(writing_context: typing.Any) -> list["DegradedEntry"]:
     """Build the list of degraded-side participants for flagged reactions.
 
@@ -2923,21 +2952,20 @@ def make_celldesigner_list_of_species(
         if key in seen_degraded:
             continue
         seen_degraded.add(key)
-        list_elem.append(
-            make_sbml_document_degraded_species(writing_context, entry.degraded_layout)
-        )
+        list_elem.append(make_sbml_document_degraded_species(writing_context, entry))
     return list_elem
 
 
 def make_sbml_document_degraded_species(
-    writing_context: typing.Any, degraded_layout: typing.Any
+    writing_context: typing.Any, degraded_entry: DegradedEntry
 ) -> lxml.etree._Element:
-    species_id = degraded_species_id(writing_context, degraded_layout)
+    species_id = degraded_species_id(writing_context, degraded_entry.degraded_layout)
+    compartment = find_degraded_species_compartment(degraded_entry)
     attrs = {
         "metaid": species_id,
         "id": species_id,
         "name": "",
-        "compartment": "default",
+        "compartment": get_xml_id(writing_context, compartment),
         "initialAmount": "0",
         "hasOnlySubstanceUnits": "false",
         "constant": "false",
@@ -2961,7 +2989,11 @@ def make_sbml_document_species(
 ) -> lxml.etree._Element:
     species_id = get_species_id(species, writing_context)
     comp = getattr(species, "compartment", None)
-    comp_id = get_xml_id(writing_context, comp) if comp is not None else "default"
+    if comp is None:
+        raise ValueError(
+            f"species {species.id_} has no compartment, which CellDesigner requires"
+        )
+    comp_id = get_xml_id(writing_context, comp)
     attrs = {
         "metaid": species_id,
         "id": species_id,

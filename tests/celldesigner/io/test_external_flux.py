@@ -15,6 +15,7 @@ import os
 import lxml.etree
 
 import momapy.io.core
+from momapy.builder import builder_from_object
 from momapy.celldesigner.layout import DegradedActiveLayout, DegradedLayout
 
 
@@ -110,3 +111,24 @@ def test_output_xml_has_degraded_species(tmp_path):
         if cls is not None and cls.text == "DEGRADED":
             degraded_count += 1
     assert degraded_count >= 2
+
+
+def test_species_compartments_are_written_after_renaming(tmp_path):
+    map_builder = builder_from_object(_read(FIXTURE))
+    for compartment in map_builder.model.compartments:
+        compartment.id_ = "3f2a-uuid-compartment"
+    out = tmp_path / "out.xml"
+    _write(map_builder.build(), str(out))
+
+    root = lxml.etree.parse(str(out)).getroot()
+    ns = {"sbml": _SBML_NS}
+    compartment_ids = {
+        compartment.get("id")
+        for compartment in root.findall(
+            ".//sbml:listOfCompartments/sbml:compartment", ns
+        )
+    }
+    species_elements = root.findall(".//sbml:listOfSpecies/sbml:species", ns)
+    assert len(species_elements) == 4
+    for species_element in species_elements:
+        assert species_element.get("compartment") in compartment_ids
