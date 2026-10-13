@@ -146,6 +146,8 @@ from momapy.celldesigner.io.celldesigner._reading_context import (
 from momapy.celldesigner.model import (
     CellDesignerModel,
     ModificationState,
+    Product,
+    Reactant,
     Reaction,
 )
 from momapy.celldesigner.layout import (
@@ -1284,8 +1286,9 @@ class CellDesignerReader(Reader):
     ) -> tuple[typing.Any, typing.Any]:
         cd_reactant_id = get_reactant_id(cd_base_reactant, super_cd_element)
         if reading_context.model is not None:
-            model_element = _reading_model.make_reactant_from_base(
+            model_element = _reading_model.make_participant(
                 reading_context,
+                Reactant,
                 cd_base_reactant,
                 super_cd_element,
             )
@@ -1327,8 +1330,9 @@ class CellDesignerReader(Reader):
     ) -> tuple[typing.Any, typing.Any]:
         cd_reactant_id = get_reactant_id(cd_reactant_link, super_cd_element)
         if reading_context.model is not None:
-            model_element = _reading_model.make_reactant_from_link(
+            model_element = _reading_model.make_participant(
                 reading_context,
+                Reactant,
                 cd_reactant_link,
                 super_cd_element,
             )
@@ -1370,8 +1374,9 @@ class CellDesignerReader(Reader):
     ) -> tuple[typing.Any, typing.Any]:
         cd_product_id = get_product_id(cd_base_product, super_cd_element)
         if reading_context.model is not None:
-            model_element = _reading_model.make_product_from_base(
+            model_element = _reading_model.make_participant(
                 reading_context,
+                Product,
                 cd_base_product,
                 super_cd_element,
             )
@@ -1413,8 +1418,9 @@ class CellDesignerReader(Reader):
     ) -> tuple[typing.Any, typing.Any]:
         cd_product_id = get_product_id(cd_product_link, super_cd_element)
         if reading_context.model is not None:
-            model_element = _reading_model.make_product_from_link(
+            model_element = _reading_model.make_participant(
                 reading_context,
+                Product,
                 cd_product_link,
                 super_cd_element,
             )

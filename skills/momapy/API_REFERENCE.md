@@ -459,8 +459,7 @@ Functions (accept `CellDesignerMap | Builder`, return same):
 - `make_species_modification(reading_context, modification_state, cd_modification_residue_id)`
 - `make_species_structural_state(reading_context, cd_species_structural_state)`
 - `make_reaction(reading_context, cd_reaction, model_element_cls)`
-- `make_reactant_from_base(reading_context, cd_base_reactant, cd_reaction)` / `make_reactant_from_link(...)`
-- `make_product_from_base(...)` / `make_product_from_link(...)`
+- `make_participant(reading_context, model_element_cls, cd_participant, cd_reaction)` — one `Reactant`/`Product` per referred species model element and reaction side, with `stoichiometry` = number of references when there are several; `get_alias_model_element(reading_context, cd_participant)`
 - `make_modifier(reading_context, model_element_cls, source_model_element, metaid)`
 - `make_logic_gate(reading_context, model_element_cls)`, `make_logic_gate_input(reading_context, input_model_element)`
 - `make_modulation(reading_context, cd_reaction, model_element_cls, source_model_element, target_model_element)`
@@ -486,12 +485,13 @@ Functions (accept `CellDesignerMap | Builder`, return same):
 - `get_id_to_element_mapping(cd_model) -> dict`
 - `get_complex_alias_to_included_ids_mapping(cd_model) -> dict`
 - XML traversal helpers: `get_annotation`, `get_extension`, `get_species`, `get_reactions`, `get_species_aliases`, `get_included_species_aliases`, `get_complex_species_aliases`, `get_compartments`, `get_compartment_aliases`, `get_protein_templates`, `get_gene_templates`, `get_rna_templates`, `get_antisense_rna_templates`, `get_notes`, `get_rdf`, `get_rdf_from_notes`, `get_width`, `get_height`, `get_bounds`, `get_edit_points_from_participant_link`, `get_edit_points_from_reaction`, etc.
-- Participant-id helpers: `get_reactant_id(cd_base_reactant_or_link, cd_reaction) -> str`, `get_product_id(cd_base_product_or_link, cd_reaction) -> str`, `get_modifier_metaid(cd_reaction_modification, cd_reaction) -> str|None`.
+- Participant-id helpers: `get_species_reference(cd_participant, cd_species_references)` (the `speciesReference` matched by `celldesigner:alias`, else by species), `get_reactant_id(cd_base_reactant_or_link, cd_reaction) -> str`, `get_product_id(cd_base_product_or_link, cd_reaction) -> str` (arc ids, matched by alias), `get_modifier_metaid(cd_reaction_modification, cd_reaction) -> str|None`.
 - Constants: `CD_NAMESPACE`, `TEXT_TO_CHARACTER`, and `LINK_ANCHOR_POSITION_TO_ANCHOR_NAME` are imported from the shared `_constants` module (above), not defined here.
 
 ### `src/momapy/celldesigner/io/celldesigner/_writing.py`
 - Geometry helpers: `are_collinear(p1, p2, p3, epsilon=1e-6) -> bool`, `is_degenerate_frame(origin, unit_x, unit_y, epsilon=1e-6) -> bool`, `make_non_degenerate_frame(origin, unit_x, unit_y, epsilon=1e-6, scale=1.0) -> (Point, Point, Point)`.
 - Encoding helpers: `color_to_cd_hex(color) -> str`, `encode_name(name) -> str`, `compute_cd_angle(...)`, `node_to_bounds_attrs(node) -> dict`.
+- `set_species_reference_stoichiometries(writing_context, list_of_species_references, participants)` — shares each participant's `stoichiometry` between the `speciesReference`s written for it (omitted when each share is 1).
 - Reverse mapping constants: `_ANCHOR_NAME_TO_LINK_ANCHOR_POSITION`, `_CHARACTER_TO_TEXT`, `_CLASS_TO_CD_STRING`, `_CLASS_TO_REACTION_TYPE`, `_CLASS_TO_MODIFIER_TYPE`, `_MODIFICATION_STATE_TO_CD` (the CD namespace is imported as `CD_NAMESPACE` from `_constants`; `NSMAP` uses it).
 
 ---

@@ -6,6 +6,8 @@ import momapy.io.core
 import momapy.core.layout
 import momapy.sbml.model
 import frozendict
+import lxml.etree
+from momapy.celldesigner.layout import ConsumptionLayout
 from momapy.celldesigner.model import CellDesignerModel, ModificationState
 from momapy.celldesigner.map import CellDesignerMap
 
@@ -449,3 +451,59 @@ class TestNoActiveSuffixInSourceXml:
         for species in tree.iter("{http://www.sbml.org/sbml/level2/version4}species"):
             species_id = species.get("id") or ""
             assert not species_id.endswith("_active")
+
+
+class TestCellDesignerSameSpeciesParticipants:
+    """A species used several times on one reaction side gives one participant."""
+
+    @pytest.fixture(scope="class")
+    def neuroinflammation_map(self):
+        input_file = os.path.join(CELLDESIGNER_MAPS_DIR, "Neuroinflammation.xml")
+        return momapy.io.core.read(input_file).obj
+
+    def get_ne635_reactant(self, map_):
+        reaction = next(
+            reaction for reaction in map_.model.reactions if reaction.id_ == "ne635"
+        )
+        assert len(reaction.reactants) == 1
+        reactant = next(iter(reaction.reactants))
+        assert reactant.referred_element.id_ == "s_id_ne1b4"
+        assert reactant.base
+        assert reactant.stoichiometry == 2.0
+        return reactant
+
+    def test_one_participant_with_stoichiometry(self, neuroinflammation_map):
+        self.get_ne635_reactant(neuroinflammation_map)
+
+    def test_link_arc_maps_to_participant(self, neuroinflammation_map):
+        reactant = self.get_ne635_reactant(neuroinflammation_map)
+        link_arc = next(
+            layout_element
+            for layout_element in neuroinflammation_map.layout.layout_elements
+            if isinstance(layout_element, ConsumptionLayout)
+            and layout_element.target.id_ == "nef5"
+        )
+        assert (
+            neuroinflammation_map.layout_model_mapping.get_mapping(link_arc) == reactant
+        )
+
+    def test_roundtrip(self, neuroinflammation_map, tmp_path):
+        output_file = tmp_path / "output.xml"
+        momapy.io.core.write(
+            neuroinflammation_map, str(output_file), writer="celldesigner"
+        )
+        root = lxml.etree.parse(str(output_file)).getroot()
+        sbml_namespace = root.nsmap[None]
+        species_references = root.findall(
+            f".//{{{sbml_namespace}}}reaction[@id='ne635']"
+            f"/{{{sbml_namespace}}}listOfReactants"
+            f"/{{{sbml_namespace}}}speciesReference"
+        )
+        assert [
+            species_reference.get("species") for species_reference in species_references
+        ] == ["s_id_ne1b4", "s_id_ne1b4"]
+        assert all(
+            species_reference.get("stoichiometry") is None
+            for species_reference in species_references
+        )
+        self.get_ne635_reactant(momapy.io.core.read(str(output_file)).obj)

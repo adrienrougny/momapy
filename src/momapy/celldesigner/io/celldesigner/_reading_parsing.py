@@ -693,14 +693,48 @@ def get_ordered_compartment_aliases(
     return ordered_cd_compartment_aliases
 
 
+def get_species_reference(
+    cd_participant: lxml.objectify.ObjectifiedElement,
+    cd_species_references: list[lxml.objectify.ObjectifiedElement],
+) -> lxml.objectify.ObjectifiedElement | None:
+    """Return the speciesReference of a base participant or participant link.
+
+    The speciesReference is matched by its ``celldesigner:alias``. When none
+    matches, the first one with the same species is returned.
+
+    Args:
+        cd_participant: The base participant or participant link element.
+        cd_species_references: The speciesReference elements of the reaction
+            side.
+
+    Returns:
+        The matching speciesReference element, or ``None``.
+    """
+    alias_id = cd_participant.get("alias")
+    for cd_species_reference in cd_species_references:
+        cd_extension = get_extension(cd_species_reference)
+        cd_alias = getattr(cd_extension, f"{{{CD_NAMESPACE}}}alias", None)
+        if cd_alias is not None and cd_alias.text == alias_id:
+            return cd_species_reference
+    cd_species_id = (
+        cd_participant.get("species")
+        or cd_participant.get("reactant")
+        or cd_participant.get("product")
+    )
+    for cd_species_reference in cd_species_references:
+        if cd_species_reference.get("species") == cd_species_id:
+            return cd_species_reference
+    return None
+
+
 def get_reactant_id(
     cd_base_reactant_or_link: lxml.objectify.ObjectifiedElement,
     cd_reaction: lxml.objectify.ObjectifiedElement,
 ) -> str:
-    """Compute a deterministic ID for a reactant from XML data.
+    """Compute a deterministic ID for a reactant arc from XML data.
 
-    Uses the SBML speciesReference metaid if available, otherwise
-    falls back to ``f"{reaction_id}_{species_id}"``.
+    Uses the metaid of the speciesReference matched by alias if available,
+    otherwise falls back to ``f"{reaction_id}_{alias_id}"``.
 
     Args:
         cd_base_reactant_or_link: The base reactant or reactant link element.
@@ -709,26 +743,22 @@ def get_reactant_id(
     Returns:
         A deterministic ID string.
     """
-    cd_species_id = cd_base_reactant_or_link.get(
-        "species"
-    ) or cd_base_reactant_or_link.get("reactant")
-    for cd_reactant in get_reactants(cd_reaction):
-        if cd_reactant.get("species") == cd_species_id:
-            metaid = cd_reactant.get("metaid")
-            if metaid is not None:
-                return metaid
-            break
-    return f"{cd_reaction.get('id')}_{cd_species_id}"
+    cd_reactant = get_species_reference(
+        cd_base_reactant_or_link, get_reactants(cd_reaction)
+    )
+    if cd_reactant is not None and cd_reactant.get("metaid") is not None:
+        return cd_reactant.get("metaid")
+    return f"{cd_reaction.get('id')}_{cd_base_reactant_or_link.get('alias')}"
 
 
 def get_product_id(
     cd_base_product_or_link: lxml.objectify.ObjectifiedElement,
     cd_reaction: lxml.objectify.ObjectifiedElement,
 ) -> str:
-    """Compute a deterministic ID for a product from XML data.
+    """Compute a deterministic ID for a product arc from XML data.
 
-    Uses the SBML speciesReference metaid if available, otherwise
-    falls back to ``f"{reaction_id}_{species_id}"``.
+    Uses the metaid of the speciesReference matched by alias if available,
+    otherwise falls back to ``f"{reaction_id}_{alias_id}"``.
 
     Args:
         cd_base_product_or_link: The base product or product link element.
@@ -737,16 +767,12 @@ def get_product_id(
     Returns:
         A deterministic ID string.
     """
-    cd_species_id = cd_base_product_or_link.get(
-        "species"
-    ) or cd_base_product_or_link.get("product")
-    for cd_product in get_products(cd_reaction):
-        if cd_product.get("species") == cd_species_id:
-            metaid = cd_product.get("metaid")
-            if metaid is not None:
-                return metaid
-            break
-    return f"{cd_reaction.get('id')}_{cd_species_id}"
+    cd_product = get_species_reference(
+        cd_base_product_or_link, get_products(cd_reaction)
+    )
+    if cd_product is not None and cd_product.get("metaid") is not None:
+        return cd_product.get("metaid")
+    return f"{cd_reaction.get('id')}_{cd_base_product_or_link.get('alias')}"
 
 
 def get_modifier_metaid(

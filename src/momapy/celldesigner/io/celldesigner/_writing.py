@@ -3595,6 +3595,9 @@ def make_celldesigner_reaction(
                 writing_context, entry.degraded_layout
             )
         )
+    set_species_reference_stoichiometries(
+        writing_context, list_of_reactants, reaction.reactants
+    )
     reaction_element.append(list_of_reactants)
 
     # SBML listOfProducts — same for right-T.
@@ -3694,6 +3697,9 @@ def make_celldesigner_reaction(
                 writing_context, entry.degraded_layout
             )
         )
+    set_species_reference_stoichiometries(
+        writing_context, list_of_products, reaction.products
+    )
     reaction_element.append(list_of_products)
 
     # SBML listOfModifiers
@@ -3776,6 +3782,36 @@ def make_celldesigner_reaction(
     return reaction_element
 
 
+def set_species_reference_stoichiometries(
+    writing_context: typing.Any,
+    list_of_species_references: lxml.etree._Element,
+    participants: typing.Any,
+) -> None:
+    """Write the stoichiometry of each participant on its speciesReferences.
+
+    The stoichiometry of a participant is shared equally between the
+    speciesReferences written for it. It is not written when each share is 1
+    and there are several speciesReferences.
+    """
+    for participant in participants:
+        if participant.stoichiometry is None:
+            continue
+        species = participant.referred_element
+        sbml_species = writing_context.subunit_to_complex.get(id(species), species)
+        species_id = get_species_id(sbml_species, writing_context)
+        species_references = [
+            species_reference
+            for species_reference in list_of_species_references
+            if species_reference.get("species") == species_id
+        ]
+        if not species_references:
+            continue
+        stoichiometry = participant.stoichiometry / len(species_references)
+        if len(species_references) == 1 or stoichiometry != 1.0:
+            for species_reference in species_references:
+                species_reference.set("stoichiometry", str(stoichiometry))
+
+
 def split_base_and_links(
     participants: typing.Any,
 ) -> tuple[list[typing.Any], list[typing.Any]]:
@@ -3826,8 +3862,6 @@ def make_sbml_document_species_reference(
             share=False,
             memoize=False,
         )
-    if participant.stoichiometry is not None:
-        sr_attrs["stoichiometry"] = str(participant.stoichiometry)
     species_reference = make_lxml_element("speciesReference", attributes=sr_attrs)
     species_reference_annotation = make_lxml_element("annotation")
     species_reference_extension = make_celldesigner_element("extension")

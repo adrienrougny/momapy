@@ -25,6 +25,13 @@ Singleton keys (one layout element represents the model element):
 | [Product][momapy.celldesigner.Product] | [ProductionLayout][momapy.celldesigner.ProductionLayout] |
 | [BooleanLogicGateInput][momapy.celldesigner.BooleanLogicGateInput] | [LogicArcLayout][momapy.celldesigner.LogicArcLayout] |
 
+When a reaction uses the same species through several aliases, there is one
+[Reactant][momapy.celldesigner.Reactant] (or
+[Product][momapy.celldesigner.Product]) whose `stoichiometry` is the number of
+uses, and each drawn [ConsumptionLayout][momapy.celldesigner.ConsumptionLayout]
+(or [ProductionLayout][momapy.celldesigner.ProductionLayout]) is a separate
+singleton key for it.
+
 Frozenset keys (a cluster of layout elements jointly represents the
 model element; the **representative** is the layout that stands for the cluster
 on its own and must be passed as ``representative=`` when calling

@@ -432,8 +432,8 @@ More complex than SBGN: model and layout often use different XML ID sources (e.g
 | Region | `f"{template_id}_{region_id}"` | composite | no layout | — | yes | Global uniqueness via parent |
 | Modification | `f"{species_id}_{residue_id}"` | composite | `f"{species_id}_{residue_id}_layout"` | composite | no | Deterministic from species + residue |
 | StructuralState | `f"{species_id}_{value}"` | composite | `f"{species_id}_{value}_layout"` | composite | no | Deterministic from species + value |
-| Reactant (base/link) | `metaid` or `f"{reaction_id}_{species_id}"` | sbml:`speciesReference/@metaid` or composite | `f"{model_id}_layout"` | derived from model id | yes | metaid preferred; layout only for link reactants and some base |
-| Product (base/link) | `metaid` or `f"{reaction_id}_{species_id}"` | sbml:`speciesReference/@metaid` or composite | `f"{model_id}_layout"` | derived from model id | yes | metaid preferred; layout only for link products and some base |
+| Reactant (base/link) | `metaid` of the first `speciesReference` of the group, or `f"{reaction_id}_{species_id}"` | sbml:`speciesReference/@metaid` or composite | `f"{metaid}_layout"` of the `speciesReference` matched by `celldesigner:alias`, or `f"{reaction_id}_{alias_id}_layout"` | sbml or composite | yes | metaid preferred; layout only for link reactants and some base; one participant per group (see Notes) |
+| Product (base/link) | `metaid` of the first `speciesReference` of the group, or `f"{reaction_id}_{species_id}"` | sbml:`speciesReference/@metaid` or composite | `f"{metaid}_layout"` of the `speciesReference` matched by `celldesigner:alias`, or `f"{reaction_id}_{alias_id}_layout"` | sbml or composite | yes | metaid preferred; layout only for link products and some base; one participant per group (see Notes) |
 | Modulator | `metaid` | sbml:`modifierSpeciesReference/@metaid` | `f"{metaid}_layout"` | derived from metaid | yes | metaid always present |
 | BooleanGate | `f"{reaction_id}_gate_{sorted_aliases}"` | composite | `f"{...}_layout"` | composite | model only | Deterministic from reaction + sorted aliases |
 | BooleanGateInput / LogicArcLayout | `f"{gate_id}_input_{input_alias}"` | composite | `f"{gate_id}_arc_{input_alias}"` | composite | no | Frozen child of gate |
@@ -445,6 +445,7 @@ More complex than SBGN: model and layout often use different XML ID sources (e.g
 - **`_layout` suffix**: Used when model and layout share the same XML ID source (reactions, modulations, modulators with metaid). No suffix needed when they come from different XML elements (species vs alias, compartment vs alias)
 - **metaid**: SBML `metaid` attribute is preferred for Reactants, Products, and Modulators. Falls back to composite ID or UUID when absent
 - **Composite IDs**: `f"{parent_id}_{child_id}"` for ModificationResidue and Region (child IDs are only unique within a parent template)
+- **Participant groups**: the base/link entries of one reaction side whose aliases refer to the same species model element give one Reactant (or Product), with `base=True` if one entry is a base and `stoichiometry` = number of references; the writer shares it between the `speciesReference`s it writes
 
 ## Plans
 

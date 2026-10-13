@@ -8,11 +8,16 @@ returns ``None`` early when no model is being built.
 import typing
 
 from momapy.celldesigner.io.celldesigner._reading_parsing import (
+    get_base_products,
+    get_base_reactants,
     get_notes,
+    get_product_links,
     get_products,
     get_rdf,
     get_rdf_from_notes,
+    get_reactant_links,
     get_reactants,
+    get_species_reference,
     get_template_from_species,
     get_name,
 )
@@ -24,7 +29,6 @@ from momapy.celldesigner.model import (
     Compartment,
     Modification,
     ModificationResidue,
-    Product,
     Reactant,
     StructuralState,
 )
@@ -397,181 +401,105 @@ def make_reaction(
     return model_element
 
 
-def make_reactant_from_base(
+def get_alias_model_element(
     reading_context: "CellDesignerReadingContext",
-    cd_base_reactant: typing.Any,
-    cd_reaction: typing.Any,
+    cd_participant: typing.Any,
 ) -> typing.Any:
-    """Create a reactant model builder from a base reactant XML element.
+    """Return the species model element of the alias of a participant entry.
 
     Args:
         reading_context: The reading context.
-        cd_base_reactant: The CellDesigner base reactant XML element.
-        cd_reaction: The enclosing reaction XML element, used to locate the
-            matching SBML ``speciesReference`` for id/stoichiometry.
+        cd_participant: The base participant or participant link element.
 
     Returns:
-        A reactant model builder with ``base=True``, or ``None`` if no model
-        is being built or the referred alias is a Degraded species.
+        The species model element, or ``None`` if the alias is unknown.
     """
-    if reading_context.model is None:
-        return None
-    if cd_base_reactant.get("alias") in reading_context.cd_degraded_alias_ids:
-        return None
-    model_element = new_builder_object(Reactant)
-    model_element.base = True
-    cd_species_id = cd_base_reactant.get("species")
-    for cd_reactant in get_reactants(cd_reaction):
-        if cd_reactant.get("species") == cd_species_id:
-            model_element.id_ = cd_reactant.get("metaid")
-            cd_stoichiometry = cd_reactant.get("stoichiometry")
-            if cd_stoichiometry is not None:
-                model_element.stoichiometry = float(cd_stoichiometry)
-            break
-    if model_element.id_ is None:
-        model_element.id_ = f"{cd_reaction.get('id')}_{cd_species_id}"
-    species_model_element = next(
+    return next(
         iter(
-            reading_context.xml_id_to_model_element.get(
-                cd_base_reactant.get("alias"), ()
-            )
+            reading_context.xml_id_to_model_element.get(cd_participant.get("alias"), ())
         ),
         None,
     )
-    model_element.referred_element = species_model_element
-    return model_element
 
 
-def make_reactant_from_link(
+def make_participant(
     reading_context: "CellDesignerReadingContext",
-    cd_reactant_link: typing.Any,
+    model_element_cls: type,
+    cd_participant: typing.Any,
     cd_reaction: typing.Any,
 ) -> typing.Any:
-    """Create a reactant model builder from a reactant link XML element.
+    """Create a reactant or product model builder from a participant entry.
+
+    The entries of one reaction side whose aliases refer to the same species
+    model element give one participant: it is a base participant if one of
+    the entries is a base entry, and its stoichiometry is the number of
+    references (a reference with a stoichiometry counting for that value).
 
     Args:
         reading_context: The reading context.
-        cd_reactant_link: The CellDesigner reactant link XML element.
+        model_element_cls: ``Reactant`` or ``Product``.
+        cd_participant: The base participant or participant link element.
         cd_reaction: The enclosing reaction XML element, used to locate the
-            matching SBML ``speciesReference`` for id/stoichiometry.
+            participant entries and ``speciesReference`` elements.
 
     Returns:
-        A reactant model builder (non-base), or ``None`` if no model is being
+        A reactant or product model builder, or ``None`` if no model is being
         built or the referred alias is a Degraded species.
     """
     if reading_context.model is None:
         return None
-    if cd_reactant_link.get("alias") in reading_context.cd_degraded_alias_ids:
+    if cd_participant.get("alias") in reading_context.cd_degraded_alias_ids:
         return None
-    model_element = new_builder_object(Reactant)
-    cd_species_id = cd_reactant_link.get("reactant")
-    for cd_reactant in get_reactants(cd_reaction):
-        if cd_reactant.get("species") == cd_species_id:
-            model_element.id_ = cd_reactant.get("metaid")
-            cd_stoichiometry = cd_reactant.get("stoichiometry")
+    if model_element_cls is Reactant:
+        cd_base_participants = get_base_reactants(cd_reaction)
+        cd_participant_links = get_reactant_links(cd_reaction)
+        cd_species_references = get_reactants(cd_reaction)
+    else:
+        cd_base_participants = get_base_products(cd_reaction)
+        cd_participant_links = get_product_links(cd_reaction)
+        cd_species_references = get_products(cd_reaction)
+    species_model_element = get_alias_model_element(reading_context, cd_participant)
+    cd_base_group = [
+        cd_base_participant
+        for cd_base_participant in cd_base_participants
+        if get_alias_model_element(reading_context, cd_base_participant)
+        is species_model_element
+    ]
+    cd_link_group = [
+        cd_participant_link
+        for cd_participant_link in cd_participant_links
+        if get_alias_model_element(reading_context, cd_participant_link)
+        is species_model_element
+    ]
+    cd_species_reference_group = [
+        get_species_reference(cd_member, cd_species_references)
+        for cd_member in cd_base_group + cd_link_group
+    ]
+    model_element = new_builder_object(model_element_cls)
+    model_element.base = bool(cd_base_group)
+    model_element.referred_element = species_model_element
+    cd_first_species_reference = cd_species_reference_group[0]
+    if cd_first_species_reference is not None:
+        model_element.id_ = cd_first_species_reference.get("metaid")
+    if model_element.id_ is None:
+        cd_species_id = (
+            cd_participant.get("species")
+            or cd_participant.get("reactant")
+            or cd_participant.get("product")
+        )
+        model_element.id_ = f"{cd_reaction.get('id')}_{cd_species_id}"
+    if len(cd_species_reference_group) == 1:
+        if cd_first_species_reference is not None:
+            cd_stoichiometry = cd_first_species_reference.get("stoichiometry")
             if cd_stoichiometry is not None:
                 model_element.stoichiometry = float(cd_stoichiometry)
-            break
-    if model_element.id_ is None:
-        model_element.id_ = f"{cd_reaction.get('id')}_{cd_species_id}"
-    species_model_element = next(
-        iter(
-            reading_context.xml_id_to_model_element.get(
-                cd_reactant_link.get("alias"), ()
-            )
-        ),
-        None,
-    )
-    model_element.referred_element = species_model_element
-    return model_element
-
-
-def make_product_from_base(
-    reading_context: "CellDesignerReadingContext",
-    cd_base_product: typing.Any,
-    cd_reaction: typing.Any,
-) -> typing.Any:
-    """Create a product model builder from a base product XML element.
-
-    Args:
-        reading_context: The reading context.
-        cd_base_product: The CellDesigner base product XML element.
-        cd_reaction: The enclosing reaction XML element, used to locate the
-            matching SBML ``speciesReference`` for id/stoichiometry.
-
-    Returns:
-        A product model builder with ``base=True``, or ``None`` if no model
-        is being built or the referred alias is a Degraded species.
-    """
-    if reading_context.model is None:
-        return None
-    if cd_base_product.get("alias") in reading_context.cd_degraded_alias_ids:
-        return None
-    model_element = new_builder_object(Product)
-    model_element.base = True
-    cd_species_id = cd_base_product.get("species")
-    for cd_product in get_products(cd_reaction):
-        if cd_product.get("species") == cd_species_id:
-            model_element.id_ = cd_product.get("metaid")
-            cd_stoichiometry = cd_product.get("stoichiometry")
-            if cd_stoichiometry is not None:
-                model_element.stoichiometry = float(cd_stoichiometry)
-            break
-    if model_element.id_ is None:
-        model_element.id_ = f"{cd_reaction.get('id')}_{cd_species_id}"
-    species_model_element = next(
-        iter(
-            reading_context.xml_id_to_model_element.get(
-                cd_base_product.get("alias"), ()
-            )
-        ),
-        None,
-    )
-    model_element.referred_element = species_model_element
-    return model_element
-
-
-def make_product_from_link(
-    reading_context: "CellDesignerReadingContext",
-    cd_product_link: typing.Any,
-    cd_reaction: typing.Any,
-) -> typing.Any:
-    """Create a product model builder from a product link XML element.
-
-    Args:
-        reading_context: The reading context.
-        cd_product_link: The CellDesigner product link XML element.
-        cd_reaction: The enclosing reaction XML element, used to locate the
-            matching SBML ``speciesReference`` for id/stoichiometry.
-
-    Returns:
-        A product model builder (non-base), or ``None`` if no model is being
-        built or the referred alias is a Degraded species.
-    """
-    if reading_context.model is None:
-        return None
-    if cd_product_link.get("alias") in reading_context.cd_degraded_alias_ids:
-        return None
-    model_element = new_builder_object(Product)
-    cd_species_id = cd_product_link.get("product")
-    for cd_product in get_products(cd_reaction):
-        if cd_product.get("species") == cd_species_id:
-            model_element.id_ = cd_product.get("metaid")
-            cd_stoichiometry = cd_product.get("stoichiometry")
-            if cd_stoichiometry is not None:
-                model_element.stoichiometry = float(cd_stoichiometry)
-            break
-    if model_element.id_ is None:
-        model_element.id_ = f"{cd_reaction.get('id')}_{cd_species_id}"
-    species_model_element = next(
-        iter(
-            reading_context.xml_id_to_model_element.get(
-                cd_product_link.get("alias"), ()
-            )
-        ),
-        None,
-    )
-    model_element.referred_element = species_model_element
+    else:
+        model_element.stoichiometry = sum(
+            float(cd_species_reference.get("stoichiometry") or 1)
+            if cd_species_reference is not None
+            else 1.0
+            for cd_species_reference in cd_species_reference_group
+        )
     return model_element
 
 
