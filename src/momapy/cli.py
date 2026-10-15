@@ -36,6 +36,7 @@ Example:
     # Inspect a map file
     $ momapy info map.sbgn
     $ momapy info map.xml --format json
+    $ momapy export map.xml -W pickle -o map.pkl
     $ momapy info map.pkl -R pickle
 
     # Open an interactive viewer in the browser
@@ -68,8 +69,8 @@ Example:
     $ momapy export map.xml | momapy style -p cs_default | momapy render -o output.svg
     $ cat map.sbgn | momapy render -o output.svg
 
-    # Piping pickles (faster, keeps annotations, notes and source ids)
-    $ momapy export map.xml -P | momapy tidy fit-species -R pickle -P | momapy render -R pickle -o output.svg
+    # Piping pickles (faster, the map is not re-parsed)
+    $ momapy export map.xml -P | momapy tidy fit-species -P | momapy render -P -o output.svg
 """
 
 import argparse
@@ -504,7 +505,9 @@ def _run_tidy_operation(map_: typing.Any, args: argparse.Namespace) -> typing.An
 
 
 def _read_input(
-    input_file_path: str | os.PathLike | None, reader: str | None = None
+    input_file_path: str | os.PathLike | None,
+    reader: str | None = None,
+    pipe: bool = False,
 ) -> typing.Any:
     """Read a map from a file path, or from stdin if path is None.
 
@@ -512,13 +515,16 @@ def _read_input(
     buffers it to a temporary file. The format is detected from the content
     (``momapy.io.read()`` auto-detection) unless ``reader`` is given. Pickle
     input, from a file or from stdin, is never detected and needs
-    ``reader="pickle"``.
+    ``reader="pickle"``, or ``pipe`` for stdin.
 
     Args:
         input_file_path: Path to the input file, or ``None`` to read
             from stdin.
         reader: Name of the reader to use, or ``None`` to detect it.
             Defaults to ``None``.
+        pipe: Read stdin as a pickled ``ReaderResult`` when ``reader`` is
+            ``None`` (the ``-P``/``--pipe`` flag). No effect when reading
+            a file. Defaults to ``False``.
 
     Returns:
         A ``ReaderResult`` containing the parsed map and metadata.
@@ -533,6 +539,8 @@ def _read_input(
             file=sys.stderr,
         )
         sys.exit(1)
+    if pipe and reader is None:
+        reader = "pickle"
     temporary_file = tempfile.NamedTemporaryFile(delete=False)
     try:
         data = sys.stdin.buffer.read()
@@ -583,29 +591,36 @@ def _write_output(
     map_: typing.Any,
     reader_result: typing.Any,
     output_file_path: str | os.PathLike | None,
+    writer: str | None = None,
     pipe: bool = False,
 ) -> None:
     """Write a map to a file or to stdout.
 
     When ``output_file_path`` is given, writes to that file. Otherwise,
-    writes the map to stdout in its own format, or as a pickled
-    ``ReaderResult`` when ``pipe`` is ``True`` (so a downstream momapy
-    command reading it with ``-R pickle`` does not re-parse it).
+    writes the map to stdout, in its own format by default. With the
+    ``"pickle"`` writer, stdout gets a pickled ``ReaderResult``, so a
+    downstream momapy command reading it with ``-R pickle`` or ``-P`` does
+    not re-parse it.
 
     Args:
         map_: The (possibly modified) map object to write.
         reader_result: The original ``ReaderResult`` whose metadata
-            (annotations, notes, ID mappings) is preserved in the
-            pickled output.
+            (annotations, notes, ID mappings) is written with the map.
         output_file_path: Path to the output file, or ``None`` for
             stdout.
-        pipe: Write a pickled ``ReaderResult`` to stdout instead of the
-            map in its own format (the ``-P``/``--pipe`` flag). No effect
-            when writing to a file. Defaults to ``False``.
+        writer: Name of the writer to use, or ``None`` for the format of
+            the map. Defaults to ``None``.
+        pipe: Write stdout as a pickled ``ReaderResult`` when ``writer``
+            is ``None`` (the ``-P``/``--pipe`` flag). No effect when
+            writing to a file. Defaults to ``False``.
     """
     from momapy.io import write
 
-    writer = _infer_writer(map_)
+    if writer is None:
+        if pipe and not output_file_path:
+            writer = "pickle"
+        else:
+            writer = _infer_writer(map_)
     if output_file_path:
         write(
             map_,
@@ -617,7 +632,7 @@ def _write_output(
             source_id_to_layout_element=reader_result.source_id_to_layout_element,
         )
         return
-    if pipe:
+    if writer == "pickle":
         updated_result = dataclasses.replace(reader_result, obj=map_)
         pickle.dump(updated_result, sys.stdout.buffer)
         return
@@ -1351,7 +1366,7 @@ def _run(args: argparse.Namespace) -> None:
         layouts = []
         input_file_paths = args.input_file_path if args.input_file_path else [None]
         for input_file_path in input_file_paths:
-            map_ = _read_input(input_file_path, reader=args.reader).obj
+            map_ = _read_input(input_file_path, reader=args.reader, pipe=args.pipe).obj
             if style_sheet is not None:
                 map_builder = builder_from_object(map_)
                 apply_style_sheet(map_builder, style_sheet)
@@ -1382,7 +1397,9 @@ def _run(args: argparse.Namespace) -> None:
         from momapy.builder import builder_from_object
         from momapy.styling import apply_style_sheet
 
-        reader_result = _read_input(args.input_file_path, reader=args.reader)
+        reader_result = _read_input(
+            args.input_file_path, reader=args.reader, pipe=args.pipe
+        )
         map_ = reader_result.obj
         style_sheet = _resolve_style_sheet(args)
         if style_sheet is not None:
@@ -1397,12 +1414,20 @@ def _run(args: argparse.Namespace) -> None:
         if args.to_top_left:
             map_ = _move_map_to_top_left(map_)
         try:
-            _write_output(map_, reader_result, args.output_file_path, pipe=args.pipe)
+            _write_output(
+                map_,
+                reader_result,
+                args.output_file_path,
+                writer=args.writer,
+                pipe=args.pipe,
+            )
         except ValueError as error:
             print(f"error: {error}", file=sys.stderr)
             sys.exit(1)
     elif args.subcommand == "info":
-        reader_result = _read_input(args.input_file_path, reader=args.reader)
+        reader_result = _read_input(
+            args.input_file_path, reader=args.reader, pipe=args.pipe
+        )
         map_ = reader_result.obj
         try:
             if isinstance(map_, CellDesignerMap):
@@ -1494,14 +1519,22 @@ def _run(args: argparse.Namespace) -> None:
             for attribute in attributes:
                 print(attribute)
     elif args.subcommand == "tidy":
-        reader_result = _read_input(args.input_file_path, reader=args.reader)
+        reader_result = _read_input(
+            args.input_file_path, reader=args.reader, pipe=args.pipe
+        )
         map_ = reader_result.obj
         try:
             map_ = _run_tidy_operation(map_, args)
         except ValueError as error:
             print(f"error: {error}", file=sys.stderr)
             sys.exit(1)
-        _write_output(map_, reader_result, args.output_file_path, pipe=args.pipe)
+        _write_output(
+            map_,
+            reader_result,
+            args.output_file_path,
+            writer=args.writer,
+            pipe=args.pipe,
+        )
     elif args.subcommand == "style":
         from momapy.builder import builder_from_object
         from momapy.styling import apply_style_sheet
@@ -1513,13 +1546,21 @@ def _run(args: argparse.Namespace) -> None:
                 file=sys.stderr,
             )
             sys.exit(1)
-        reader_result = _read_input(args.input_file_path, reader=args.reader)
+        reader_result = _read_input(
+            args.input_file_path, reader=args.reader, pipe=args.pipe
+        )
         map_ = reader_result.obj
         map_builder = builder_from_object(map_)
         apply_style_sheet(map_builder, style_sheet)
         map_ = map_builder.build()
         try:
-            _write_output(map_, reader_result, args.output_file_path, pipe=args.pipe)
+            _write_output(
+                map_,
+                reader_result,
+                args.output_file_path,
+                writer=args.writer,
+                pipe=args.pipe,
+            )
         except ValueError as error:
             print(f"error: {error}", file=sys.stderr)
             sys.exit(1)
@@ -1528,7 +1569,9 @@ def _run(args: argparse.Namespace) -> None:
         from momapy.builder import object_from_builder
         from momapy.styling import apply_style_sheet
 
-        reader_result = _read_input(args.input_file_path, reader=args.reader)
+        reader_result = _read_input(
+            args.input_file_path, reader=args.reader, pipe=args.pipe
+        )
         map_ = reader_result.obj
         style_sheet = _resolve_style_sheet(args)
         if style_sheet is not None:
@@ -1597,7 +1640,17 @@ def main() -> None:
         default=None,
         help=(
             "reader to use for the input (default: detected from the "
-            "content); pickle input, e.g. from --pipe, needs '-R pickle'"
+            "content); pickle input is never detected: use '-R pickle' or '-P'"
+        ),
+    )
+    render_parser.add_argument(
+        "-P",
+        "--pipe",
+        action="store_true",
+        default=False,
+        help=(
+            "read stdin as a pickled ReaderResult (faster for piping "
+            "momapy commands); no effect on input files"
         ),
     )
     render_parser.add_argument(
@@ -1669,7 +1722,7 @@ def main() -> None:
         default=None,
         help=(
             "reader to use for the input (default: detected from the "
-            "content); pickle input, e.g. from --pipe, needs '-R pickle'"
+            "content); pickle input is never detected: use '-R pickle' or '-P'"
         ),
     )
     export_parser.add_argument(
@@ -1684,9 +1737,18 @@ def main() -> None:
         action="store_true",
         default=False,
         help=(
-            "write a pickled ReaderResult to stdout instead of the map in "
-            "its format, to pipe into another momapy command read with "
-            "'-R pickle'; no effect with -o"
+            "read stdin and write stdout as a pickled ReaderResult "
+            "(faster for piping momapy commands); no effect on input "
+            "files or -o"
+        ),
+    )
+    export_parser.add_argument(
+        "-W",
+        "--writer",
+        default=None,
+        help=(
+            "writer to use for the output (default: the format of "
+            "the map), e.g. 'pickle'"
         ),
     )
     export_parser.add_argument(
@@ -1736,7 +1798,17 @@ def main() -> None:
         default=None,
         help=(
             "reader to use for the input (default: detected from the "
-            "content); pickle input, e.g. from --pipe, needs '-R pickle'"
+            "content); pickle input is never detected: use '-R pickle' or '-P'"
+        ),
+    )
+    info_parser.add_argument(
+        "-P",
+        "--pipe",
+        action="store_true",
+        default=False,
+        help=(
+            "read stdin as a pickled ReaderResult (faster for piping "
+            "momapy commands); no effect on input files"
         ),
     )
     info_parser.add_argument(
@@ -1833,7 +1905,7 @@ def main() -> None:
             default=None,
             help=(
                 "reader to use for the input (default: detected from the "
-                "content); pickle input, e.g. from --pipe, needs '-R pickle'"
+                "content); pickle input is never detected: use '-R pickle' or '-P'"
             ),
         )
         operation_parser.add_argument(
@@ -1848,9 +1920,18 @@ def main() -> None:
             action="store_true",
             default=False,
             help=(
-                "write a pickled ReaderResult to stdout instead of the map in "
-                "its format, to pipe into another momapy command read with "
-                "'-R pickle'; no effect with -o"
+                "read stdin and write stdout as a pickled ReaderResult "
+                "(faster for piping momapy commands); no effect on input "
+                "files or -o"
+            ),
+        )
+        operation_parser.add_argument(
+            "-W",
+            "--writer",
+            default=None,
+            help=(
+                "writer to use for the output (default: the format of "
+                "the map), e.g. 'pickle'"
             ),
         )
         if operation_name in (
@@ -1922,7 +2003,7 @@ def main() -> None:
         default=None,
         help=(
             "reader to use for the input (default: detected from the "
-            "content); pickle input, e.g. from --pipe, needs '-R pickle'"
+            "content); pickle input is never detected: use '-R pickle' or '-P'"
         ),
     )
     style_parser.add_argument(
@@ -1937,9 +2018,18 @@ def main() -> None:
         action="store_true",
         default=False,
         help=(
-            "write a pickled ReaderResult to stdout instead of the map in "
-            "its format, to pipe into another momapy command read with "
-            "'-R pickle'; no effect with -o"
+            "read stdin and write stdout as a pickled ReaderResult "
+            "(faster for piping momapy commands); no effect on input "
+            "files or -o"
+        ),
+    )
+    style_parser.add_argument(
+        "-W",
+        "--writer",
+        default=None,
+        help=(
+            "writer to use for the output (default: the format of "
+            "the map), e.g. 'pickle'"
         ),
     )
     style_parser.add_argument(
@@ -1975,7 +2065,17 @@ def main() -> None:
         default=None,
         help=(
             "reader to use for the input (default: detected from the "
-            "content); pickle input, e.g. from --pipe, needs '-R pickle'"
+            "content); pickle input is never detected: use '-R pickle' or '-P'"
+        ),
+    )
+    visualize_parser.add_argument(
+        "-P",
+        "--pipe",
+        action="store_true",
+        default=False,
+        help=(
+            "read stdin as a pickled ReaderResult (faster for piping "
+            "momapy commands); no effect on input files"
         ),
     )
     visualize_parser.add_argument(

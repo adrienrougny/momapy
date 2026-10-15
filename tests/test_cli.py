@@ -232,6 +232,31 @@ class TestCLIExportCommand:
         self._info_from_stdin(data, ["-R", "pickle"])
         assert "SBGN PD" in capsys.readouterr().out
 
+    def test_info_reads_piped_pickle_with_pipe(self, capsys):
+        """Test info -P reads a pickle from stdin."""
+        data = self._export_pipe()
+        self._info_from_stdin(data, ["-P"])
+        assert "SBGN PD" in capsys.readouterr().out
+
+    def test_export_writer_pickle_to_file(self, tmp_path):
+        """Test export -W pickle -o writes a pickle file."""
+        output_file = tmp_path / "output.pkl"
+        with mock.patch(
+            "sys.argv",
+            [
+                "momapy",
+                "export",
+                self.SBGN_MAP_PATH,
+                "-W",
+                "pickle",
+                "-o",
+                str(output_file),
+            ],
+        ):
+            momapy.cli.main()
+        result = momapy.io.read(output_file, reader="pickle")
+        assert isinstance(result.obj, momapy.sbgn.map.SBGNMap)
+
     def test_info_rejects_piped_pickle_without_reader(self, capsys):
         """Test info without -R pickle does not detect a pickle on stdin."""
         data = self._export_pipe()
