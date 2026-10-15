@@ -4,9 +4,7 @@
 
 <head>
     <script>
-        /* const base_url = "https://adrienrougny.github.io/momapy/latest"; */
         const base_url = (new URL("../..", window.location)).href.replace(/\/+$/, ""); /* for search plugin notably */
-        /* const root_relative_url = "../.."; */
     </script>
     <script integrity="sha384-m6cZ+Whl1ci89lidlu8DH4C+sZLNOYBvImtjUIhUK+iaNffXhqtbYgBVuuPfRsa0" src="../../js/dark.js"></script>
 
@@ -77,8 +75,10 @@
 
     
 
-    <script integrity="sha384-V2jkXRy811qODUbfkLlkVJYBbf4h6XHAEjcU6ReASBPrJvTrlYh4GrI4t6GCju6n"
+    <script integrity="sha384-2hn3q9jeDV70Gb3DuyWPKgeRxkowIjEpcHeOXSvWCEq2uHJHvXiVer7rbM8HYzYz"
         src="../../js/callbacks.js"></script>
+    <script defer="" integrity="sha384-ljmRPFWw/c4kKFaKY5DIe8bgppHI9VBBrg7WZa8UPd23U9dEFesxZ1Ng8Hzjq2WB"
+        src="../../js/toc.js"></script>
 
     
 
@@ -110,36 +110,35 @@
 </head>
 
 <body
-    class="text-foreground group/body overscroll-none font-sans antialiased [--footer-height:calc(var(--spacing)*14)] [--header-height:calc(var(--spacing)*14)] xl:[--footer-height:calc(var(--spacing)*24)] theme-default">
+    class="text-foreground group/body overscroll-none font-sans antialiased [--footer-height:calc(var(--spacing)*14)] [--header-height:calc(var(--spacing)*14)] lg:[--header-height:calc(var(--spacing)*16)] xl:[--footer-height:calc(var(--spacing)*24)] theme-default">
     <div class="bg-background relative z-10 flex min-h-svh flex-col" id="inner-body">
         <header class="bg-background sticky top-0 z-50 w-full" view-transition-name="header">
     <div class="container-wrapper 3xl:fixed:px-0 px-6">
         <div class="3xl:fixed:container flex h-(--header-height) items-center gap-2 **:data-[slot=separator]:!h-4">
-            <button id="menu-button" data-slot="popover-trigger" onclick="onMobileMenuButtonClick(event)"
-                class="group whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:text-accent-foreground px-4 py-2 has-[&gt;svg]:px-3 extend-touch-target h-8 touch-manipulation items-center justify-start gap-2.5 !p-0 hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 active:bg-transparent dark:hover:bg-transparent flex lg:hidden"
-                type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="radix-«Rmplb»"
-                data-state="closed">
-                <div class="relative flex h-8 w-4 items-center justify-center">
-                    <div class="relative size-4">
-                        <!-- 16px x 16px -->
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="0" x2="16" y1="5" y2="5"
-                                class="group-data-[state=open]:translate-y-[2.25px] group-data-[state=open]:-translate-x-[2.25px] group-data-[state=open]:rotate-45 transition-all duration-300 origin-center" />
-                            <line x1="0" x2="16" y1="11" y2="11"
-                                class="group-data-[state=open]:-translate-y-[2.25px] group-data-[state=open]:-translate-x-[2.25px] group-data-[state=open]:-rotate-45 transition-all duration-300 origin-center" />
-                        </svg>
-                    </div>
+            <button id="burger-button" data-slot="popover-trigger" onclick="onMobileMenuButtonClick(event)" class="group"
+    
+    type="button" aria-haspopup="dialog" data-state="closed">
+    <div class="relative flex h-8 w-4 items-center justify-center">
+        <div class="relative size-4">
+            <!-- 16px x 16px -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="0" x2="16" y1="5" y2="5"
+                    class="group-data-[state=open]:translate-y-[2.25px] group-data-[state=open]:-translate-x-[2.25px] group-data-[state=open]:rotate-45 transition-all duration-300 origin-center" />
+                <line x1="0" x2="16" y1="11" y2="11"
+                    class="group-data-[state=open]:-translate-y-[2.25px] group-data-[state=open]:-translate-x-[2.25px] group-data-[state=open]:-rotate-45 transition-all duration-300 origin-center" />
+            </svg>
+        </div>
 
-                    <span class="sr-only">Toggle Menu</span>
-                </div>
-                <span class="flex h-8 items-center text-lg leading-none font-medium">Menu</span>
-            </button>
-            <a data-slot="button"
-                class="items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-5 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 hidden h-8 lg:flex"
-                href="https://adrienrougny.github.io/momapy/latest">
-                <span class="size-8 flex flex-row justify-center items-center">
-                    
+        <span class="sr-only">Toggle Menu</span>
+    </div>
+    <span class="flex h-8 items-center text-lg leading-none font-medium">Menu</span>
+</button>
+            <a data-slot="button" class="button ghost gap-2 hidden lg:flex"
+    
+    href="https://adrienrougny.github.io/momapy/latest">
+    <span class="flex flex-row justify-center items-center">
+        
 
 
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -155,19 +154,19 @@
 
 
 
-                </span>
+    </span>
 
-                
-                <h1 class="pr-2"><span class="momapy-brand"><span class="momapy-brand-moma">Moma</span><span class="momapy-brand-py">Py</span></span></h1>
-                
-            </a>
+    
+    <h1><span class="momapy-brand"><span class="momapy-brand-moma">Moma</span><span class="momapy-brand-py">Py</span></span></h1>
+    
+</a>
             
             <nav class="items-center gap-0.5 hidden lg:flex">
     
     
     
-    <a class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 h-8 rounded-md gap-1.5 px-3 has-[&gt;svg]:px-2.5"
-        data-slot="button" href="../">
+    
+    <a class="ghost button" href="../">
         API reference
     </a>
     
@@ -178,29 +177,27 @@
                 <div class="hidden w-full flex-1 md:flex md:w-auto md:flex-none">
                     <div class="hidden w-full flex-1 md:flex md:w-auto md:flex-none">
     <button onclick="onSearchBarClick(event)" data-slot="dialog-trigger" data-variant="outline" data-size="default"
-        class="inline-flex shrink-0 items-center gap-2 text-sm whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&amp;_svg]:pointer-events-none [&amp;_svg]:shrink-0 [&amp;_svg:not([class*='size-'])]:size-4 border bg-background hover:text-accent-foreground dark:border-input dark:hover:bg-input/50 px-4 py-2 has-[&gt;svg]:px-3 relative h-8 w-full justify-start rounded-lg pl-3 font-normal text-foreground shadow-none hover:bg-muted/50 sm:pr-12 md:w-48 lg:w-56 xl:w-64 dark:bg-card"
-        type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="radix-_r_1_" data-state="closed">
-        <span class="hidden lg:inline-flex">Search documentation...</span>
-        <span class="inline-flex lg:hidden">Search...</span>
-    </button>
+    class="search secondary" type="button" aria-haspopup="dialog" aria-controls="search-dialog" data-state="closed">
+    <span class="hidden lg:inline-flex">Search documentation...</span>
+    <span class="inline-flex lg:hidden">Search...</span>
+</button>
 </div>
 <dialog id="search-dialog" onclick="onSearchDialogClick(event)"
     class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-background rounded-lg shadow-lg border overflow-hidden p-0">
     <div class="w-lg gap-4">
         <div class="flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground">
-            <div data-slot="command-input-wrapper" class="flex h-9 items-center gap-2 border-b px-3"><svg
-                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-search size-4 shrink-0 opacity-50">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <path d="m21 21-4.3-4.3"></path>
-                </svg>
+            <div data-slot="command-input-wrapper" class="flex h-9 items-center gap-2 border-b px-3">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+    class="lucide lucide-search size-4 shrink-0 opacity-50">
+    <circle cx="11" cy="11" r="8"></circle>
+    <path d="m21 21-4.3-4.3"></path>
+</svg>
                 <input data-slot="command-input"
                     class="placeholder:text-muted-foreground flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
                     placeholder="Search documentation..." cmdk-input="" autocomplete="off" autocorrect="off"
-                    spellcheck="false" aria-autocomplete="list" role="combobox" aria-expanded="true"
-                    aria-controls="radix-«r1t6»" aria-labelledby="radix-«r1t7»" id="radix-«r1t8»" type="text" value=""
-                    aria-activedescendant="radix-«r1th»" oninput="onInputHandler(event)">
+                    spellcheck="false" aria-label="Search documentation" type="search" value=""
+                    oninput="onInputHandler(event)">
             </div>
         </div>
         <div id="mkdocs-search-results">
@@ -214,46 +211,44 @@
 </script>
                 </div>
                 
-                <div data-orientation="vertical" role="none" data-slot="separator"
-                    class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px 3xl:flex hidden">
-                </div>
                 
+
+
+                
+                <div data-orientation="vertical" role="none" data-slot="separator"
+    class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px">
+</div>
                 <select id="version-selector" onchange="selectVersion(event.target.value)"></select>
 <script integrity="sha384-YU6TPf0CfFfbisdIHfkqTtPxu1sZc0K/F0h3GhS/UPVULZs1DqhjPpInpkcpR9rk" src="../../js/version-select.js"></script>
-                <div data-orientation="vertical" role="none" data-slot="separator"
-                    class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px 3xl:flex hidden">
-                </div>
                 
-                <button data-slot="button"
-                    class="items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 size-8 3xl:flex hidden"
-                    title="Toggle layout" onclick="toggleLayout(event)">
-                    <span class="sr-only">Toggle layout</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                        class="lucide lucide-gallery-horizontal">
-                        <path d="M2 3v18"></path>
-                        <rect width="12" height="18" x="6" y="3" rx="2"></rect>
-                        <path d="M22 3v18"></path>
-                    </svg>
-                </button>
+
                 <div data-orientation="vertical" role="none" data-slot="separator"
-                    class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px">
-                </div>
-                <button data-slot="button"
-                    class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 group/toggle extend-touch-target size-8"
-                    title="Toggle theme" onclick="onThemeSwitch(event)">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                        class="size-4.5">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path>
-                        <path d="M12 3l0 18"></path>
-                        <path d="M12 9l4.65 -4.65"></path>
-                        <path d="M12 14.3l7.37 -7.37"></path>
-                        <path d="M12 19.6l8.85 -8.85"></path>
-                    </svg>
-                    <span class="sr-only">Toggle theme</span>
-                </button>
+    class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px">
+</div>
+                <button class="ghost icon" title="Toggle layout" onclick="toggleLayout(event)">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+    class="lucide lucide-gallery-horizontal">
+    <path d="M2 3v18"></path>
+    <rect width="12" height="18" x="6" y="3" rx="2"></rect>
+    <path d="M22 3v18"></path>
+</svg>
+</button>
+                <div data-orientation="vertical" role="none" data-slot="separator"
+    class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px">
+</div>
+                <button class="ghost icon" onclick="onThemeSwitch(event)" title="Toggle theme">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+    class="size-4.5">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path>
+    <path d="M12 3l0 18"></path>
+    <path d="M12 9l4.65 -4.65"></path>
+    <path d="M12 14.3l7.37 -7.37"></path>
+    <path d="M12 19.6l8.85 -8.85"></path>
+</svg>
+</button>
             </div>
         </div>
     </div>
@@ -263,7 +258,7 @@
                 <div class="group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex w-full 3xl:fixed:container 3xl:fixed:px-3 min-h-min flex-1 items-start px-0 [--sidebar-width:220px] [--top-spacing:0] lg:grid lg:grid-cols-[var(--sidebar-width)_minmax(0,1fr)] lg:[--sidebar-width:240px] lg:[--top-spacing:calc(var(--spacing)*4)]"
                     data-slot="sidebar-wrapper"
                     style="--sidebar-width:calc(var(--spacing) * 72);--sidebar-width-icon:3rem;">
-                    <div class="w-(--sidebar-width) flex-col text-sidebar-foreground sticky top-[calc(var(--header-height)+0.6rem)] z-30 hidden h-[calc(100svh-10rem)] overscroll-none bg-transparent [--sidebar-menu-width:--spacing(56)] lg:flex"
+                    <div class="w-(--sidebar-width) flex-col text-sidebar-foreground sticky top-[calc(var(--header-height)+0.6rem)] z-30 hidden max-h-[calc(100svh-10rem)] overscroll-none bg-transparent [--sidebar-menu-width:--spacing(56)] lg:flex"
                         data-slot="sidebar">
                         <div class="h-9"></div>
                         <div
@@ -296,15 +291,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         Overview
         
-
         
-
         
-
         
     </a>
 </li>
@@ -316,15 +307,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../core/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         Core
         
-
         
-
         
-
         
     </a>
 </li>
@@ -336,15 +323,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../builder/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         Builder
         
-
         
-
         
-
         
     </a>
 </li>
@@ -356,15 +339,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../drawing/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         Drawing
         
-
         
-
         
-
         
     </a>
 </li>
@@ -376,15 +355,11 @@
     <a data-slot="sidebar-menu-button" data-active="true" data-sidebar="menu-button"
         data-size="default" href="./"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         Coloring
         
-
         
-
         
-
         
     </a>
 </li>
@@ -396,15 +371,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../geometry/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         Geometry
         
-
         
-
         
-
         
     </a>
 </li>
@@ -416,15 +387,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../io/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         I/O
         
-
         
-
         
-
         
     </a>
 </li>
@@ -436,15 +403,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../positioning/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         Positioning
         
-
         
-
         
-
         
     </a>
 </li>
@@ -456,15 +419,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../styling/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         Styling
         
-
         
-
         
-
         
     </a>
 </li>
@@ -489,15 +448,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../rendering/core/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         Core
         
-
         
-
         
-
         
     </a>
 </li>
@@ -508,15 +463,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../rendering/skia/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         Skia
         
-
         
-
         
-
         
     </a>
 </li>
@@ -527,15 +478,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../rendering/cairo/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         Cairo
         
-
         
-
         
-
         
     </a>
 </li>
@@ -546,15 +493,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../rendering/svg_native/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         SVG-native
         
-
         
-
         
-
         
     </a>
 </li>
@@ -578,15 +521,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../sbgn/sbgn/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         SBGN
         
-
         
-
         
-
         
     </a>
 </li>
@@ -597,15 +536,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../sbgn/pd/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         PD
         
-
         
-
         
-
         
     </a>
 </li>
@@ -616,15 +551,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../sbgn/af/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         AF
         
-
         
-
         
-
         
     </a>
 </li>
@@ -658,15 +589,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../sbgn/io/sbgnml/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         SBGN-ML
         
-
         
-
         
-
         
     </a>
 </li>
@@ -695,15 +622,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../celldesigner/celldesigner/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         CellDesigner
         
-
         
-
         
-
         
     </a>
 </li>
@@ -737,15 +660,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../celldesigner/io/celldesigner/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         CD
         
-
         
-
         
-
         
     </a>
 </li>
@@ -774,15 +693,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../sbml/sbml/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         SBML
         
-
         
-
         
-
         
     </a>
 </li>
@@ -816,15 +731,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../sbml/io/sbml/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         SBML
         
-
         
-
         
-
         
     </a>
 </li>
@@ -851,7 +762,6 @@
                     </div>
                     <div class="h-full w-full">
                         <div class="flex items-stretch text-[1.05rem] sm:text-[15px] xl:w-full" data-slot="docs">
-
                             <div class="flex min-w-0 flex-1 flex-col">
                                 <div class="h-(--top-spacing) shrink-0"></div>
                                 
@@ -863,12 +773,11 @@
         <h1 class="scroll-m-20 text-4xl font-semibold tracking-tight sm:text-3xl xl:text-4xl">
           Coloring
         </h1>
-
-        <div class="flex items-center gap-2 pt-1.5">
+        <div class="flex items-start gap-2">
           
-          <button
-    onclick="fetch(`../..`).then((r) => r.text()).then((text) => navigator.clipboard.write([new ClipboardItem({ 'text/plain': text })]))"
-    data-slot="button" class="secondary cursor-pointer">
+          <button id="copy-page"
+    onclick="fetch(`https://adrienrougny.github.io/momapy/latest/api_reference/coloring.md`).then((r) => r.text()).then((text) => navigator.clipboard.write([new ClipboardItem({ 'text/plain': text })]))"
+    data-slot="button" class="secondary cursor-pointer sm">
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-copy ">
         <path
@@ -880,32 +789,28 @@
 </button>
           
           
-          <a data-slot="button" id="previous-button"
-            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-secondary text-secondary-foreground hover:bg-secondary/80 extend-touch-target size-8 shadow-none md:size-7"
-            href="../drawing/">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              class="tabler-icon tabler-icon-arrow-left">
-              <path d="M5 12l14 0"></path>
-              <path d="M5 12l6 6"></path>
-              <path d="M5 12l6 -6"></path>
-            </svg>
-            <span class="sr-only">Previous</span>
-          </a>
+          <a id="previous-button" class="button secondary icon sm" href="../drawing/">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+    class="tabler-icon tabler-icon-arrow-left">
+    <path d="M5 12l14 0"></path>
+    <path d="M5 12l6 6"></path>
+    <path d="M5 12l6 -6"></path>
+</svg>
+    <span class="sr-only">Previous</span>
+</a>
           
           
-          <a data-slot="button" id="next-button"
-            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-secondary text-secondary-foreground hover:bg-secondary/80 extend-touch-target size-8 shadow-none md:size-7"
-            href="../geometry/">
-            <span class="sr-only">Next</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              class="tabler-icon tabler-icon-arrow-right">
-              <path d="M5 12l14 0"></path>
-              <path d="M13 18l6 -6"></path>
-              <path d="M13 6l6 6"></path>
-            </svg>
-          </a>
+          <a id="next-button" class="button secondary icon sm" href="../geometry/">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+    class="tabler-icon tabler-icon-arrow-right">
+    <path d="M5 12l14 0"></path>
+    <path d="M13 18l6 -6"></path>
+    <path d="M13 6l6 6"></path>
+</svg>
+    <span class="sr-only">Next</span>
+</a>
           
         </div>
       </div>
@@ -913,6 +818,7 @@
     </div>
     <div class="flex justify-end items-center">
       
+
       
     </div>
   </div>
@@ -11198,41 +11104,31 @@ Defaults to False.</p>
 
 </div>
   </div>
-  
-  <script>
-    document.querySelectorAll('article h2, article h3').forEach((header) => {
-      toc.observer.observe(header);
-    });
-  </script>
 </article>
-                                <div class="mx-auto flex flex-wrap h-16 w-full max-w-2xl items-center gap-2 px-4 md:px-0">
+                                <div id="bottom-navigation" class="mx-auto flex h-16 w-full max-w-2xl items-center justify-between gap-2 px-4 md:px-0">
     
-    <a data-slot="button"
-        class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-secondary text-secondary-foreground hover:bg-secondary/80 h-8 rounded-md gap-1.5 px-3 has-[&gt;svg]:px-2.5 shadow-none"
-        href="../drawing/">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-            class="tabler-icon tabler-icon-arrow-left ">
-            <path d="M5 12l14 0"></path>
-            <path d="M5 12l6 6"></path>
-            <path d="M5 12l6 -6"></path>
-        </svg>
-        <span class="max-[500px]:hidden">Drawing</span>
-    </a>
+    <a class="button secondary" href="../drawing/">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+    class="tabler-icon tabler-icon-arrow-left">
+    <path d="M5 12l14 0"></path>
+    <path d="M5 12l6 6"></path>
+    <path d="M5 12l6 -6"></path>
+</svg>
+    <span class="max-[500px]:hidden truncate">Drawing</span>
+</a>
     
     
-    <a data-slot="button"
-        class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-secondary text-secondary-foreground hover:bg-secondary/80 h-8 rounded-md gap-1.5 px-3 has-[&gt;svg]:px-2.5 ml-auto shadow-none"
-        href="../geometry/">
-        <span class="max-[500px]:hidden">Geometry</span>
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-            class="tabler-icon tabler-icon-arrow-right ">
-            <path d="M5 12l14 0"></path>
-            <path d="M13 18l6 -6"></path>
-            <path d="M13 6l6 6"></path>
-        </svg>
-    </a>
+    <a class="button secondary" href="../geometry/">
+    <span class="max-[500px]:hidden truncate">Geometry</span>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+    class="tabler-icon tabler-icon-arrow-right">
+    <path d="M5 12l14 0"></path>
+    <path d="M13 18l6 -6"></path>
+    <path d="M13 6l6 6"></path>
+</svg>
+</a>
     
 </div>
                                 
@@ -11380,1193 +11276,895 @@ Defaults to False.</p>
         
         
         
-        <a href="#momapy.coloring.Color"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.Color');">
+        <a href="#momapy.coloring.Color" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Color
         </a>
         
 
         
-        <a href="#momapy.coloring.aliceblue"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.aliceblue');">
+        <a href="#momapy.coloring.aliceblue" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;aliceblue
         </a>
         
 
         
-        <a href="#momapy.coloring.antiquewhite"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.antiquewhite');">
+        <a href="#momapy.coloring.antiquewhite" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;antiquewhite
         </a>
         
 
         
-        <a href="#momapy.coloring.aqua"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.aqua');">
+        <a href="#momapy.coloring.aqua" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;aqua
         </a>
         
 
         
-        <a href="#momapy.coloring.aquamarine"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.aquamarine');">
+        <a href="#momapy.coloring.aquamarine" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;aquamarine
         </a>
         
 
         
-        <a href="#momapy.coloring.azure"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.azure');">
+        <a href="#momapy.coloring.azure" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;azure
         </a>
         
 
         
-        <a href="#momapy.coloring.beige"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.beige');">
+        <a href="#momapy.coloring.beige" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;beige
         </a>
         
 
         
-        <a href="#momapy.coloring.bisque"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.bisque');">
+        <a href="#momapy.coloring.bisque" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;bisque
         </a>
         
 
         
-        <a href="#momapy.coloring.black"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.black');">
+        <a href="#momapy.coloring.black" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;black
         </a>
         
 
         
-        <a href="#momapy.coloring.blanchedalmond"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.blanchedalmond');">
+        <a href="#momapy.coloring.blanchedalmond" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;blanchedalmond
         </a>
         
 
         
-        <a href="#momapy.coloring.blue"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.blue');">
+        <a href="#momapy.coloring.blue" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;blue
         </a>
         
 
         
-        <a href="#momapy.coloring.blueviolet"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.blueviolet');">
+        <a href="#momapy.coloring.blueviolet" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;blueviolet
         </a>
         
 
         
-        <a href="#momapy.coloring.brown"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.brown');">
+        <a href="#momapy.coloring.brown" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;brown
         </a>
         
 
         
-        <a href="#momapy.coloring.burlywood"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.burlywood');">
+        <a href="#momapy.coloring.burlywood" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;burlywood
         </a>
         
 
         
-        <a href="#momapy.coloring.cadetblue"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.cadetblue');">
+        <a href="#momapy.coloring.cadetblue" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;cadetblue
         </a>
         
 
         
-        <a href="#momapy.coloring.chartreuse"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.chartreuse');">
+        <a href="#momapy.coloring.chartreuse" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;chartreuse
         </a>
         
 
         
-        <a href="#momapy.coloring.chocolate"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.chocolate');">
+        <a href="#momapy.coloring.chocolate" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;chocolate
         </a>
         
 
         
-        <a href="#momapy.coloring.coral"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.coral');">
+        <a href="#momapy.coloring.coral" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;coral
         </a>
         
 
         
-        <a href="#momapy.coloring.cornflowerblue"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.cornflowerblue');">
+        <a href="#momapy.coloring.cornflowerblue" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;cornflowerblue
         </a>
         
 
         
-        <a href="#momapy.coloring.cornsilk"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.cornsilk');">
+        <a href="#momapy.coloring.cornsilk" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;cornsilk
         </a>
         
 
         
-        <a href="#momapy.coloring.crimson"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.crimson');">
+        <a href="#momapy.coloring.crimson" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;crimson
         </a>
         
 
         
-        <a href="#momapy.coloring.cyan"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.cyan');">
+        <a href="#momapy.coloring.cyan" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;cyan
         </a>
         
 
         
-        <a href="#momapy.coloring.darkblue"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.darkblue');">
+        <a href="#momapy.coloring.darkblue" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;darkblue
         </a>
         
 
         
-        <a href="#momapy.coloring.darkcyan"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.darkcyan');">
+        <a href="#momapy.coloring.darkcyan" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;darkcyan
         </a>
         
 
         
-        <a href="#momapy.coloring.darkgoldenrod"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.darkgoldenrod');">
+        <a href="#momapy.coloring.darkgoldenrod" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;darkgoldenrod
         </a>
         
 
         
-        <a href="#momapy.coloring.darkgray"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.darkgray');">
+        <a href="#momapy.coloring.darkgray" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;darkgray
         </a>
         
 
         
-        <a href="#momapy.coloring.darkgreen"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.darkgreen');">
+        <a href="#momapy.coloring.darkgreen" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;darkgreen
         </a>
         
 
         
-        <a href="#momapy.coloring.darkgrey"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.darkgrey');">
+        <a href="#momapy.coloring.darkgrey" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;darkgrey
         </a>
         
 
         
-        <a href="#momapy.coloring.darkkhaki"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.darkkhaki');">
+        <a href="#momapy.coloring.darkkhaki" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;darkkhaki
         </a>
         
 
         
-        <a href="#momapy.coloring.darkmagenta"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.darkmagenta');">
+        <a href="#momapy.coloring.darkmagenta" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;darkmagenta
         </a>
         
 
         
-        <a href="#momapy.coloring.darkolivegreen"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.darkolivegreen');">
+        <a href="#momapy.coloring.darkolivegreen" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;darkolivegreen
         </a>
         
 
         
-        <a href="#momapy.coloring.darkorange"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.darkorange');">
+        <a href="#momapy.coloring.darkorange" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;darkorange
         </a>
         
 
         
-        <a href="#momapy.coloring.darkorchid"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.darkorchid');">
+        <a href="#momapy.coloring.darkorchid" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;darkorchid
         </a>
         
 
         
-        <a href="#momapy.coloring.darkred"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.darkred');">
+        <a href="#momapy.coloring.darkred" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;darkred
         </a>
         
 
         
-        <a href="#momapy.coloring.darksalmon"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.darksalmon');">
+        <a href="#momapy.coloring.darksalmon" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;darksalmon
         </a>
         
 
         
-        <a href="#momapy.coloring.darkseagreen"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.darkseagreen');">
+        <a href="#momapy.coloring.darkseagreen" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;darkseagreen
         </a>
         
 
         
-        <a href="#momapy.coloring.darkslateblue"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.darkslateblue');">
+        <a href="#momapy.coloring.darkslateblue" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;darkslateblue
         </a>
         
 
         
-        <a href="#momapy.coloring.darkslategray"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.darkslategray');">
+        <a href="#momapy.coloring.darkslategray" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;darkslategray
         </a>
         
 
         
-        <a href="#momapy.coloring.darkturquoise"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.darkturquoise');">
+        <a href="#momapy.coloring.darkturquoise" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;darkturquoise
         </a>
         
 
         
-        <a href="#momapy.coloring.darkviolet"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.darkviolet');">
+        <a href="#momapy.coloring.darkviolet" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;darkviolet
         </a>
         
 
         
-        <a href="#momapy.coloring.deeppink"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.deeppink');">
+        <a href="#momapy.coloring.deeppink" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;deeppink
         </a>
         
 
         
-        <a href="#momapy.coloring.deepskyblue"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.deepskyblue');">
+        <a href="#momapy.coloring.deepskyblue" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;deepskyblue
         </a>
         
 
         
-        <a href="#momapy.coloring.dimgray"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.dimgray');">
+        <a href="#momapy.coloring.dimgray" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;dimgray
         </a>
         
 
         
-        <a href="#momapy.coloring.dimgrey"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.dimgrey');">
+        <a href="#momapy.coloring.dimgrey" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;dimgrey
         </a>
         
 
         
-        <a href="#momapy.coloring.dodgerblue"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.dodgerblue');">
+        <a href="#momapy.coloring.dodgerblue" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;dodgerblue
         </a>
         
 
         
-        <a href="#momapy.coloring.firebrick"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.firebrick');">
+        <a href="#momapy.coloring.firebrick" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;firebrick
         </a>
         
 
         
-        <a href="#momapy.coloring.floralwhite"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.floralwhite');">
+        <a href="#momapy.coloring.floralwhite" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;floralwhite
         </a>
         
 
         
-        <a href="#momapy.coloring.forestgreen"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.forestgreen');">
+        <a href="#momapy.coloring.forestgreen" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;forestgreen
         </a>
         
 
         
-        <a href="#momapy.coloring.fuchsia"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.fuchsia');">
+        <a href="#momapy.coloring.fuchsia" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;fuchsia
         </a>
         
 
         
-        <a href="#momapy.coloring.gainsboro"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.gainsboro');">
+        <a href="#momapy.coloring.gainsboro" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;gainsboro
         </a>
         
 
         
-        <a href="#momapy.coloring.get_color"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.get_color');">
+        <a href="#momapy.coloring.get_color" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;get_color
         </a>
         
 
         
-        <a href="#momapy.coloring.ghostwhite"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.ghostwhite');">
+        <a href="#momapy.coloring.ghostwhite" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;ghostwhite
         </a>
         
 
         
-        <a href="#momapy.coloring.gold"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.gold');">
+        <a href="#momapy.coloring.gold" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;gold
         </a>
         
 
         
-        <a href="#momapy.coloring.goldenrod"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.goldenrod');">
+        <a href="#momapy.coloring.goldenrod" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;goldenrod
         </a>
         
 
         
-        <a href="#momapy.coloring.gray"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.gray');">
+        <a href="#momapy.coloring.gray" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;gray
         </a>
         
 
         
-        <a href="#momapy.coloring.green"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.green');">
+        <a href="#momapy.coloring.green" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;green
         </a>
         
 
         
-        <a href="#momapy.coloring.greenyellow"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.greenyellow');">
+        <a href="#momapy.coloring.greenyellow" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;greenyellow
         </a>
         
 
         
-        <a href="#momapy.coloring.grey"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.grey');">
+        <a href="#momapy.coloring.grey" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;grey
         </a>
         
 
         
-        <a href="#momapy.coloring.has_color"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.has_color');">
+        <a href="#momapy.coloring.has_color" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;has_color
         </a>
         
 
         
-        <a href="#momapy.coloring.honeydew"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.honeydew');">
+        <a href="#momapy.coloring.honeydew" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;honeydew
         </a>
         
 
         
-        <a href="#momapy.coloring.hotpink"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.hotpink');">
+        <a href="#momapy.coloring.hotpink" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;hotpink
         </a>
         
 
         
-        <a href="#momapy.coloring.indianred"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.indianred');">
+        <a href="#momapy.coloring.indianred" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;indianred
         </a>
         
 
         
-        <a href="#momapy.coloring.indigo"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.indigo');">
+        <a href="#momapy.coloring.indigo" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;indigo
         </a>
         
 
         
-        <a href="#momapy.coloring.ivory"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.ivory');">
+        <a href="#momapy.coloring.ivory" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;ivory
         </a>
         
 
         
-        <a href="#momapy.coloring.khaki"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.khaki');">
+        <a href="#momapy.coloring.khaki" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;khaki
         </a>
         
 
         
-        <a href="#momapy.coloring.lavender"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.lavender');">
+        <a href="#momapy.coloring.lavender" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;lavender
         </a>
         
 
         
-        <a href="#momapy.coloring.lavenderblush"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.lavenderblush');">
+        <a href="#momapy.coloring.lavenderblush" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;lavenderblush
         </a>
         
 
         
-        <a href="#momapy.coloring.lawngreen"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.lawngreen');">
+        <a href="#momapy.coloring.lawngreen" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;lawngreen
         </a>
         
 
         
-        <a href="#momapy.coloring.lemonchiffon"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.lemonchiffon');">
+        <a href="#momapy.coloring.lemonchiffon" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;lemonchiffon
         </a>
         
 
         
-        <a href="#momapy.coloring.lightblue"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.lightblue');">
+        <a href="#momapy.coloring.lightblue" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;lightblue
         </a>
         
 
         
-        <a href="#momapy.coloring.lightcoral"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.lightcoral');">
+        <a href="#momapy.coloring.lightcoral" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;lightcoral
         </a>
         
 
         
-        <a href="#momapy.coloring.lightcyan"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.lightcyan');">
+        <a href="#momapy.coloring.lightcyan" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;lightcyan
         </a>
         
 
         
-        <a href="#momapy.coloring.lightgoldenrodyellow"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.lightgoldenrodyellow');">
+        <a href="#momapy.coloring.lightgoldenrodyellow" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;lightgoldenrodyellow
         </a>
         
 
         
-        <a href="#momapy.coloring.lightgray"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.lightgray');">
+        <a href="#momapy.coloring.lightgray" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;lightgray
         </a>
         
 
         
-        <a href="#momapy.coloring.lightgreen"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.lightgreen');">
+        <a href="#momapy.coloring.lightgreen" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;lightgreen
         </a>
         
 
         
-        <a href="#momapy.coloring.lightgrey"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.lightgrey');">
+        <a href="#momapy.coloring.lightgrey" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;lightgrey
         </a>
         
 
         
-        <a href="#momapy.coloring.lightpink"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.lightpink');">
+        <a href="#momapy.coloring.lightpink" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;lightpink
         </a>
         
 
         
-        <a href="#momapy.coloring.lightsalmon"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.lightsalmon');">
+        <a href="#momapy.coloring.lightsalmon" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;lightsalmon
         </a>
         
 
         
-        <a href="#momapy.coloring.lightseagreen"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.lightseagreen');">
+        <a href="#momapy.coloring.lightseagreen" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;lightseagreen
         </a>
         
 
         
-        <a href="#momapy.coloring.lightskyblue"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.lightskyblue');">
+        <a href="#momapy.coloring.lightskyblue" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;lightskyblue
         </a>
         
 
         
-        <a href="#momapy.coloring.lightslategray"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.lightslategray');">
+        <a href="#momapy.coloring.lightslategray" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;lightslategray
         </a>
         
 
         
-        <a href="#momapy.coloring.lightsteelblue"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.lightsteelblue');">
+        <a href="#momapy.coloring.lightsteelblue" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;lightsteelblue
         </a>
         
 
         
-        <a href="#momapy.coloring.lightyellow"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.lightyellow');">
+        <a href="#momapy.coloring.lightyellow" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;lightyellow
         </a>
         
 
         
-        <a href="#momapy.coloring.lime"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.lime');">
+        <a href="#momapy.coloring.lime" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;lime
         </a>
         
 
         
-        <a href="#momapy.coloring.limegreen"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.limegreen');">
+        <a href="#momapy.coloring.limegreen" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;limegreen
         </a>
         
 
         
-        <a href="#momapy.coloring.linen"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.linen');">
+        <a href="#momapy.coloring.linen" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;linen
         </a>
         
 
         
-        <a href="#momapy.coloring.list_colors"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.list_colors');">
+        <a href="#momapy.coloring.list_colors" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;list_colors
         </a>
         
 
         
-        <a href="#momapy.coloring.magenta"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.magenta');">
+        <a href="#momapy.coloring.magenta" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;magenta
         </a>
         
 
         
-        <a href="#momapy.coloring.maroon"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.maroon');">
+        <a href="#momapy.coloring.maroon" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;maroon
         </a>
         
 
         
-        <a href="#momapy.coloring.mediumaquamarine"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.mediumaquamarine');">
+        <a href="#momapy.coloring.mediumaquamarine" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;mediumaquamarine
         </a>
         
 
         
-        <a href="#momapy.coloring.mediumblue"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.mediumblue');">
+        <a href="#momapy.coloring.mediumblue" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;mediumblue
         </a>
         
 
         
-        <a href="#momapy.coloring.mediumorchid"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.mediumorchid');">
+        <a href="#momapy.coloring.mediumorchid" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;mediumorchid
         </a>
         
 
         
-        <a href="#momapy.coloring.mediumpurple"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.mediumpurple');">
+        <a href="#momapy.coloring.mediumpurple" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;mediumpurple
         </a>
         
 
         
-        <a href="#momapy.coloring.mediumseagreen"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.mediumseagreen');">
+        <a href="#momapy.coloring.mediumseagreen" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;mediumseagreen
         </a>
         
 
         
-        <a href="#momapy.coloring.mediumslateblue"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.mediumslateblue');">
+        <a href="#momapy.coloring.mediumslateblue" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;mediumslateblue
         </a>
         
 
         
-        <a href="#momapy.coloring.mediumspringgreen"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.mediumspringgreen');">
+        <a href="#momapy.coloring.mediumspringgreen" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;mediumspringgreen
         </a>
         
 
         
-        <a href="#momapy.coloring.mediumturquoise"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.mediumturquoise');">
+        <a href="#momapy.coloring.mediumturquoise" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;mediumturquoise
         </a>
         
 
         
-        <a href="#momapy.coloring.mediumvioletred"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.mediumvioletred');">
+        <a href="#momapy.coloring.mediumvioletred" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;mediumvioletred
         </a>
         
 
         
-        <a href="#momapy.coloring.midnightblue"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.midnightblue');">
+        <a href="#momapy.coloring.midnightblue" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;midnightblue
         </a>
         
 
         
-        <a href="#momapy.coloring.mintcream"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.mintcream');">
+        <a href="#momapy.coloring.mintcream" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;mintcream
         </a>
         
 
         
-        <a href="#momapy.coloring.mistyrose"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.mistyrose');">
+        <a href="#momapy.coloring.mistyrose" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;mistyrose
         </a>
         
 
         
-        <a href="#momapy.coloring.moccasin"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.moccasin');">
+        <a href="#momapy.coloring.moccasin" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;moccasin
         </a>
         
 
         
-        <a href="#momapy.coloring.navajowhite"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.navajowhite');">
+        <a href="#momapy.coloring.navajowhite" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;navajowhite
         </a>
         
 
         
-        <a href="#momapy.coloring.navy"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.navy');">
+        <a href="#momapy.coloring.navy" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;navy
         </a>
         
 
         
-        <a href="#momapy.coloring.oldlace"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.oldlace');">
+        <a href="#momapy.coloring.oldlace" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;oldlace
         </a>
         
 
         
-        <a href="#momapy.coloring.olive"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.olive');">
+        <a href="#momapy.coloring.olive" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;olive
         </a>
         
 
         
-        <a href="#momapy.coloring.olivedrab"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.olivedrab');">
+        <a href="#momapy.coloring.olivedrab" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;olivedrab
         </a>
         
 
         
-        <a href="#momapy.coloring.orange"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.orange');">
+        <a href="#momapy.coloring.orange" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;orange
         </a>
         
 
         
-        <a href="#momapy.coloring.orangered"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.orangered');">
+        <a href="#momapy.coloring.orangered" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;orangered
         </a>
         
 
         
-        <a href="#momapy.coloring.orchid"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.orchid');">
+        <a href="#momapy.coloring.orchid" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;orchid
         </a>
         
 
         
-        <a href="#momapy.coloring.palegoldenrod"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.palegoldenrod');">
+        <a href="#momapy.coloring.palegoldenrod" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;palegoldenrod
         </a>
         
 
         
-        <a href="#momapy.coloring.palegreen"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.palegreen');">
+        <a href="#momapy.coloring.palegreen" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;palegreen
         </a>
         
 
         
-        <a href="#momapy.coloring.paleturquoise"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.paleturquoise');">
+        <a href="#momapy.coloring.paleturquoise" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;paleturquoise
         </a>
         
 
         
-        <a href="#momapy.coloring.palevioletred"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.palevioletred');">
+        <a href="#momapy.coloring.palevioletred" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;palevioletred
         </a>
         
 
         
-        <a href="#momapy.coloring.papayawhip"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.papayawhip');">
+        <a href="#momapy.coloring.papayawhip" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;papayawhip
         </a>
         
 
         
-        <a href="#momapy.coloring.peachpuff"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.peachpuff');">
+        <a href="#momapy.coloring.peachpuff" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;peachpuff
         </a>
         
 
         
-        <a href="#momapy.coloring.peru"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.peru');">
+        <a href="#momapy.coloring.peru" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;peru
         </a>
         
 
         
-        <a href="#momapy.coloring.pink"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.pink');">
+        <a href="#momapy.coloring.pink" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;pink
         </a>
         
 
         
-        <a href="#momapy.coloring.plum"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.plum');">
+        <a href="#momapy.coloring.plum" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;plum
         </a>
         
 
         
-        <a href="#momapy.coloring.powderblue"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.powderblue');">
+        <a href="#momapy.coloring.powderblue" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;powderblue
         </a>
         
 
         
-        <a href="#momapy.coloring.print_colors"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.print_colors');">
+        <a href="#momapy.coloring.print_colors" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;print_colors
         </a>
         
 
         
-        <a href="#momapy.coloring.purple"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.purple');">
+        <a href="#momapy.coloring.purple" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;purple
         </a>
         
 
         
-        <a href="#momapy.coloring.red"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.red');">
+        <a href="#momapy.coloring.red" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;red
         </a>
         
 
         
-        <a href="#momapy.coloring.rosybrown"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.rosybrown');">
+        <a href="#momapy.coloring.rosybrown" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;rosybrown
         </a>
         
 
         
-        <a href="#momapy.coloring.royalblue"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.royalblue');">
+        <a href="#momapy.coloring.royalblue" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;royalblue
         </a>
         
 
         
-        <a href="#momapy.coloring.saddlebrown"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.saddlebrown');">
+        <a href="#momapy.coloring.saddlebrown" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;saddlebrown
         </a>
         
 
         
-        <a href="#momapy.coloring.salmon"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.salmon');">
+        <a href="#momapy.coloring.salmon" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;salmon
         </a>
         
 
         
-        <a href="#momapy.coloring.sandybrown"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.sandybrown');">
+        <a href="#momapy.coloring.sandybrown" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;sandybrown
         </a>
         
 
         
-        <a href="#momapy.coloring.seagreen"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.seagreen');">
+        <a href="#momapy.coloring.seagreen" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;seagreen
         </a>
         
 
         
-        <a href="#momapy.coloring.seashell"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.seashell');">
+        <a href="#momapy.coloring.seashell" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;seashell
         </a>
         
 
         
-        <a href="#momapy.coloring.sienna"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.sienna');">
+        <a href="#momapy.coloring.sienna" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;sienna
         </a>
         
 
         
-        <a href="#momapy.coloring.silver"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.silver');">
+        <a href="#momapy.coloring.silver" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;silver
         </a>
         
 
         
-        <a href="#momapy.coloring.skyblue"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.skyblue');">
+        <a href="#momapy.coloring.skyblue" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;skyblue
         </a>
         
 
         
-        <a href="#momapy.coloring.slateblue"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.slateblue');">
+        <a href="#momapy.coloring.slateblue" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;slateblue
         </a>
         
 
         
-        <a href="#momapy.coloring.slategray"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.slategray');">
+        <a href="#momapy.coloring.slategray" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;slategray
         </a>
         
 
         
-        <a href="#momapy.coloring.snow"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.snow');">
+        <a href="#momapy.coloring.snow" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;snow
         </a>
         
 
         
-        <a href="#momapy.coloring.springgreen"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.springgreen');">
+        <a href="#momapy.coloring.springgreen" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;springgreen
         </a>
         
 
         
-        <a href="#momapy.coloring.steelblue"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.steelblue');">
+        <a href="#momapy.coloring.steelblue" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;steelblue
         </a>
         
 
         
-        <a href="#momapy.coloring.tan"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.tan');">
+        <a href="#momapy.coloring.tan" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;tan
         </a>
         
 
         
-        <a href="#momapy.coloring.teal"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.teal');">
+        <a href="#momapy.coloring.teal" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;teal
         </a>
         
 
         
-        <a href="#momapy.coloring.thistle"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.thistle');">
+        <a href="#momapy.coloring.thistle" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;thistle
         </a>
         
 
         
-        <a href="#momapy.coloring.tomato"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.tomato');">
+        <a href="#momapy.coloring.tomato" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;tomato
         </a>
         
 
         
-        <a href="#momapy.coloring.turquoise"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.turquoise');">
+        <a href="#momapy.coloring.turquoise" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;turquoise
         </a>
         
 
         
-        <a href="#momapy.coloring.violet"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.violet');">
+        <a href="#momapy.coloring.violet" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;violet
         </a>
         
 
         
-        <a href="#momapy.coloring.wheat"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.wheat');">
+        <a href="#momapy.coloring.wheat" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;wheat
         </a>
         
 
         
-        <a href="#momapy.coloring.white"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.white');">
+        <a href="#momapy.coloring.white" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;white
         </a>
         
 
         
-        <a href="#momapy.coloring.whitesmoke"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.whitesmoke');">
+        <a href="#momapy.coloring.whitesmoke" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;whitesmoke
         </a>
         
 
         
-        <a href="#momapy.coloring.yellow"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.yellow');">
+        <a href="#momapy.coloring.yellow" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;yellow
         </a>
         
 
         
-        <a href="#momapy.coloring.yellowgreen"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.coloring.yellowgreen');">
+        <a href="#momapy.coloring.yellowgreen" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;yellowgreen
         </a>
         
@@ -12583,7 +12181,6 @@ Defaults to False.</p>
                                 
                                 
                             </div>
-
                         </div>
                     </div>
                 </div>

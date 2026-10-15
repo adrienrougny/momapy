@@ -4,9 +4,7 @@
 
 <head>
     <script>
-        /* const base_url = "https://adrienrougny.github.io/momapy/latest"; */
         const base_url = (new URL("..", window.location)).href.replace(/\/+$/, ""); /* for search plugin notably */
-        /* const root_relative_url = ".."; */
     </script>
     <script integrity="sha384-m6cZ+Whl1ci89lidlu8DH4C+sZLNOYBvImtjUIhUK+iaNffXhqtbYgBVuuPfRsa0" src="../js/dark.js"></script>
 
@@ -77,8 +75,10 @@
 
     
 
-    <script integrity="sha384-V2jkXRy811qODUbfkLlkVJYBbf4h6XHAEjcU6ReASBPrJvTrlYh4GrI4t6GCju6n"
+    <script integrity="sha384-2hn3q9jeDV70Gb3DuyWPKgeRxkowIjEpcHeOXSvWCEq2uHJHvXiVer7rbM8HYzYz"
         src="../js/callbacks.js"></script>
+    <script defer="" integrity="sha384-ljmRPFWw/c4kKFaKY5DIe8bgppHI9VBBrg7WZa8UPd23U9dEFesxZ1Ng8Hzjq2WB"
+        src="../js/toc.js"></script>
 
     
 
@@ -110,36 +110,35 @@
 </head>
 
 <body
-    class="text-foreground group/body overscroll-none font-sans antialiased [--footer-height:calc(var(--spacing)*14)] [--header-height:calc(var(--spacing)*14)] xl:[--footer-height:calc(var(--spacing)*24)] theme-default">
+    class="text-foreground group/body overscroll-none font-sans antialiased [--footer-height:calc(var(--spacing)*14)] [--header-height:calc(var(--spacing)*14)] lg:[--header-height:calc(var(--spacing)*16)] xl:[--footer-height:calc(var(--spacing)*24)] theme-default">
     <div class="bg-background relative z-10 flex min-h-svh flex-col" id="inner-body">
         <header class="bg-background sticky top-0 z-50 w-full" view-transition-name="header">
     <div class="container-wrapper 3xl:fixed:px-0 px-6">
         <div class="3xl:fixed:container flex h-(--header-height) items-center gap-2 **:data-[slot=separator]:!h-4">
-            <button id="menu-button" data-slot="popover-trigger" onclick="onMobileMenuButtonClick(event)"
-                class="group whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:text-accent-foreground px-4 py-2 has-[&gt;svg]:px-3 extend-touch-target h-8 touch-manipulation items-center justify-start gap-2.5 !p-0 hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 active:bg-transparent dark:hover:bg-transparent flex lg:hidden"
-                type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="radix-«Rmplb»"
-                data-state="closed">
-                <div class="relative flex h-8 w-4 items-center justify-center">
-                    <div class="relative size-4">
-                        <!-- 16px x 16px -->
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="0" x2="16" y1="5" y2="5"
-                                class="group-data-[state=open]:translate-y-[2.25px] group-data-[state=open]:-translate-x-[2.25px] group-data-[state=open]:rotate-45 transition-all duration-300 origin-center" />
-                            <line x1="0" x2="16" y1="11" y2="11"
-                                class="group-data-[state=open]:-translate-y-[2.25px] group-data-[state=open]:-translate-x-[2.25px] group-data-[state=open]:-rotate-45 transition-all duration-300 origin-center" />
-                        </svg>
-                    </div>
+            <button id="burger-button" data-slot="popover-trigger" onclick="onMobileMenuButtonClick(event)" class="group"
+    
+    type="button" aria-haspopup="dialog" data-state="closed">
+    <div class="relative flex h-8 w-4 items-center justify-center">
+        <div class="relative size-4">
+            <!-- 16px x 16px -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="0" x2="16" y1="5" y2="5"
+                    class="group-data-[state=open]:translate-y-[2.25px] group-data-[state=open]:-translate-x-[2.25px] group-data-[state=open]:rotate-45 transition-all duration-300 origin-center" />
+                <line x1="0" x2="16" y1="11" y2="11"
+                    class="group-data-[state=open]:-translate-y-[2.25px] group-data-[state=open]:-translate-x-[2.25px] group-data-[state=open]:-rotate-45 transition-all duration-300 origin-center" />
+            </svg>
+        </div>
 
-                    <span class="sr-only">Toggle Menu</span>
-                </div>
-                <span class="flex h-8 items-center text-lg leading-none font-medium">Menu</span>
-            </button>
-            <a data-slot="button"
-                class="items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-5 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 hidden h-8 lg:flex"
-                href="https://adrienrougny.github.io/momapy/latest">
-                <span class="size-8 flex flex-row justify-center items-center">
-                    
+        <span class="sr-only">Toggle Menu</span>
+    </div>
+    <span class="flex h-8 items-center text-lg leading-none font-medium">Menu</span>
+</button>
+            <a data-slot="button" class="button ghost gap-2 hidden lg:flex"
+    
+    href="https://adrienrougny.github.io/momapy/latest">
+    <span class="flex flex-row justify-center items-center">
+        
 
 
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -155,19 +154,19 @@
 
 
 
-                </span>
+    </span>
 
-                
-                <h1 class="pr-2"><span class="momapy-brand"><span class="momapy-brand-moma">Moma</span><span class="momapy-brand-py">Py</span></span></h1>
-                
-            </a>
+    
+    <h1><span class="momapy-brand"><span class="momapy-brand-moma">Moma</span><span class="momapy-brand-py">Py</span></span></h1>
+    
+</a>
             
             <nav class="items-center gap-0.5 hidden lg:flex">
     
     
     
-    <a class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 h-8 rounded-md gap-1.5 px-3 has-[&gt;svg]:px-2.5"
-        data-slot="button" href="../api_reference/">
+    
+    <a class="ghost button" href="../api_reference/">
         API reference
     </a>
     
@@ -178,29 +177,27 @@
                 <div class="hidden w-full flex-1 md:flex md:w-auto md:flex-none">
                     <div class="hidden w-full flex-1 md:flex md:w-auto md:flex-none">
     <button onclick="onSearchBarClick(event)" data-slot="dialog-trigger" data-variant="outline" data-size="default"
-        class="inline-flex shrink-0 items-center gap-2 text-sm whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&amp;_svg]:pointer-events-none [&amp;_svg]:shrink-0 [&amp;_svg:not([class*='size-'])]:size-4 border bg-background hover:text-accent-foreground dark:border-input dark:hover:bg-input/50 px-4 py-2 has-[&gt;svg]:px-3 relative h-8 w-full justify-start rounded-lg pl-3 font-normal text-foreground shadow-none hover:bg-muted/50 sm:pr-12 md:w-48 lg:w-56 xl:w-64 dark:bg-card"
-        type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="radix-_r_1_" data-state="closed">
-        <span class="hidden lg:inline-flex">Search documentation...</span>
-        <span class="inline-flex lg:hidden">Search...</span>
-    </button>
+    class="search secondary" type="button" aria-haspopup="dialog" aria-controls="search-dialog" data-state="closed">
+    <span class="hidden lg:inline-flex">Search documentation...</span>
+    <span class="inline-flex lg:hidden">Search...</span>
+</button>
 </div>
 <dialog id="search-dialog" onclick="onSearchDialogClick(event)"
     class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-background rounded-lg shadow-lg border overflow-hidden p-0">
     <div class="w-lg gap-4">
         <div class="flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground">
-            <div data-slot="command-input-wrapper" class="flex h-9 items-center gap-2 border-b px-3"><svg
-                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-search size-4 shrink-0 opacity-50">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <path d="m21 21-4.3-4.3"></path>
-                </svg>
+            <div data-slot="command-input-wrapper" class="flex h-9 items-center gap-2 border-b px-3">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+    class="lucide lucide-search size-4 shrink-0 opacity-50">
+    <circle cx="11" cy="11" r="8"></circle>
+    <path d="m21 21-4.3-4.3"></path>
+</svg>
                 <input data-slot="command-input"
                     class="placeholder:text-muted-foreground flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
                     placeholder="Search documentation..." cmdk-input="" autocomplete="off" autocorrect="off"
-                    spellcheck="false" aria-autocomplete="list" role="combobox" aria-expanded="true"
-                    aria-controls="radix-«r1t6»" aria-labelledby="radix-«r1t7»" id="radix-«r1t8»" type="text" value=""
-                    aria-activedescendant="radix-«r1th»" oninput="onInputHandler(event)">
+                    spellcheck="false" aria-label="Search documentation" type="search" value=""
+                    oninput="onInputHandler(event)">
             </div>
         </div>
         <div id="mkdocs-search-results">
@@ -214,46 +211,44 @@
 </script>
                 </div>
                 
-                <div data-orientation="vertical" role="none" data-slot="separator"
-                    class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px 3xl:flex hidden">
-                </div>
                 
+
+
+                
+                <div data-orientation="vertical" role="none" data-slot="separator"
+    class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px">
+</div>
                 <select id="version-selector" onchange="selectVersion(event.target.value)"></select>
 <script integrity="sha384-YU6TPf0CfFfbisdIHfkqTtPxu1sZc0K/F0h3GhS/UPVULZs1DqhjPpInpkcpR9rk" src="../js/version-select.js"></script>
-                <div data-orientation="vertical" role="none" data-slot="separator"
-                    class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px 3xl:flex hidden">
-                </div>
                 
-                <button data-slot="button"
-                    class="items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 size-8 3xl:flex hidden"
-                    title="Toggle layout" onclick="toggleLayout(event)">
-                    <span class="sr-only">Toggle layout</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                        class="lucide lucide-gallery-horizontal">
-                        <path d="M2 3v18"></path>
-                        <rect width="12" height="18" x="6" y="3" rx="2"></rect>
-                        <path d="M22 3v18"></path>
-                    </svg>
-                </button>
+
                 <div data-orientation="vertical" role="none" data-slot="separator"
-                    class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px">
-                </div>
-                <button data-slot="button"
-                    class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 group/toggle extend-touch-target size-8"
-                    title="Toggle theme" onclick="onThemeSwitch(event)">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                        class="size-4.5">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path>
-                        <path d="M12 3l0 18"></path>
-                        <path d="M12 9l4.65 -4.65"></path>
-                        <path d="M12 14.3l7.37 -7.37"></path>
-                        <path d="M12 19.6l8.85 -8.85"></path>
-                    </svg>
-                    <span class="sr-only">Toggle theme</span>
-                </button>
+    class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px">
+</div>
+                <button class="ghost icon" title="Toggle layout" onclick="toggleLayout(event)">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+    class="lucide lucide-gallery-horizontal">
+    <path d="M2 3v18"></path>
+    <rect width="12" height="18" x="6" y="3" rx="2"></rect>
+    <path d="M22 3v18"></path>
+</svg>
+</button>
+                <div data-orientation="vertical" role="none" data-slot="separator"
+    class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px">
+</div>
+                <button class="ghost icon" onclick="onThemeSwitch(event)" title="Toggle theme">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+    class="size-4.5">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path>
+    <path d="M12 3l0 18"></path>
+    <path d="M12 9l4.65 -4.65"></path>
+    <path d="M12 14.3l7.37 -7.37"></path>
+    <path d="M12 19.6l8.85 -8.85"></path>
+</svg>
+</button>
             </div>
         </div>
     </div>
@@ -263,7 +258,7 @@
                 <div class="group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex w-full 3xl:fixed:container 3xl:fixed:px-3 min-h-min flex-1 items-start px-0 [--sidebar-width:220px] [--top-spacing:0] lg:grid lg:grid-cols-[var(--sidebar-width)_minmax(0,1fr)] lg:[--sidebar-width:240px] lg:[--top-spacing:calc(var(--spacing)*4)]"
                     data-slot="sidebar-wrapper"
                     style="--sidebar-width:calc(var(--spacing) * 72);--sidebar-width-icon:3rem;">
-                    <div class="w-(--sidebar-width) flex-col text-sidebar-foreground sticky top-[calc(var(--header-height)+0.6rem)] z-30 hidden h-[calc(100svh-10rem)] overscroll-none bg-transparent [--sidebar-menu-width:--spacing(56)] lg:flex"
+                    <div class="w-(--sidebar-width) flex-col text-sidebar-foreground sticky top-[calc(var(--header-height)+0.6rem)] z-30 hidden max-h-[calc(100svh-10rem)] overscroll-none bg-transparent [--sidebar-menu-width:--spacing(56)] lg:flex"
                         data-slot="sidebar">
                         <div class="h-9"></div>
                         <div
@@ -299,15 +294,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href=".."
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         Home
         
-
         
-
         
-
         
     </a>
 </li>
@@ -319,15 +310,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../user_manual/main/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         User manual
         
-
         
-
         
-
         
     </a>
 </li>
@@ -339,15 +326,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../styling/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         Styling
         
-
         
-
         
-
         
     </a>
 </li>
@@ -359,15 +342,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../cli/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         CLI reference
         
-
         
-
         
-
         
     </a>
 </li>
@@ -379,15 +358,11 @@
     <a data-slot="sidebar-menu-button" data-active="true" data-sidebar="menu-button"
         data-size="default" href="./"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         Changelog
         
-
         
-
         
-
         
     </a>
 </li>
@@ -399,15 +374,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../about/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         About
         
-
         
-
         
-
         
     </a>
 </li>
@@ -430,7 +401,6 @@
                     </div>
                     <div class="h-full w-full">
                         <div class="flex items-stretch text-[1.05rem] sm:text-[15px] xl:w-full" data-slot="docs">
-
                             <div class="flex min-w-0 flex-1 flex-col">
                                 <div class="h-(--top-spacing) shrink-0"></div>
                                 
@@ -442,12 +412,11 @@
         <h1 class="scroll-m-20 text-4xl font-semibold tracking-tight sm:text-3xl xl:text-4xl">
           Changelog
         </h1>
-
-        <div class="flex items-center gap-2 pt-1.5">
+        <div class="flex items-start gap-2">
           
-          <button
-    onclick="fetch(`..`).then((r) => r.text()).then((text) => navigator.clipboard.write([new ClipboardItem({ 'text/plain': text })]))"
-    data-slot="button" class="secondary cursor-pointer">
+          <button id="copy-page"
+    onclick="fetch(`https://adrienrougny.github.io/momapy/latest/CHANGELOG.md`).then((r) => r.text()).then((text) => navigator.clipboard.write([new ClipboardItem({ 'text/plain': text })]))"
+    data-slot="button" class="secondary cursor-pointer sm">
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-copy ">
         <path
@@ -459,32 +428,28 @@
 </button>
           
           
-          <a data-slot="button" id="previous-button"
-            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-secondary text-secondary-foreground hover:bg-secondary/80 extend-touch-target size-8 shadow-none md:size-7"
-            href="../api_reference/sbml/io/sbml/">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              class="tabler-icon tabler-icon-arrow-left">
-              <path d="M5 12l14 0"></path>
-              <path d="M5 12l6 6"></path>
-              <path d="M5 12l6 -6"></path>
-            </svg>
-            <span class="sr-only">Previous</span>
-          </a>
+          <a id="previous-button" class="button secondary icon sm" href="../api_reference/sbml/io/sbml/">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+    class="tabler-icon tabler-icon-arrow-left">
+    <path d="M5 12l14 0"></path>
+    <path d="M5 12l6 6"></path>
+    <path d="M5 12l6 -6"></path>
+</svg>
+    <span class="sr-only">Previous</span>
+</a>
           
           
-          <a data-slot="button" id="next-button"
-            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-secondary text-secondary-foreground hover:bg-secondary/80 extend-touch-target size-8 shadow-none md:size-7"
-            href="../about/">
-            <span class="sr-only">Next</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              class="tabler-icon tabler-icon-arrow-right">
-              <path d="M5 12l14 0"></path>
-              <path d="M13 18l6 -6"></path>
-              <path d="M13 6l6 6"></path>
-            </svg>
-          </a>
+          <a id="next-button" class="button secondary icon sm" href="../about/">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+    class="tabler-icon tabler-icon-arrow-right">
+    <path d="M5 12l14 0"></path>
+    <path d="M13 18l6 -6"></path>
+    <path d="M13 6l6 6"></path>
+</svg>
+    <span class="sr-only">Next</span>
+</a>
           
         </div>
       </div>
@@ -492,6 +457,7 @@
     </div>
     <div class="flex justify-end items-center">
       
+
       
     </div>
   </div>
@@ -501,26 +467,56 @@
 <p>The format is based on <a href="https://keepachangelog.com/">Keep a Changelog</a>,
 and this project adheres to <a href="https://www.conventionalcommits.org/">Conventional Commits</a>.</p>
 <h2 id="unreleased">[Unreleased]</h2>
+<h3 id="added">Added</h3>
+<ul>
+<li>Read pickles only on request, write text to stdout by default <em>(io)</em> <strong>BREAKING</strong></li>
+</ul>
+<h3 id="cicd">CI/CD</h3>
+<ul>
+<li>Run one job per OS and Python version, cache uv and tox <em>(tests)</em></li>
+</ul>
+<h3 id="documentation">Documentation</h3>
+<ul>
+<li>Update the reactant and product ids in the reader docstring <em>(celldesigner.io)</em></li>
+</ul>
 <h3 id="fixed">Fixed</h3>
+<ul>
+<li>Write the fill of degraded species instead of a hardcoded green <em>(celldesigner.io)</em></li>
+<li>Read and write palmitoylation with CellDesigner's palmytoylated spelling <em>(celldesigner.io)</em></li>
+<li>Write the cat. reac., gate inp. lines and partic. metaids of each drawn copy <em>(celldesigner.io)</em></li>
+<li>Keep one arc and one metaid per drawing of a modifier <em>(celldesigner.io)</em></li>
+<li>Give a degraded species the compartment of a complex on the other side <em>(celldesigner.io)</em></li>
+<li>Write the participants of a drawn reaction from the model, not the arcs <em>(celldesigner.io)</em></li>
+<li>Read a species used several times on a reaction side as one participant <em>(celldesigner.io)</em></li>
+<li>Take the compartment drawing of a species from the model, not from geometry <em>(io)</em></li>
+<li>Take species compartments from the model instead of writing default <em>(celldesigner.io)</em></li>
+<li>Detect XML formats from the root element, not from a substring search <em>(io)</em></li>
+</ul>
+<h3 id="testing">Testing</h3>
+<ul>
+<li>Cover SBML detection of newline-split and prefixed root tags <em>(sbml.io)</em></li>
+</ul>
+<h2 id="0151-2026-10-08">[0.15.1] - 2026-10-08</h2>
+<h3 id="fixed_1">Fixed</h3>
 <ul>
 <li>Write unspecified entity subunits and generic AF units of information <em>(sbgn.io.sbgnml)</em></li>
 </ul>
 <h2 id="0150-2026-10-02">[0.15.0] - 2026-10-02</h2>
-<h3 id="added">Added</h3>
+<h3 id="added_1">Added</h3>
 <ul>
 <li>Added SVG stroke-linejoin and stroke-linecap <em>(drawing)</em></li>
 <li>Added SVG-like linear and radial gradients with CSS gradient functions <em>(drawing)</em></li>
 </ul>
-<h3 id="cicd">CI/CD</h3>
+<h3 id="cicd_1">CI/CD</h3>
 <ul>
 <li>Install mkdocs-shadcn in the docs deploy workflows <em>(docs)</em></li>
 </ul>
-<h3 id="documentation">Documentation</h3>
+<h3 id="documentation_1">Documentation</h3>
 <ul>
 <li>Add a how-to-cite section with a BibTeX entry <em>(about)</em></li>
 <li>Move the docs to the shadcn theme with <span class="momapy-brand"><span class="momapy-brand-moma">Moma</span><span class="momapy-brand-py">Py</span></span> branding and framed code</li>
 </ul>
-<h3 id="fixed_1">Fixed</h3>
+<h3 id="fixed_2">Fixed</h3>
 <ul>
 <li>Place labels from their label bbox when present <em>(sbgn.io.sbgnml)</em></li>
 <li>Compute TextLayout bbox without intermediate rounding <em>(core)</em></li>
@@ -546,18 +542,18 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <ul>
 <li>Representative naming, public table, key-shape fixes <em>(mapping)</em> <strong>BREAKING</strong></li>
 </ul>
-<h3 id="fixed_2">Fixed</h3>
+<h3 id="fixed_3">Fixed</h3>
 <ul>
 <li>Keep model-keyed annotations when returning a model <em>(io.pickle)</em></li>
 </ul>
-<h3 id="testing">Testing</h3>
+<h3 id="testing_1">Testing</h3>
 <ul>
 <li>Cover annotation and notes filtering on projection <em>(io.pickle)</em></li>
 </ul>
 <h2 id="0130-2026-08-06">[0.13.0] - 2026-08-06</h2>
-<h3 id="added_1">Added</h3>
+<h3 id="added_2">Added</h3>
 <ul>
-<li>Support Bbox in the directional <em>_of functions </em>(positioning)*</li>
+<li>Support Bbox in the directional *_of functions <em>(positioning)</em></li>
 <li>Support pretty_print(max_depth=None) for unlimited depth <em>(utils)</em></li>
 <li>Support info on SBML maps and fail cleanly on unsupported types <em>(cli)</em></li>
 <li>Add -T/--text to emit XML to stdout instead of pickle <em>(cli)</em></li>
@@ -580,7 +576,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Fit delegates bbox merging to Bbox.union <em>(positioning)</em></li>
 <li>Drop the never-read sbml_id_to_sbml_element context state <em>(sbml.io)</em></li>
 <li>Drop redundant <strong>all</strong> from io/core.py <em>(io)</em></li>
-<li>Rename data-transform make_<em> helpers to get_</em> <em>(celldesigner.io)</em></li>
+<li>Rename data-transform make_* helpers to get_* <em>(celldesigner.io)</em></li>
 <li>Rename builtin-shadowing filter field to filter_</li>
 <li>Drop vestigial Compartment.state_variables field <em>(sbgn.pd)</em></li>
 <li>Compose TagLayout from SBGNNode instead of PD TagLayout <em>(sbgn.af)</em></li>
@@ -598,7 +594,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Make Terminal extend SBGNAuxiliaryUnit like PD <em>(sbgn.af)</em></li>
 <li>Move list-attributes presentation flag to -P <em>(cli)</em></li>
 <li>Extract KEY_TO_CLASS to _reading_classification <em>(celldesigner.io)</em></li>
-<li>Make make_empty_<em> reader classmethods </em>(celldesigner.io)*</li>
+<li>Make make_empty_* reader classmethods <em>(celldesigner.io)</em></li>
 <li>Rename build_make_sbml_element to make_sbml_document <em>(celldesigner.io)</em></li>
 <li>Align XML-helper arg names with sbgnml <em>(celldesigner.io)</em></li>
 <li>Move file-existence check to utils.check_file_exists <em>(io)</em></li>
@@ -623,7 +619,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Add type hints to pretty_print, display, _prepare_layout_elements</li>
 <li>Add TypeVar and signatures to collection generics <em>(utils)</em></li>
 <li>Populate all ReaderResult fields in read <em>(sbml.io)</em></li>
-<li>Annotate *<em>options on abstract Writer.write </em>(io)*</li>
+<li>Annotate **options on abstract Writer.write <em>(io)</em></li>
 <li>Annotate is_submodel other param <em>(sbgn.pd)</em></li>
 <li>Mark register_model_element internal as _register_model_element <em>(io)</em></li>
 <li>Declare public <strong>all</strong> for nodes, arcs, shapes <em>(meta)</em></li>
@@ -639,12 +635,12 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Drop keyword-only marker from tidy helpers <em>(sbgn,celldesigner)</em></li>
 <li>Make Renderer.render_map a concrete convenience method <em>(rendering)</em></li>
 <li>Add <strong>all</strong> to flat modules, re-export plugins, document meta</li>
-<li>Drop dead with_render_information, accept-and-ignore *<em>options uniformly </em>(io)*</li>
+<li>Drop dead with_render_information, accept-and-ignore **options uniformly <em>(io)</em></li>
 <li>Remove dead monitoring module, fix Builder eq/hash <em>(builder)</em></li>
 <li>Make Model abstract via abc.ABC <em>(core)</em></li>
 <li>Add SupportsFileOutput mixin for file-output capability; unify from_file <em>(rendering)</em></li>
 </ul>
-<h3 id="documentation_1">Documentation</h3>
+<h3 id="documentation_2">Documentation</h3>
 <ul>
 <li>Fix three stale CellDesigner/SBGN-AF inventory entries <em>(api-reference)</em></li>
 <li>Fix inaccurate and copy-paste field/module docstrings</li>
@@ -718,7 +714,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Drop stale result.exceptions reference</li>
 <li>Reframe I/O make_* as internal helpers, not public contract</li>
 </ul>
-<h3 id="fixed_3">Fixed</h3>
+<h3 id="fixed_4">Fixed</h3>
 <ul>
 <li>Detect file format independently of the locale encoding <em>(io)</em></li>
 <li>Pin ruff to the 0.14 line for the lint gate <em>(ci)</em></li>
@@ -829,7 +825,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Del leaked registration loop variables <em>(io,rendering)</em></li>
 </ul>
 <h2 id="0120-2026-06-15">[0.12.0] - 2026-06-15</h2>
-<h3 id="added_2">Added</h3>
+<h3 id="added_3">Added</h3>
 <ul>
 <li>Expose display() and print_source() with optional notebook deps <em>(utils)</em></li>
 </ul>
@@ -838,11 +834,11 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Unify the six mapping classes on one frozendict .inverse contract <em>(utils)</em></li>
 <li>Drop vestigial no-op replace parameter from add_mapping <em>(core.mapping)</em></li>
 </ul>
-<h3 id="documentation_2">Documentation</h3>
+<h3 id="documentation_3">Documentation</h3>
 <ul>
 <li>Regenerate API_REFERENCE.md and fix stale meta docstrings</li>
 </ul>
-<h3 id="fixed_4">Fixed</h3>
+<h3 id="fixed_5">Fixed</h3>
 <ul>
 <li>Correct auxiliary unit sizing and rendering defaults <em>(sbgn)</em></li>
 <li>Serialize AF units of information with entity child <em>(sbgn.io.sbgnml)</em></li>
@@ -857,14 +853,14 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <ul>
 <li>Resolve residue angle via mapping, not layout-id parsing <em>(celldesigner.writer)</em></li>
 </ul>
-<h3 id="fixed_5">Fixed</h3>
+<h3 id="fixed_6">Fixed</h3>
 <ul>
 <li>Pass module name string to LogicalOperator ForwardRef <em>(sbgn.model)</em></li>
 <li>Key modification/structural-state layout ids on alias, not species <em>(celldesigner.reader)</em></li>
 <li>Project writer ids onto valid, unique, consistent XML ids <em>(io)</em></li>
 <li>Key subunit_to_complex by id() to distinguish content-equal species <em>(celldesigner.writer)</em></li>
 </ul>
-<h3 id="testing_1">Testing</h3>
+<h3 id="testing_2">Testing</h3>
 <ul>
 <li>Added FOXO3_activity map to celldesigner testing</li>
 </ul>
@@ -874,12 +870,12 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Identity-keyed multidict for xml_id/source_id model element mappings <em>(io)</em></li>
 <li>Identity-keyed inverse for LayoutModelMapping <em>(core.mapping)</em></li>
 </ul>
-<h3 id="fixed_6">Fixed</h3>
+<h3 id="fixed_7">Fixed</h3>
 <ul>
 <li>Source subunit alias ids from model walk, not mapping lookup <em>(celldesigner.writer)</em></li>
 </ul>
 <h2 id="0110-2026-05-04">[0.11.0] - 2026-05-04</h2>
-<h3 id="added_3">Added</h3>
+<h3 id="added_4">Added</h3>
 <ul>
 <li>Replace Degraded model class with layout-driven emission for external flux <em>(celldesigner)</em></li>
 <li>Add snap_arcs option to size-changing tidy helpers <em>(sbgn,celldesigner,cli)</em></li>
@@ -892,7 +888,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Replace EmptySet/Degraded model elements with process flags <em>(sbgn,celldesigner)</em></li>
 <li>Expose font and text attributes as instance fields <em>(sbgn,celldesigner)</em></li>
 </ul>
-<h3 id="documentation_3">Documentation</h3>
+<h3 id="documentation_4">Documentation</h3>
 <ul>
 <li>Document external source/sink invariant on Reaction and StoichiometricProcess <em>(model)</em></li>
 <li>Add ID assignment sections to SBGN-ML and CellDesigner I/O pages <em>(api)</em></li>
@@ -901,7 +897,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Add API reference landing page <em>(api)</em></li>
 <li>Align API reference with public re-export facades <em>(api)</em></li>
 </ul>
-<h3 id="fixed_7">Fixed</h3>
+<h3 id="fixed_8">Fixed</h3>
 <ul>
 <li>Resolve modulation alias layouts from arc, not model identity <em>(celldesigner.writer)</em></li>
 <li>Exclude compartments from tidy's label-fit step <em>(celldesigner.utils)</em></li>
@@ -924,27 +920,27 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Align species default sizes and colors with CellDesigner conventions <em>(celldesigner.layout)</em></li>
 </ul>
 <h2 id="0104-2026-04-23">[0.10.4] - 2026-04-23</h2>
-<h3 id="added_4">Added</h3>
+<h3 id="added_5">Added</h3>
 <ul>
 <li>Expose per-source-id annotations and notes on ReaderResult <em>(io)</em></li>
 </ul>
-<h3 id="documentation_4">Documentation</h3>
+<h3 id="documentation_5">Documentation</h3>
 <ul>
 <li>Document ReaderResult fields and surjection dicts in SKILL.md <em>(skills)</em></li>
 </ul>
 <h2 id="0103-2026-04-23">[0.10.3] - 2026-04-23</h2>
-<h3 id="cicd_1">CI/CD</h3>
+<h3 id="cicd_2">CI/CD</h3>
 <ul>
 <li>Use mike for versioned documentation deployment <em>(docs)</em></li>
 <li>Install <span class="momapy-brand"><span class="momapy-brand-moma">Moma</span><span class="momapy-brand-py">Py</span></span> and its dependencies before building docs <em>(docs)</em></li>
 </ul>
-<h3 id="documentation_5">Documentation</h3>
+<h3 id="documentation_6">Documentation</h3>
 <ul>
 <li>Fix cross-reference syntax in layout-model mapping docstrings</li>
 <li>Fix table rendering in sbgn pd/af and celldesigner module docstrings</li>
 <li>Fix and expand CLI reference, index, and about pages</li>
 </ul>
-<h3 id="fixed_8">Fixed</h3>
+<h3 id="fixed_9">Fixed</h3>
 <ul>
 <li>Add missing type annotations to resolve griffe warnings <em>(typing)</em></li>
 </ul>
@@ -957,7 +953,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <ul>
 <li>Updated with new public facing api <em>(demos)</em></li>
 </ul>
-<h3 id="documentation_6">Documentation</h3>
+<h3 id="documentation_7">Documentation</h3>
 <ul>
 <li>Fix SKILL.md bugs (rendering fence, backend name, visualize, info) <em>(skill)</em></li>
 <li>Clarify import conventions in SKILL.md <em>(skill)</em></li>
@@ -973,11 +969,11 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Rename format-specific Reading/WritingContext subclasses <em>(io)</em></li>
 </ul>
 <h2 id="0100-2026-04-22">[0.10.0] - 2026-04-22</h2>
-<h3 id="added_5">Added</h3>
+<h3 id="added_6">Added</h3>
 <ul>
 <li>Write RDF annotations in CellDesigner writer <em>(celldesigner.io)</em></li>
 <li>Add package facade with re-exports <em>(celldesigner)</em></li>
-<li>Read/write SQUARE_CLOSEUP_<em> compartments </em>(celldesigner.io)*</li>
+<li>Read/write SQUARE_CLOSEUP_* compartments <em>(celldesigner.io)</em></li>
 <li>Add closeup compartment layouts <em>(celldesigner)</em></li>
 <li>Check parent dir exists before writing / rendering <em>(utils)</em></li>
 </ul>
@@ -1023,7 +1019,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Align stroke/fill NoneValue checks with skia <em>(rendering.cairo)</em></li>
 <li>Consolidate format-specific pickle readers into one pickle handler <em>(io pickle)</em></li>
 </ul>
-<h3 id="documentation_7">Documentation</h3>
+<h3 id="documentation_8">Documentation</h3>
 <ul>
 <li>Describe uniform layout_model_mapping scheme</li>
 <li>Update CODEBASE_SPEC and demos for builder refactor</li>
@@ -1040,7 +1036,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Replace commented-out example with runnable one <em>(plugins.core)</em></li>
 <li>Mark CellDesigner as read/write <em>(readme)</em></li>
 </ul>
-<h3 id="fixed_9">Fixed</h3>
+<h3 id="fixed_10">Fixed</h3>
 <ul>
 <li>Read source files as UTF-8 in super discipline test <em>(tests)</em></li>
 <li>Harden coordinate frames against degenerate geometry <em>(celldesigner.io)</em></li>
@@ -1068,7 +1064,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Ruffed demos</li>
 <li>Apply ruff format across src/</li>
 </ul>
-<h3 id="testing_2">Testing</h3>
+<h3 id="testing_3">Testing</h3>
 <ul>
 <li>Assert singleton participant mappings <em>(sbgn.io.sbgnml)</em></li>
 <li>Forbid raw super(...) in the frozen hierarchy</li>
@@ -1079,7 +1075,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Class RDFAnnotation plain dataclass, sbo_term as str <em>(sbml core)</em></li>
 </ul>
 <h2 id="090-2026-04-20">[0.9.0] - 2026-04-20</h2>
-<h3 id="added_6">Added</h3>
+<h3 id="added_7">Added</h3>
 <ul>
 <li>Add descendants() to Model and ModelElement <em>(core)</em></li>
 </ul>
@@ -1089,11 +1085,11 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Rename SBase to SBMLModelElement; detach SBMLModel from it <em>(sbml)</em></li>
 <li>Split real_source_ids by model/layout side <em>(celldesigner.io)</em></li>
 </ul>
-<h3 id="documentation_8">Documentation</h3>
+<h3 id="documentation_9">Documentation</h3>
 <ul>
 <li>Added codebase specification</li>
 </ul>
-<h3 id="fixed_10">Fixed</h3>
+<h3 id="fixed_11">Fixed</h3>
 <ul>
 <li>Populate source_id_to_model_element for models that aren't ModelElements <em>(io)</em></li>
 <li>Repair is_submodel in SBGNAFModel and CellDesignerModel <em>(model)</em></li>
@@ -1109,7 +1105,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Remove animating module</li>
 </ul>
 <h2 id="081-2026-04-16">[0.8.1] - 2026-04-16</h2>
-<h3 id="added_7">Added</h3>
+<h3 id="added_8">Added</h3>
 <ul>
 <li>Change --tidy to -t, add --to-top-left to export and visualize <em>(cli)</em></li>
 <li>Snap arc endpoints to closest anchor point when tidying <em>(celldesigner utils)</em></li>
@@ -1119,12 +1115,12 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <ul>
 <li>Replace set_arcs_to_orthogonal with straighten_arcs <em>(celldesigner utils)</em></li>
 </ul>
-<h3 id="fixed_11">Fixed</h3>
+<h3 id="fixed_12">Fixed</h3>
 <ul>
 <li>Initialize logic_arc before layout block in logic gate reader <em>(celldesigner io)</em></li>
 </ul>
 <h2 id="080-2026-04-16">[0.8.0] - 2026-04-16</h2>
-<h3 id="added_8">Added</h3>
+<h3 id="added_9">Added</h3>
 <ul>
 <li>Add colors subcommand to list named colors <em>(cli)</em></li>
 <li>Add style subcommand and list styles <em>(cli)</em></li>
@@ -1149,7 +1145,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Require metaid for modifier elements <em>(celldesigner io)</em></li>
 <li>Use distinct ids for model and layout elements <em>(sbgn io)</em></li>
 </ul>
-<h3 id="documentation_9">Documentation</h3>
+<h3 id="documentation_10">Documentation</h3>
 <ul>
 <li>Note space replacement in structural state ID documentation</li>
 <li>Make ID assignment docstrings consistent between SBGN and CellDesigner readers</li>
@@ -1164,7 +1160,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Update ID assignment patterns for CellDesigner</li>
 <li>Add ID assignment patterns to CLAUDE.md</li>
 </ul>
-<h3 id="fixed_12">Fixed</h3>
+<h3 id="fixed_13">Fixed</h3>
 <ul>
 <li>Handle missing notes on complex subunit species <em>(celldesigner io)</em></li>
 <li>Catch all exceptions in pickle check_file methods <em>(io)</em></li>
@@ -1195,12 +1191,12 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Replace deprecated pyparsing.delimited_list with DelimitedList <em>(styling)</em></li>
 <li>Harmonize intersection boundary checks to parametric t with PARAMETER_TOLERANCE <em>(geometry)</em></li>
 </ul>
-<h3 id="testing_3">Testing</h3>
+<h3 id="testing_4">Testing</h3>
 <ul>
 <li>Added roundtrip tests <em>(celldesigner io)</em></li>
 </ul>
 <h2 id="070-2026-04-13">[0.7.0] - 2026-04-13</h2>
-<h3 id="added_9">Added</h3>
+<h3 id="added_10">Added</h3>
 <ul>
 <li>Add get_stylable_attributes utility function <em>(styling)</em></li>
 <li>Read line width and color from CellDesigner XML <em>(celldesigner io)</em></li>
@@ -1228,13 +1224,13 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Added _reading prefix for reading modules <em>(celldesigner io)</em></li>
 <li>Added _reading prefix for reading modules <em>(celldesigner io)</em></li>
 </ul>
-<h3 id="documentation_10">Documentation</h3>
+<h3 id="documentation_11">Documentation</h3>
 <ul>
 <li>Add documentation for export subcommand <em>(cli)</em></li>
 <li>Improved for map vs map builder <em>(sbgn)</em></li>
 <li>Simplified the top example <em>(<span class="momapy-brand"><span class="momapy-brand-moma">Moma</span><span class="momapy-brand-py">Py</span></span>)</em></li>
 </ul>
-<h3 id="fixed_13">Fixed</h3>
+<h3 id="fixed_14">Fixed</h3>
 <ul>
 <li>Use correct coordinate frame bases in writer inverse transforms <em>(celldesigner io)</em></li>
 <li>Derive reaction link participants from layout arcs <em>(celldesigner io)</em></li>
@@ -1267,17 +1263,17 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Formatting with ruff</li>
 <li>Updated reactome analysis <em>(demos)</em></li>
 </ul>
-<h3 id="testing_4">Testing</h3>
+<h3 id="testing_5">Testing</h3>
 <ul>
 <li>Add layout_model_mapping integrity tests for SBGN and CellDesigner <em>(io)</em></li>
 </ul>
 <h2 id="061-2026-03-18">[0.6.1] - 2026-03-18</h2>
-<h3 id="added_10">Added</h3>
+<h3 id="added_11">Added</h3>
 <ul>
 <li>Added a demo on map comparison</li>
 <li>Added colinear case when reading reactions <em>(celldesigner)</em></li>
 </ul>
-<h3 id="cicd_2">CI/CD</h3>
+<h3 id="cicd_3">CI/CD</h3>
 <ul>
 <li>Bumped action versions</li>
 </ul>
@@ -1289,11 +1285,11 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Rearranged demo files</li>
 <li>Removed unnecessary re-export of reader <em>(celldesigner io)</em></li>
 </ul>
-<h3 id="documentation_11">Documentation</h3>
+<h3 id="documentation_12">Documentation</h3>
 <ul>
 <li>Moved demo to new paths and name</li>
 </ul>
-<h3 id="fixed_14">Fixed</h3>
+<h3 id="fixed_15">Fixed</h3>
 <ul>
 <li>Replaced with correct apt deps <em>(binder)</em></li>
 <li>Removed escaping brackets <em>(binder)</em></li>
@@ -1315,12 +1311,12 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Wip implement celldesigner writer</li>
 <li>Ruff formatting</li>
 </ul>
-<h3 id="testing_5">Testing</h3>
+<h3 id="testing_6">Testing</h3>
 <ul>
 <li>Fixed new paths <em>(demo)</em></li>
 </ul>
 <h2 id="060-2026-03-10">[0.6.0] - 2026-03-10</h2>
-<h3 id="added_11">Added</h3>
+<h3 id="added_12">Added</h3>
 <ul>
 <li>Added cache for font queries <em>(fonts)</em></li>
 <li>Added a helper function for creating a bbox around points and refactored to use it</li>
@@ -1331,11 +1327,11 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <ul>
 <li>Replaced named tuple by dataclass <em>(fonts)</em></li>
 <li>Replaced matplotlib fonts finding by custom one</li>
-<li>Renamed self_<em> methods to own_</em> methods</li>
+<li>Renamed self_* methods to own_* methods</li>
 <li>Replaced Bezier approximations with direct elliptical arc calculations <em>(geometry)</em></li>
 <li>Removed unnecessary helper functions <em>(geometry)</em></li>
 </ul>
-<h3 id="fixed_15">Fixed</h3>
+<h3 id="fixed_16">Fixed</h3>
 <ul>
 <li>Set modifications to own_angle rather than angle <em>(celldesigner)</em></li>
 </ul>
@@ -1344,19 +1340,19 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Added support for python 3.13 and 3.14</li>
 <li>Added TODO.txt to .gitignore</li>
 </ul>
-<h3 id="testing_6">Testing</h3>
+<h3 id="testing_7">Testing</h3>
 <ul>
 <li>Updated test after refactor <em>(geometry)</em></li>
 <li>Added tests for union of bbox and making bbox around points</li>
 </ul>
 <h2 id="050-2026-03-04">[0.5.0] - 2026-03-04</h2>
-<h3 id="added_12">Added</h3>
+<h3 id="added_13">Added</h3>
 <ul>
 <li>Added optional dict cache to replace</li>
 <li>Added singleton mapping for anchor layout element <em>(layout model mapping)</em></li>
 <li>Removed collection builders by mutable collections <em>(builder)</em></li>
 </ul>
-<h3 id="cicd_3">CI/CD</h3>
+<h3 id="cicd_4">CI/CD</h3>
 <ul>
 <li>Removed commit and made CHANGELOG.md directly from docs.yml <em>(changelog)</em></li>
 </ul>
@@ -1374,7 +1370,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Complete refactor, separated parsing/model/layout <em>(sbgnml)</em></li>
 <li>Made subpackage and divided into modules <em>(core)</em></li>
 </ul>
-<h3 id="fixed_16">Fixed</h3>
+<h3 id="fixed_17">Fixed</h3>
 <ul>
 <li>Active borders are now layout elements (fix #3)</li>
 <li>Absence of modification is now treated as a modification with state='empty' <em>(celldesigner)</em></li>
@@ -1387,7 +1383,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Added CLAUDE.md and disallowed use of dangerouslyDisableSandbox</li>
 <li>Added claude sandbox artifacts</li>
 </ul>
-<h3 id="testing_7">Testing</h3>
+<h3 id="testing_8">Testing</h3>
 <ul>
 <li>Added tests for new active layout elements</li>
 <li>Added tests for notes and annotations</li>
@@ -1395,7 +1391,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Added tests for sbgn.utils</li>
 </ul>
 <h2 id="044-2026-02-24">[0.4.4] - 2026-02-24</h2>
-<h3 id="added_13">Added</h3>
+<h3 id="added_14">Added</h3>
 <ul>
 <li>Added tidy option <em>(cli)</em></li>
 <li>Changed default font to Arial for macos and win and deja vu sans for linux</li>
@@ -1403,11 +1399,11 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Added support for uoi for compartments and submap terminals in af</li>
 <li>Added support for cardinality (a la newt)</li>
 </ul>
-<h3 id="cicd_4">CI/CD</h3>
+<h3 id="cicd_5">CI/CD</h3>
 <ul>
 <li>Changed regex for version; made release conditional to testing; made docs independant of release</li>
 </ul>
-<h3 id="fixed_17">Fixed</h3>
+<h3 id="fixed_18">Fixed</h3>
 <ul>
 <li>Fixed label position for compartments; fixed rerouting equivalence arcs <em>(tidy)</em></li>
 <li>Activity is now a dataclass</li>
@@ -1423,17 +1419,17 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Added AGENTS.md for code agents</li>
 <li>Cleaned useless function <em>(sbgn.io.sbgnml)</em></li>
 </ul>
-<h3 id="testing_8">Testing</h3>
+<h3 id="testing_9">Testing</h3>
 <ul>
 <li>Added tests for Arc fraction and</li>
 </ul>
 <h2 id="043-2026-02-13">[0.4.3] - 2026-02-13</h2>
-<h3 id="documentation_12">Documentation</h3>
+<h3 id="documentation_13">Documentation</h3>
 <ul>
 <li>Removed linenums for code snippets</li>
 <li>Update example with new io and render_map api</li>
 </ul>
-<h3 id="fixed_18">Fixed</h3>
+<h3 id="fixed_19">Fixed</h3>
 <ul>
 <li>Changed stoichiometry type from int to float</li>
 </ul>
@@ -1443,12 +1439,12 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Removed tracking of site/</li>
 </ul>
 <h2 id="042-2026-02-12">[0.4.2] - 2026-02-12</h2>
-<h3 id="documentation_13">Documentation</h3>
+<h3 id="documentation_14">Documentation</h3>
 <ul>
 <li>Changed order of sections</li>
 <li>Added symlink to CHANGELOG.md from root to docs/</li>
 </ul>
-<h3 id="fixed_19">Fixed</h3>
+<h3 id="fixed_20">Fixed</h3>
 <ul>
 <li>Bug in point to fortranarray and in handling shapely polygons</li>
 <li>Bug in invert of scaling</li>
@@ -1457,27 +1453,27 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <ul>
 <li>Added coverage files</li>
 </ul>
-<h3 id="testing_9">Testing</h3>
+<h3 id="testing_10">Testing</h3>
 <ul>
 <li>Added new tests</li>
 <li>Added coverage</li>
 </ul>
 <h2 id="041-2026-02-10">[0.4.1] - 2026-02-10</h2>
-<h3 id="documentation_14">Documentation</h3>
+<h3 id="documentation_15">Documentation</h3>
 <ul>
 <li>Added docs for cli and styling</li>
 </ul>
 <h2 id="040-2026-02-10">[0.4.0] - 2026-02-10</h2>
-<h3 id="added_14">Added</h3>
+<h3 id="added_15">Added</h3>
 <ul>
 <li>Added precommit linting (@conventional)</li>
 <li>Added renderer and format autodetection <em>(rendering)</em></li>
 </ul>
-<h3 id="cicd_5">CI/CD</h3>
+<h3 id="cicd_6">CI/CD</h3>
 <ul>
 <li>Added automated changelog with git-cliff</li>
 </ul>
-<h3 id="fixed_20">Fixed</h3>
+<h3 id="fixed_21">Fixed</h3>
 <ul>
 <li>Distinguish scenario min and all for rendering images</li>
 </ul>
@@ -1503,7 +1499,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <ul>
 <li>Changed default fonts to DejaVu Sans</li>
 </ul>
-<h3 id="testing_10">Testing</h3>
+<h3 id="testing_11">Testing</h3>
 <ul>
 <li>Update with new plugin api</li>
 </ul>
@@ -1517,7 +1513,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Changed 'formats' attributes to 'supported_formats'; added ValueError for unsupported formats</li>
 </ul>
 <h2 id="028-2026-01-27">[0.2.8] - 2026-01-27</h2>
-<h3 id="fixed_21">Fixed</h3>
+<h3 id="fixed_22">Fixed</h3>
 <ul>
 <li>Fixed python version to 3.13 for packaging</li>
 </ul>
@@ -1563,7 +1559,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Added demo extra and moved jupyter dep from dev to demo; binder/requirements.txt: added file for binder</li>
 </ul>
 <h2 id="022-2026-01-07">[0.2.2] - 2026-01-07</h2>
-<h3 id="documentation_15">Documentation</h3>
+<h3 id="documentation_16">Documentation</h3>
 <ul>
 <li>Update with new default rendering and reading modules</li>
 <li>Removed copyright</li>
@@ -1590,7 +1586,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Made true release conditional to TestPyPi release's success</li>
 </ul>
 <h2 id="020-2026-01-06">[0.2.0] - 2026-01-06</h2>
-<h3 id="fixed_22">Fixed</h3>
+<h3 id="fixed_23">Fixed</h3>
 <ul>
 <li>Fixed bug in checking files: added try in case the file is binary</li>
 <li>Fixed bug where super was called in FrozenSurjectionDict init</li>
@@ -1677,7 +1673,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Updated packages</li>
 </ul>
 <h2 id="013-2025-08-28">[0.1.3] - 2025-08-28</h2>
-<h3 id="fixed_23">Fixed</h3>
+<h3 id="fixed_24">Fixed</h3>
 <ul>
 <li>Fixed link to doc</li>
 </ul>
@@ -1712,7 +1708,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Refactored code and fixed in set_arcs_to_borders; added tidy function</li>
 <li>Refactored rendering; render multiple maps</li>
 </ul>
-<h3 id="fixed_24">Fixed</h3>
+<h3 id="fixed_25">Fixed</h3>
 <ul>
 <li>Fixed typo</li>
 <li>Fixed merge</li>
@@ -2424,7 +2420,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Cleaned up</li>
 <li>Update</li>
 <li>Build methods and from_object methods now take a mapping as parameter which avoids rebuilding identical object</li>
-<li>Remove colors object: momapy.coloring.colors.<em> -&gt; momapy.coloring.</em>; rgb, rgba, hex, hexa functions-&gt;from_rgb, from_rgba,... methods of Color</li>
+<li>Remove colors object: momapy.coloring.colors.* -&gt; momapy.coloring.*; rgb, rgba, hex, hexa functions-&gt;from_rgb, from_rgba,... methods of Color</li>
 <li>Update</li>
 <li>Model_layout_mapping -&gt; layout_model_mapping</li>
 <li>Updated dependencies</li>
@@ -2734,41 +2730,31 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Stylesheet applied to layout instead of map</li>
 </ul>
   </div>
-  
-  <script>
-    document.querySelectorAll('article h2, article h3').forEach((header) => {
-      toc.observer.observe(header);
-    });
-  </script>
 </article>
-                                <div class="mx-auto flex flex-wrap h-16 w-full max-w-2xl items-center gap-2 px-4 md:px-0">
+                                <div id="bottom-navigation" class="mx-auto flex h-16 w-full max-w-2xl items-center justify-between gap-2 px-4 md:px-0">
     
-    <a data-slot="button"
-        class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-secondary text-secondary-foreground hover:bg-secondary/80 h-8 rounded-md gap-1.5 px-3 has-[&gt;svg]:px-2.5 shadow-none"
-        href="../api_reference/sbml/io/sbml/">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-            class="tabler-icon tabler-icon-arrow-left ">
-            <path d="M5 12l14 0"></path>
-            <path d="M5 12l6 6"></path>
-            <path d="M5 12l6 -6"></path>
-        </svg>
-        <span class="max-[500px]:hidden">SBML</span>
-    </a>
+    <a class="button secondary" href="../api_reference/sbml/io/sbml/">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+    class="tabler-icon tabler-icon-arrow-left">
+    <path d="M5 12l14 0"></path>
+    <path d="M5 12l6 6"></path>
+    <path d="M5 12l6 -6"></path>
+</svg>
+    <span class="max-[500px]:hidden truncate">SBML</span>
+</a>
     
     
-    <a data-slot="button"
-        class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-secondary text-secondary-foreground hover:bg-secondary/80 h-8 rounded-md gap-1.5 px-3 has-[&gt;svg]:px-2.5 ml-auto shadow-none"
-        href="../about/">
-        <span class="max-[500px]:hidden">About</span>
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-            class="tabler-icon tabler-icon-arrow-right ">
-            <path d="M5 12l14 0"></path>
-            <path d="M13 18l6 -6"></path>
-            <path d="M13 6l6 6"></path>
-        </svg>
-    </a>
+    <a class="button secondary" href="../about/">
+    <span class="max-[500px]:hidden truncate">About</span>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+    class="tabler-icon tabler-icon-arrow-right">
+    <path d="M5 12l14 0"></path>
+    <path d="M13 18l6 -6"></path>
+    <path d="M13 6l6 6"></path>
+</svg>
+</a>
     
 </div>
                                 
@@ -2916,1162 +2902,856 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
         
         
         
-        <a href="#unreleased"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#unreleased');">
+        <a href="#unreleased" data-active="false" data-depth="2">
             [Unreleased]
         </a>
         
         
-        <a href="#fixed"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#fixed');">
+        <a href="#added" data-active="false" data-depth="3">
+            Added
+        </a>
+        
+        <a href="#cicd" data-active="false" data-depth="3">
+            CI/CD
+        </a>
+        
+        <a href="#documentation" data-active="false" data-depth="3">
+            Documentation
+        </a>
+        
+        <a href="#fixed" data-active="false" data-depth="3">
+            Fixed
+        </a>
+        
+        <a href="#testing" data-active="false" data-depth="3">
+            Testing
+        </a>
+        
+        
+
+        
+        <a href="#0151-2026-10-08" data-active="false" data-depth="2">
+            [0.15.1] - 2026-10-08
+        </a>
+        
+        
+        <a href="#fixed_1" data-active="false" data-depth="3">
             Fixed
         </a>
         
         
 
         
-        <a href="#0150-2026-10-02"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#0150-2026-10-02');">
+        <a href="#0150-2026-10-02" data-active="false" data-depth="2">
             [0.15.0] - 2026-10-02
         </a>
         
         
-        <a href="#added"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#added');">
+        <a href="#added_1" data-active="false" data-depth="3">
             Added
         </a>
         
-        <a href="#cicd"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#cicd');">
+        <a href="#cicd_1" data-active="false" data-depth="3">
             CI/CD
         </a>
         
-        <a href="#documentation"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#documentation');">
+        <a href="#documentation_1" data-active="false" data-depth="3">
             Documentation
         </a>
         
-        <a href="#fixed_1"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#fixed_1');">
+        <a href="#fixed_2" data-active="false" data-depth="3">
             Fixed
         </a>
         
-        <a href="#miscellaneous"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#miscellaneous');">
+        <a href="#miscellaneous" data-active="false" data-depth="3">
             Miscellaneous
         </a>
         
-        <a href="#other"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#other');">
+        <a href="#other" data-active="false" data-depth="3">
             Other
         </a>
         
         
 
         
-        <a href="#0140-2026-09-07"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#0140-2026-09-07');">
+        <a href="#0140-2026-09-07" data-active="false" data-depth="2">
             [0.14.0] - 2026-09-07
         </a>
         
         
-        <a href="#changed"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#changed');">
+        <a href="#changed" data-active="false" data-depth="3">
             Changed
         </a>
         
-        <a href="#fixed_2"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#fixed_2');">
+        <a href="#fixed_3" data-active="false" data-depth="3">
             Fixed
         </a>
         
-        <a href="#testing"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#testing');">
+        <a href="#testing_1" data-active="false" data-depth="3">
             Testing
         </a>
         
         
 
         
-        <a href="#0130-2026-08-06"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#0130-2026-08-06');">
+        <a href="#0130-2026-08-06" data-active="false" data-depth="2">
             [0.13.0] - 2026-08-06
         </a>
         
         
-        <a href="#added_1"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#added_1');">
+        <a href="#added_2" data-active="false" data-depth="3">
             Added
         </a>
         
-        <a href="#changed_1"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#changed_1');">
+        <a href="#changed_1" data-active="false" data-depth="3">
             Changed
         </a>
         
-        <a href="#documentation_1"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#documentation_1');">
+        <a href="#documentation_2" data-active="false" data-depth="3">
             Documentation
         </a>
         
-        <a href="#fixed_3"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#fixed_3');">
+        <a href="#fixed_4" data-active="false" data-depth="3">
             Fixed
         </a>
         
-        <a href="#miscellaneous_1"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#miscellaneous_1');">
+        <a href="#miscellaneous_1" data-active="false" data-depth="3">
             Miscellaneous
         </a>
         
-        <a href="#styling"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#styling');">
+        <a href="#styling" data-active="false" data-depth="3">
             Styling
         </a>
         
         
 
         
-        <a href="#0120-2026-06-15"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#0120-2026-06-15');">
+        <a href="#0120-2026-06-15" data-active="false" data-depth="2">
             [0.12.0] - 2026-06-15
         </a>
         
         
-        <a href="#added_2"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#added_2');">
+        <a href="#added_3" data-active="false" data-depth="3">
             Added
         </a>
         
-        <a href="#changed_2"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#changed_2');">
+        <a href="#changed_2" data-active="false" data-depth="3">
             Changed
         </a>
         
-        <a href="#documentation_2"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#documentation_2');">
+        <a href="#documentation_3" data-active="false" data-depth="3">
             Documentation
         </a>
         
-        <a href="#fixed_4"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#fixed_4');">
+        <a href="#fixed_5" data-active="false" data-depth="3">
             Fixed
         </a>
         
-        <a href="#styling_1"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#styling_1');">
+        <a href="#styling_1" data-active="false" data-depth="3">
             Styling
         </a>
         
         
 
         
-        <a href="#0112-2026-06-05"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#0112-2026-06-05');">
+        <a href="#0112-2026-06-05" data-active="false" data-depth="2">
             [0.11.2] - 2026-06-05
         </a>
         
         
-        <a href="#changed_3"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#changed_3');">
+        <a href="#changed_3" data-active="false" data-depth="3">
             Changed
         </a>
         
-        <a href="#fixed_5"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#fixed_5');">
+        <a href="#fixed_6" data-active="false" data-depth="3">
             Fixed
         </a>
         
-        <a href="#testing_1"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#testing_1');">
+        <a href="#testing_2" data-active="false" data-depth="3">
             Testing
         </a>
         
         
 
         
-        <a href="#0111-2026-05-05"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#0111-2026-05-05');">
+        <a href="#0111-2026-05-05" data-active="false" data-depth="2">
             [0.11.1] - 2026-05-05
         </a>
         
         
-        <a href="#changed_4"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#changed_4');">
+        <a href="#changed_4" data-active="false" data-depth="3">
             Changed
         </a>
         
-        <a href="#fixed_6"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#fixed_6');">
+        <a href="#fixed_7" data-active="false" data-depth="3">
             Fixed
         </a>
         
         
 
         
-        <a href="#0110-2026-05-04"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#0110-2026-05-04');">
+        <a href="#0110-2026-05-04" data-active="false" data-depth="2">
             [0.11.0] - 2026-05-04
         </a>
         
         
-        <a href="#added_3"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#added_3');">
+        <a href="#added_4" data-active="false" data-depth="3">
             Added
         </a>
         
-        <a href="#changed_5"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#changed_5');">
+        <a href="#changed_5" data-active="false" data-depth="3">
             Changed
         </a>
         
-        <a href="#documentation_3"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#documentation_3');">
+        <a href="#documentation_4" data-active="false" data-depth="3">
             Documentation
         </a>
         
-        <a href="#fixed_7"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#fixed_7');">
+        <a href="#fixed_8" data-active="false" data-depth="3">
             Fixed
         </a>
         
-        <a href="#miscellaneous_2"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#miscellaneous_2');">
+        <a href="#miscellaneous_2" data-active="false" data-depth="3">
             Miscellaneous
         </a>
         
-        <a href="#other_1"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#other_1');">
+        <a href="#other_1" data-active="false" data-depth="3">
             Other
         </a>
         
-        <a href="#styling_2"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#styling_2');">
+        <a href="#styling_2" data-active="false" data-depth="3">
             Styling
         </a>
         
         
 
         
-        <a href="#0104-2026-04-23"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#0104-2026-04-23');">
+        <a href="#0104-2026-04-23" data-active="false" data-depth="2">
             [0.10.4] - 2026-04-23
         </a>
         
         
-        <a href="#added_4"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#added_4');">
+        <a href="#added_5" data-active="false" data-depth="3">
             Added
         </a>
         
-        <a href="#documentation_4"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#documentation_4');">
+        <a href="#documentation_5" data-active="false" data-depth="3">
             Documentation
         </a>
         
         
 
         
-        <a href="#0103-2026-04-23"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#0103-2026-04-23');">
+        <a href="#0103-2026-04-23" data-active="false" data-depth="2">
             [0.10.3] - 2026-04-23
         </a>
         
         
-        <a href="#cicd_1"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#cicd_1');">
+        <a href="#cicd_2" data-active="false" data-depth="3">
             CI/CD
         </a>
         
-        <a href="#documentation_5"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#documentation_5');">
+        <a href="#documentation_6" data-active="false" data-depth="3">
             Documentation
         </a>
         
-        <a href="#fixed_8"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#fixed_8');">
+        <a href="#fixed_9" data-active="false" data-depth="3">
             Fixed
         </a>
         
-        <a href="#other_2"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#other_2');">
+        <a href="#other_2" data-active="false" data-depth="3">
             Other
         </a>
         
         
 
         
-        <a href="#0102-2026-04-22"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#0102-2026-04-22');">
+        <a href="#0102-2026-04-22" data-active="false" data-depth="2">
             [0.10.2] - 2026-04-22
         </a>
         
         
-        <a href="#changed_6"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#changed_6');">
+        <a href="#changed_6" data-active="false" data-depth="3">
             Changed
         </a>
         
-        <a href="#documentation_6"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#documentation_6');">
+        <a href="#documentation_7" data-active="false" data-depth="3">
             Documentation
         </a>
         
         
 
         
-        <a href="#0101-2026-04-22"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#0101-2026-04-22');">
+        <a href="#0101-2026-04-22" data-active="false" data-depth="2">
             [0.10.1] - 2026-04-22
         </a>
         
         
-        <a href="#changed_7"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#changed_7');">
+        <a href="#changed_7" data-active="false" data-depth="3">
             Changed
         </a>
         
         
 
         
-        <a href="#0100-2026-04-22"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#0100-2026-04-22');">
+        <a href="#0100-2026-04-22" data-active="false" data-depth="2">
             [0.10.0] - 2026-04-22
         </a>
         
         
-        <a href="#added_5"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#added_5');">
+        <a href="#added_6" data-active="false" data-depth="3">
             Added
         </a>
         
-        <a href="#changed_8"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#changed_8');">
+        <a href="#changed_8" data-active="false" data-depth="3">
             Changed
         </a>
         
-        <a href="#documentation_7"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#documentation_7');">
+        <a href="#documentation_8" data-active="false" data-depth="3">
             Documentation
         </a>
         
-        <a href="#fixed_9"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#fixed_9');">
+        <a href="#fixed_10" data-active="false" data-depth="3">
             Fixed
         </a>
         
-        <a href="#miscellaneous_3"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#miscellaneous_3');">
+        <a href="#miscellaneous_3" data-active="false" data-depth="3">
             Miscellaneous
         </a>
         
-        <a href="#styling_3"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#styling_3');">
+        <a href="#styling_3" data-active="false" data-depth="3">
             Styling
         </a>
         
-        <a href="#testing_2"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#testing_2');">
+        <a href="#testing_3" data-active="false" data-depth="3">
             Testing
         </a>
         
         
 
         
-        <a href="#091-2026-04-20"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#091-2026-04-20');">
+        <a href="#091-2026-04-20" data-active="false" data-depth="2">
             [0.9.1] - 2026-04-20
         </a>
         
         
-        <a href="#changed_9"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#changed_9');">
+        <a href="#changed_9" data-active="false" data-depth="3">
             Changed
         </a>
         
         
 
         
-        <a href="#090-2026-04-20"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#090-2026-04-20');">
+        <a href="#090-2026-04-20" data-active="false" data-depth="2">
             [0.9.0] - 2026-04-20
         </a>
         
         
-        <a href="#added_6"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#added_6');">
+        <a href="#added_7" data-active="false" data-depth="3">
             Added
         </a>
         
-        <a href="#changed_10"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#changed_10');">
+        <a href="#changed_10" data-active="false" data-depth="3">
             Changed
         </a>
         
-        <a href="#documentation_8"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#documentation_8');">
+        <a href="#documentation_9" data-active="false" data-depth="3">
             Documentation
         </a>
         
-        <a href="#fixed_10"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#fixed_10');">
+        <a href="#fixed_11" data-active="false" data-depth="3">
             Fixed
         </a>
         
-        <a href="#miscellaneous_4"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#miscellaneous_4');">
+        <a href="#miscellaneous_4" data-active="false" data-depth="3">
             Miscellaneous
         </a>
         
         
 
         
-        <a href="#081-2026-04-16"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#081-2026-04-16');">
+        <a href="#081-2026-04-16" data-active="false" data-depth="2">
             [0.8.1] - 2026-04-16
         </a>
         
         
-        <a href="#added_7"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#added_7');">
+        <a href="#added_8" data-active="false" data-depth="3">
             Added
         </a>
         
-        <a href="#changed_11"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#changed_11');">
+        <a href="#changed_11" data-active="false" data-depth="3">
             Changed
         </a>
         
-        <a href="#fixed_11"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#fixed_11');">
+        <a href="#fixed_12" data-active="false" data-depth="3">
             Fixed
         </a>
         
         
 
         
-        <a href="#080-2026-04-16"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#080-2026-04-16');">
+        <a href="#080-2026-04-16" data-active="false" data-depth="2">
             [0.8.0] - 2026-04-16
         </a>
         
         
-        <a href="#added_8"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#added_8');">
+        <a href="#added_9" data-active="false" data-depth="3">
             Added
         </a>
         
-        <a href="#changed_12"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#changed_12');">
+        <a href="#changed_12" data-active="false" data-depth="3">
             Changed
         </a>
         
-        <a href="#documentation_9"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#documentation_9');">
+        <a href="#documentation_10" data-active="false" data-depth="3">
             Documentation
         </a>
         
-        <a href="#fixed_12"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#fixed_12');">
+        <a href="#fixed_13" data-active="false" data-depth="3">
             Fixed
         </a>
         
-        <a href="#testing_3"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#testing_3');">
+        <a href="#testing_4" data-active="false" data-depth="3">
             Testing
         </a>
         
         
 
         
-        <a href="#070-2026-04-13"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#070-2026-04-13');">
+        <a href="#070-2026-04-13" data-active="false" data-depth="2">
             [0.7.0] - 2026-04-13
         </a>
         
         
-        <a href="#added_9"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#added_9');">
+        <a href="#added_10" data-active="false" data-depth="3">
             Added
         </a>
         
-        <a href="#changed_13"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#changed_13');">
+        <a href="#changed_13" data-active="false" data-depth="3">
             Changed
         </a>
         
-        <a href="#documentation_10"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#documentation_10');">
+        <a href="#documentation_11" data-active="false" data-depth="3">
             Documentation
         </a>
         
-        <a href="#fixed_13"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#fixed_13');">
+        <a href="#fixed_14" data-active="false" data-depth="3">
             Fixed
         </a>
         
-        <a href="#miscellaneous_5"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#miscellaneous_5');">
+        <a href="#miscellaneous_5" data-active="false" data-depth="3">
             Miscellaneous
         </a>
         
-        <a href="#testing_4"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#testing_4');">
+        <a href="#testing_5" data-active="false" data-depth="3">
             Testing
         </a>
         
         
 
         
-        <a href="#061-2026-03-18"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#061-2026-03-18');">
+        <a href="#061-2026-03-18" data-active="false" data-depth="2">
             [0.6.1] - 2026-03-18
         </a>
         
         
-        <a href="#added_10"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#added_10');">
+        <a href="#added_11" data-active="false" data-depth="3">
             Added
         </a>
         
-        <a href="#cicd_2"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#cicd_2');">
+        <a href="#cicd_3" data-active="false" data-depth="3">
             CI/CD
         </a>
         
-        <a href="#changed_14"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#changed_14');">
+        <a href="#changed_14" data-active="false" data-depth="3">
             Changed
         </a>
         
-        <a href="#documentation_11"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#documentation_11');">
+        <a href="#documentation_12" data-active="false" data-depth="3">
             Documentation
         </a>
         
-        <a href="#fixed_14"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#fixed_14');">
+        <a href="#fixed_15" data-active="false" data-depth="3">
             Fixed
         </a>
         
-        <a href="#miscellaneous_6"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#miscellaneous_6');">
+        <a href="#miscellaneous_6" data-active="false" data-depth="3">
             Miscellaneous
         </a>
         
-        <a href="#testing_5"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#testing_5');">
+        <a href="#testing_6" data-active="false" data-depth="3">
             Testing
         </a>
         
         
 
         
-        <a href="#060-2026-03-10"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#060-2026-03-10');">
+        <a href="#060-2026-03-10" data-active="false" data-depth="2">
             [0.6.0] - 2026-03-10
         </a>
         
         
-        <a href="#added_11"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#added_11');">
+        <a href="#added_12" data-active="false" data-depth="3">
             Added
         </a>
         
-        <a href="#changed_15"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#changed_15');">
+        <a href="#changed_15" data-active="false" data-depth="3">
             Changed
         </a>
         
-        <a href="#fixed_15"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#fixed_15');">
+        <a href="#fixed_16" data-active="false" data-depth="3">
             Fixed
         </a>
         
-        <a href="#miscellaneous_7"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#miscellaneous_7');">
+        <a href="#miscellaneous_7" data-active="false" data-depth="3">
             Miscellaneous
         </a>
         
-        <a href="#testing_6"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#testing_6');">
+        <a href="#testing_7" data-active="false" data-depth="3">
             Testing
         </a>
         
         
 
         
-        <a href="#050-2026-03-04"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#050-2026-03-04');">
+        <a href="#050-2026-03-04" data-active="false" data-depth="2">
             [0.5.0] - 2026-03-04
         </a>
         
         
-        <a href="#added_12"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#added_12');">
+        <a href="#added_13" data-active="false" data-depth="3">
             Added
         </a>
         
-        <a href="#cicd_3"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#cicd_3');">
+        <a href="#cicd_4" data-active="false" data-depth="3">
             CI/CD
         </a>
         
-        <a href="#changed_16"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#changed_16');">
+        <a href="#changed_16" data-active="false" data-depth="3">
             Changed
         </a>
         
-        <a href="#fixed_16"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#fixed_16');">
+        <a href="#fixed_17" data-active="false" data-depth="3">
             Fixed
         </a>
         
-        <a href="#miscellaneous_8"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#miscellaneous_8');">
+        <a href="#miscellaneous_8" data-active="false" data-depth="3">
             Miscellaneous
         </a>
         
-        <a href="#testing_7"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#testing_7');">
+        <a href="#testing_8" data-active="false" data-depth="3">
             Testing
         </a>
         
         
 
         
-        <a href="#044-2026-02-24"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#044-2026-02-24');">
+        <a href="#044-2026-02-24" data-active="false" data-depth="2">
             [0.4.4] - 2026-02-24
         </a>
         
         
-        <a href="#added_13"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#added_13');">
+        <a href="#added_14" data-active="false" data-depth="3">
             Added
         </a>
         
-        <a href="#cicd_4"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#cicd_4');">
+        <a href="#cicd_5" data-active="false" data-depth="3">
             CI/CD
         </a>
         
-        <a href="#fixed_17"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#fixed_17');">
+        <a href="#fixed_18" data-active="false" data-depth="3">
             Fixed
         </a>
         
-        <a href="#miscellaneous_9"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#miscellaneous_9');">
+        <a href="#miscellaneous_9" data-active="false" data-depth="3">
             Miscellaneous
         </a>
         
-        <a href="#testing_8"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#testing_8');">
+        <a href="#testing_9" data-active="false" data-depth="3">
             Testing
         </a>
         
         
 
         
-        <a href="#043-2026-02-13"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#043-2026-02-13');">
+        <a href="#043-2026-02-13" data-active="false" data-depth="2">
             [0.4.3] - 2026-02-13
         </a>
         
         
-        <a href="#documentation_12"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#documentation_12');">
+        <a href="#documentation_13" data-active="false" data-depth="3">
             Documentation
         </a>
         
-        <a href="#fixed_18"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#fixed_18');">
+        <a href="#fixed_19" data-active="false" data-depth="3">
             Fixed
         </a>
         
-        <a href="#miscellaneous_10"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#miscellaneous_10');">
+        <a href="#miscellaneous_10" data-active="false" data-depth="3">
             Miscellaneous
         </a>
         
         
 
         
-        <a href="#042-2026-02-12"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#042-2026-02-12');">
+        <a href="#042-2026-02-12" data-active="false" data-depth="2">
             [0.4.2] - 2026-02-12
         </a>
         
         
-        <a href="#documentation_13"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#documentation_13');">
+        <a href="#documentation_14" data-active="false" data-depth="3">
             Documentation
         </a>
         
-        <a href="#fixed_19"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#fixed_19');">
+        <a href="#fixed_20" data-active="false" data-depth="3">
             Fixed
         </a>
         
-        <a href="#miscellaneous_11"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#miscellaneous_11');">
+        <a href="#miscellaneous_11" data-active="false" data-depth="3">
             Miscellaneous
         </a>
         
-        <a href="#testing_9"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#testing_9');">
+        <a href="#testing_10" data-active="false" data-depth="3">
             Testing
         </a>
         
         
 
         
-        <a href="#041-2026-02-10"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#041-2026-02-10');">
+        <a href="#041-2026-02-10" data-active="false" data-depth="2">
             [0.4.1] - 2026-02-10
         </a>
         
         
-        <a href="#documentation_14"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#documentation_14');">
+        <a href="#documentation_15" data-active="false" data-depth="3">
             Documentation
         </a>
         
         
 
         
-        <a href="#040-2026-02-10"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#040-2026-02-10');">
+        <a href="#040-2026-02-10" data-active="false" data-depth="2">
             [0.4.0] - 2026-02-10
         </a>
         
         
-        <a href="#added_14"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#added_14');">
+        <a href="#added_15" data-active="false" data-depth="3">
             Added
         </a>
         
-        <a href="#cicd_5"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#cicd_5');">
+        <a href="#cicd_6" data-active="false" data-depth="3">
             CI/CD
         </a>
         
-        <a href="#fixed_20"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#fixed_20');">
+        <a href="#fixed_21" data-active="false" data-depth="3">
             Fixed
         </a>
         
-        <a href="#miscellaneous_12"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#miscellaneous_12');">
+        <a href="#miscellaneous_12" data-active="false" data-depth="3">
             Miscellaneous
         </a>
         
-        <a href="#other_3"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#other_3');">
+        <a href="#other_3" data-active="false" data-depth="3">
             Other
         </a>
         
-        <a href="#styling_4"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#styling_4');">
+        <a href="#styling_4" data-active="false" data-depth="3">
             Styling
         </a>
         
-        <a href="#testing_10"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#testing_10');">
+        <a href="#testing_11" data-active="false" data-depth="3">
             Testing
         </a>
         
         
 
         
-        <a href="#030-2026-02-03"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#030-2026-02-03');">
+        <a href="#030-2026-02-03" data-active="false" data-depth="2">
             [0.3.0] - 2026-02-03
         </a>
         
         
-        <a href="#other_4"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#other_4');">
+        <a href="#other_4" data-active="false" data-depth="3">
             Other
         </a>
         
         
 
         
-        <a href="#028-2026-01-27"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#028-2026-01-27');">
+        <a href="#028-2026-01-27" data-active="false" data-depth="2">
             [0.2.8] - 2026-01-27
         </a>
         
         
-        <a href="#fixed_21"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#fixed_21');">
+        <a href="#fixed_22" data-active="false" data-depth="3">
             Fixed
         </a>
         
-        <a href="#other_5"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#other_5');">
+        <a href="#other_5" data-active="false" data-depth="3">
             Other
         </a>
         
         
 
         
-        <a href="#027-2026-01-26"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#027-2026-01-26');">
+        <a href="#027-2026-01-26" data-active="false" data-depth="2">
             [0.2.7] - 2026-01-26
         </a>
         
         
-        <a href="#other_6"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#other_6');">
+        <a href="#other_6" data-active="false" data-depth="3">
             Other
         </a>
         
         
 
         
-        <a href="#026-2026-01-21"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#026-2026-01-21');">
+        <a href="#026-2026-01-21" data-active="false" data-depth="2">
             [0.2.6] - 2026-01-21
         </a>
         
         
-        <a href="#other_7"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#other_7');">
+        <a href="#other_7" data-active="false" data-depth="3">
             Other
         </a>
         
         
 
         
-        <a href="#025-2026-01-14"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#025-2026-01-14');">
+        <a href="#025-2026-01-14" data-active="false" data-depth="2">
             [0.2.5] - 2026-01-14
         </a>
         
         
-        <a href="#other_8"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#other_8');">
+        <a href="#other_8" data-active="false" data-depth="3">
             Other
         </a>
         
         
 
         
-        <a href="#024-2026-01-13"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#024-2026-01-13');">
+        <a href="#024-2026-01-13" data-active="false" data-depth="2">
             [0.2.4] - 2026-01-13
         </a>
         
         
-        <a href="#other_9"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#other_9');">
+        <a href="#other_9" data-active="false" data-depth="3">
             Other
         </a>
         
         
 
         
-        <a href="#023-2026-01-08"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#023-2026-01-08');">
+        <a href="#023-2026-01-08" data-active="false" data-depth="2">
             [0.2.3] - 2026-01-08
         </a>
         
         
-        <a href="#other_10"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#other_10');">
+        <a href="#other_10" data-active="false" data-depth="3">
             Other
         </a>
         
         
 
         
-        <a href="#022-2026-01-07"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#022-2026-01-07');">
+        <a href="#022-2026-01-07" data-active="false" data-depth="2">
             [0.2.2] - 2026-01-07
         </a>
         
         
-        <a href="#documentation_15"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#documentation_15');">
+        <a href="#documentation_16" data-active="false" data-depth="3">
             Documentation
         </a>
         
-        <a href="#other_11"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#other_11');">
+        <a href="#other_11" data-active="false" data-depth="3">
             Other
         </a>
         
         
 
         
-        <a href="#021-2026-01-07"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#021-2026-01-07');">
+        <a href="#021-2026-01-07" data-active="false" data-depth="2">
             [0.2.1] - 2026-01-07
         </a>
         
         
-        <a href="#other_12"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#other_12');">
+        <a href="#other_12" data-active="false" data-depth="3">
             Other
         </a>
         
         
 
         
-        <a href="#020-2026-01-06"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#020-2026-01-06');">
+        <a href="#020-2026-01-06" data-active="false" data-depth="2">
             [0.2.0] - 2026-01-06
         </a>
         
         
-        <a href="#fixed_22"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#fixed_22');">
+        <a href="#fixed_23" data-active="false" data-depth="3">
             Fixed
         </a>
         
-        <a href="#other_13"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#other_13');">
+        <a href="#other_13" data-active="false" data-depth="3">
             Other
         </a>
         
         
 
         
-        <a href="#013-2025-08-28"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#013-2025-08-28');">
+        <a href="#013-2025-08-28" data-active="false" data-depth="2">
             [0.1.3] - 2025-08-28
         </a>
         
         
-        <a href="#fixed_23"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#fixed_23');">
+        <a href="#fixed_24" data-active="false" data-depth="3">
             Fixed
         </a>
         
         
 
         
-        <a href="#012-2025-08-28"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#012-2025-08-28');">
+        <a href="#012-2025-08-28" data-active="false" data-depth="2">
             [0.1.2] - 2025-08-28
         </a>
         
         
-        <a href="#other_14"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#other_14');">
+        <a href="#other_14" data-active="false" data-depth="3">
             Other
         </a>
         
         
 
         
-        <a href="#011-2025-08-28"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#011-2025-08-28');">
+        <a href="#011-2025-08-28" data-active="false" data-depth="2">
             [0.1.1] - 2025-08-28
         </a>
         
         
-        <a href="#other_15"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#other_15');">
+        <a href="#other_15" data-active="false" data-depth="3">
             Other
         </a>
         
         
 
         
-        <a href="#010-2025-08-12"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#010-2025-08-12');">
+        <a href="#010-2025-08-12" data-active="false" data-depth="2">
             [0.1.0] - 2025-08-12
         </a>
         
         
-        <a href="#changed_17"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#changed_17');">
+        <a href="#changed_17" data-active="false" data-depth="3">
             Changed
         </a>
         
-        <a href="#fixed_24"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#fixed_24');">
+        <a href="#fixed_25" data-active="false" data-depth="3">
             Fixed
         </a>
         
-        <a href="#other_16"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#other_16');">
+        <a href="#other_16" data-active="false" data-depth="3">
             Other
         </a>
         
-        <a href="#styling_5"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="3" onClick="deferSetActiveTocLink('#styling_5');">
+        <a href="#styling_5" data-active="false" data-depth="3">
             Styling
         </a>
         
@@ -4089,7 +3769,6 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
                                 
                                 
                             </div>
-
                         </div>
                     </div>
                 </div>

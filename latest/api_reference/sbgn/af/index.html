@@ -4,9 +4,7 @@
 
 <head>
     <script>
-        /* const base_url = "https://adrienrougny.github.io/momapy/latest"; */
         const base_url = (new URL("../../..", window.location)).href.replace(/\/+$/, ""); /* for search plugin notably */
-        /* const root_relative_url = "../../.."; */
     </script>
     <script integrity="sha384-m6cZ+Whl1ci89lidlu8DH4C+sZLNOYBvImtjUIhUK+iaNffXhqtbYgBVuuPfRsa0" src="../../../js/dark.js"></script>
 
@@ -77,8 +75,10 @@
 
     
 
-    <script integrity="sha384-V2jkXRy811qODUbfkLlkVJYBbf4h6XHAEjcU6ReASBPrJvTrlYh4GrI4t6GCju6n"
+    <script integrity="sha384-2hn3q9jeDV70Gb3DuyWPKgeRxkowIjEpcHeOXSvWCEq2uHJHvXiVer7rbM8HYzYz"
         src="../../../js/callbacks.js"></script>
+    <script defer="" integrity="sha384-ljmRPFWw/c4kKFaKY5DIe8bgppHI9VBBrg7WZa8UPd23U9dEFesxZ1Ng8Hzjq2WB"
+        src="../../../js/toc.js"></script>
 
     
 
@@ -110,36 +110,35 @@
 </head>
 
 <body
-    class="text-foreground group/body overscroll-none font-sans antialiased [--footer-height:calc(var(--spacing)*14)] [--header-height:calc(var(--spacing)*14)] xl:[--footer-height:calc(var(--spacing)*24)] theme-default">
+    class="text-foreground group/body overscroll-none font-sans antialiased [--footer-height:calc(var(--spacing)*14)] [--header-height:calc(var(--spacing)*14)] lg:[--header-height:calc(var(--spacing)*16)] xl:[--footer-height:calc(var(--spacing)*24)] theme-default">
     <div class="bg-background relative z-10 flex min-h-svh flex-col" id="inner-body">
         <header class="bg-background sticky top-0 z-50 w-full" view-transition-name="header">
     <div class="container-wrapper 3xl:fixed:px-0 px-6">
         <div class="3xl:fixed:container flex h-(--header-height) items-center gap-2 **:data-[slot=separator]:!h-4">
-            <button id="menu-button" data-slot="popover-trigger" onclick="onMobileMenuButtonClick(event)"
-                class="group whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:text-accent-foreground px-4 py-2 has-[&gt;svg]:px-3 extend-touch-target h-8 touch-manipulation items-center justify-start gap-2.5 !p-0 hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 active:bg-transparent dark:hover:bg-transparent flex lg:hidden"
-                type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="radix-«Rmplb»"
-                data-state="closed">
-                <div class="relative flex h-8 w-4 items-center justify-center">
-                    <div class="relative size-4">
-                        <!-- 16px x 16px -->
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="0" x2="16" y1="5" y2="5"
-                                class="group-data-[state=open]:translate-y-[2.25px] group-data-[state=open]:-translate-x-[2.25px] group-data-[state=open]:rotate-45 transition-all duration-300 origin-center" />
-                            <line x1="0" x2="16" y1="11" y2="11"
-                                class="group-data-[state=open]:-translate-y-[2.25px] group-data-[state=open]:-translate-x-[2.25px] group-data-[state=open]:-rotate-45 transition-all duration-300 origin-center" />
-                        </svg>
-                    </div>
+            <button id="burger-button" data-slot="popover-trigger" onclick="onMobileMenuButtonClick(event)" class="group"
+    
+    type="button" aria-haspopup="dialog" data-state="closed">
+    <div class="relative flex h-8 w-4 items-center justify-center">
+        <div class="relative size-4">
+            <!-- 16px x 16px -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="0" x2="16" y1="5" y2="5"
+                    class="group-data-[state=open]:translate-y-[2.25px] group-data-[state=open]:-translate-x-[2.25px] group-data-[state=open]:rotate-45 transition-all duration-300 origin-center" />
+                <line x1="0" x2="16" y1="11" y2="11"
+                    class="group-data-[state=open]:-translate-y-[2.25px] group-data-[state=open]:-translate-x-[2.25px] group-data-[state=open]:-rotate-45 transition-all duration-300 origin-center" />
+            </svg>
+        </div>
 
-                    <span class="sr-only">Toggle Menu</span>
-                </div>
-                <span class="flex h-8 items-center text-lg leading-none font-medium">Menu</span>
-            </button>
-            <a data-slot="button"
-                class="items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-5 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 hidden h-8 lg:flex"
-                href="https://adrienrougny.github.io/momapy/latest">
-                <span class="size-8 flex flex-row justify-center items-center">
-                    
+        <span class="sr-only">Toggle Menu</span>
+    </div>
+    <span class="flex h-8 items-center text-lg leading-none font-medium">Menu</span>
+</button>
+            <a data-slot="button" class="button ghost gap-2 hidden lg:flex"
+    
+    href="https://adrienrougny.github.io/momapy/latest">
+    <span class="flex flex-row justify-center items-center">
+        
 
 
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -155,19 +154,19 @@
 
 
 
-                </span>
+    </span>
 
-                
-                <h1 class="pr-2"><span class="momapy-brand"><span class="momapy-brand-moma">Moma</span><span class="momapy-brand-py">Py</span></span></h1>
-                
-            </a>
+    
+    <h1><span class="momapy-brand"><span class="momapy-brand-moma">Moma</span><span class="momapy-brand-py">Py</span></span></h1>
+    
+</a>
             
             <nav class="items-center gap-0.5 hidden lg:flex">
     
     
     
-    <a class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 h-8 rounded-md gap-1.5 px-3 has-[&gt;svg]:px-2.5"
-        data-slot="button" href="../../">
+    
+    <a class="ghost button" href="../../">
         API reference
     </a>
     
@@ -178,29 +177,27 @@
                 <div class="hidden w-full flex-1 md:flex md:w-auto md:flex-none">
                     <div class="hidden w-full flex-1 md:flex md:w-auto md:flex-none">
     <button onclick="onSearchBarClick(event)" data-slot="dialog-trigger" data-variant="outline" data-size="default"
-        class="inline-flex shrink-0 items-center gap-2 text-sm whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&amp;_svg]:pointer-events-none [&amp;_svg]:shrink-0 [&amp;_svg:not([class*='size-'])]:size-4 border bg-background hover:text-accent-foreground dark:border-input dark:hover:bg-input/50 px-4 py-2 has-[&gt;svg]:px-3 relative h-8 w-full justify-start rounded-lg pl-3 font-normal text-foreground shadow-none hover:bg-muted/50 sm:pr-12 md:w-48 lg:w-56 xl:w-64 dark:bg-card"
-        type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="radix-_r_1_" data-state="closed">
-        <span class="hidden lg:inline-flex">Search documentation...</span>
-        <span class="inline-flex lg:hidden">Search...</span>
-    </button>
+    class="search secondary" type="button" aria-haspopup="dialog" aria-controls="search-dialog" data-state="closed">
+    <span class="hidden lg:inline-flex">Search documentation...</span>
+    <span class="inline-flex lg:hidden">Search...</span>
+</button>
 </div>
 <dialog id="search-dialog" onclick="onSearchDialogClick(event)"
     class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-background rounded-lg shadow-lg border overflow-hidden p-0">
     <div class="w-lg gap-4">
         <div class="flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground">
-            <div data-slot="command-input-wrapper" class="flex h-9 items-center gap-2 border-b px-3"><svg
-                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-search size-4 shrink-0 opacity-50">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <path d="m21 21-4.3-4.3"></path>
-                </svg>
+            <div data-slot="command-input-wrapper" class="flex h-9 items-center gap-2 border-b px-3">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+    class="lucide lucide-search size-4 shrink-0 opacity-50">
+    <circle cx="11" cy="11" r="8"></circle>
+    <path d="m21 21-4.3-4.3"></path>
+</svg>
                 <input data-slot="command-input"
                     class="placeholder:text-muted-foreground flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
                     placeholder="Search documentation..." cmdk-input="" autocomplete="off" autocorrect="off"
-                    spellcheck="false" aria-autocomplete="list" role="combobox" aria-expanded="true"
-                    aria-controls="radix-«r1t6»" aria-labelledby="radix-«r1t7»" id="radix-«r1t8»" type="text" value=""
-                    aria-activedescendant="radix-«r1th»" oninput="onInputHandler(event)">
+                    spellcheck="false" aria-label="Search documentation" type="search" value=""
+                    oninput="onInputHandler(event)">
             </div>
         </div>
         <div id="mkdocs-search-results">
@@ -214,46 +211,44 @@
 </script>
                 </div>
                 
-                <div data-orientation="vertical" role="none" data-slot="separator"
-                    class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px 3xl:flex hidden">
-                </div>
                 
+
+
+                
+                <div data-orientation="vertical" role="none" data-slot="separator"
+    class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px">
+</div>
                 <select id="version-selector" onchange="selectVersion(event.target.value)"></select>
 <script integrity="sha384-YU6TPf0CfFfbisdIHfkqTtPxu1sZc0K/F0h3GhS/UPVULZs1DqhjPpInpkcpR9rk" src="../../../js/version-select.js"></script>
-                <div data-orientation="vertical" role="none" data-slot="separator"
-                    class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px 3xl:flex hidden">
-                </div>
                 
-                <button data-slot="button"
-                    class="items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 size-8 3xl:flex hidden"
-                    title="Toggle layout" onclick="toggleLayout(event)">
-                    <span class="sr-only">Toggle layout</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                        class="lucide lucide-gallery-horizontal">
-                        <path d="M2 3v18"></path>
-                        <rect width="12" height="18" x="6" y="3" rx="2"></rect>
-                        <path d="M22 3v18"></path>
-                    </svg>
-                </button>
+
                 <div data-orientation="vertical" role="none" data-slot="separator"
-                    class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px">
-                </div>
-                <button data-slot="button"
-                    class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 group/toggle extend-touch-target size-8"
-                    title="Toggle theme" onclick="onThemeSwitch(event)">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                        class="size-4.5">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path>
-                        <path d="M12 3l0 18"></path>
-                        <path d="M12 9l4.65 -4.65"></path>
-                        <path d="M12 14.3l7.37 -7.37"></path>
-                        <path d="M12 19.6l8.85 -8.85"></path>
-                    </svg>
-                    <span class="sr-only">Toggle theme</span>
-                </button>
+    class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px">
+</div>
+                <button class="ghost icon" title="Toggle layout" onclick="toggleLayout(event)">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+    class="lucide lucide-gallery-horizontal">
+    <path d="M2 3v18"></path>
+    <rect width="12" height="18" x="6" y="3" rx="2"></rect>
+    <path d="M22 3v18"></path>
+</svg>
+</button>
+                <div data-orientation="vertical" role="none" data-slot="separator"
+    class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px">
+</div>
+                <button class="ghost icon" onclick="onThemeSwitch(event)" title="Toggle theme">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+    class="size-4.5">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path>
+    <path d="M12 3l0 18"></path>
+    <path d="M12 9l4.65 -4.65"></path>
+    <path d="M12 14.3l7.37 -7.37"></path>
+    <path d="M12 19.6l8.85 -8.85"></path>
+</svg>
+</button>
             </div>
         </div>
     </div>
@@ -263,7 +258,7 @@
                 <div class="group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex w-full 3xl:fixed:container 3xl:fixed:px-3 min-h-min flex-1 items-start px-0 [--sidebar-width:220px] [--top-spacing:0] lg:grid lg:grid-cols-[var(--sidebar-width)_minmax(0,1fr)] lg:[--sidebar-width:240px] lg:[--top-spacing:calc(var(--spacing)*4)]"
                     data-slot="sidebar-wrapper"
                     style="--sidebar-width:calc(var(--spacing) * 72);--sidebar-width-icon:3rem;">
-                    <div class="w-(--sidebar-width) flex-col text-sidebar-foreground sticky top-[calc(var(--header-height)+0.6rem)] z-30 hidden h-[calc(100svh-10rem)] overscroll-none bg-transparent [--sidebar-menu-width:--spacing(56)] lg:flex"
+                    <div class="w-(--sidebar-width) flex-col text-sidebar-foreground sticky top-[calc(var(--header-height)+0.6rem)] z-30 hidden max-h-[calc(100svh-10rem)] overscroll-none bg-transparent [--sidebar-menu-width:--spacing(56)] lg:flex"
                         data-slot="sidebar">
                         <div class="h-9"></div>
                         <div
@@ -296,15 +291,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../../"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         Overview
         
-
         
-
         
-
         
     </a>
 </li>
@@ -316,15 +307,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../../core/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         Core
         
-
         
-
         
-
         
     </a>
 </li>
@@ -336,15 +323,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../../builder/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         Builder
         
-
         
-
         
-
         
     </a>
 </li>
@@ -356,15 +339,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../../drawing/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         Drawing
         
-
         
-
         
-
         
     </a>
 </li>
@@ -376,15 +355,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../../coloring/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         Coloring
         
-
         
-
         
-
         
     </a>
 </li>
@@ -396,15 +371,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../../geometry/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         Geometry
         
-
         
-
         
-
         
     </a>
 </li>
@@ -416,15 +387,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../../io/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         I/O
         
-
         
-
         
-
         
     </a>
 </li>
@@ -436,15 +403,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../../positioning/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         Positioning
         
-
         
-
         
-
         
     </a>
 </li>
@@ -456,15 +419,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../../styling/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         Styling
         
-
         
-
         
-
         
     </a>
 </li>
@@ -489,15 +448,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../../rendering/core/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         Core
         
-
         
-
         
-
         
     </a>
 </li>
@@ -508,15 +463,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../../rendering/skia/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         Skia
         
-
         
-
         
-
         
     </a>
 </li>
@@ -527,15 +478,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../../rendering/cairo/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         Cairo
         
-
         
-
         
-
         
     </a>
 </li>
@@ -546,15 +493,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../../rendering/svg_native/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         SVG-native
         
-
         
-
         
-
         
     </a>
 </li>
@@ -578,15 +521,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../sbgn/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         SBGN
         
-
         
-
         
-
         
     </a>
 </li>
@@ -597,15 +536,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../pd/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         PD
         
-
         
-
         
-
         
     </a>
 </li>
@@ -616,15 +551,11 @@
     <a data-slot="sidebar-menu-button" data-active="true" data-sidebar="menu-button"
         data-size="default" href="./"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         AF
         
-
         
-
         
-
         
     </a>
 </li>
@@ -658,15 +589,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../io/sbgnml/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         SBGN-ML
         
-
         
-
         
-
         
     </a>
 </li>
@@ -695,15 +622,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../../celldesigner/celldesigner/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         CellDesigner
         
-
         
-
         
-
         
     </a>
 </li>
@@ -737,15 +660,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../../celldesigner/io/celldesigner/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         CD
         
-
         
-
         
-
         
     </a>
 </li>
@@ -774,15 +693,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../../sbml/sbml/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         SBML
         
-
         
-
         
-
         
     </a>
 </li>
@@ -816,15 +731,11 @@
     <a data-slot="sidebar-menu-button" data-active="false" data-sidebar="menu-button"
         data-size="default" href="../../sbml/io/sbml/"
         class="peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48">
-
         
         SBML
         
-
         
-
         
-
         
     </a>
 </li>
@@ -851,7 +762,6 @@
                     </div>
                     <div class="h-full w-full">
                         <div class="flex items-stretch text-[1.05rem] sm:text-[15px] xl:w-full" data-slot="docs">
-
                             <div class="flex min-w-0 flex-1 flex-col">
                                 <div class="h-(--top-spacing) shrink-0"></div>
                                 
@@ -863,12 +773,11 @@
         <h1 class="scroll-m-20 text-4xl font-semibold tracking-tight sm:text-3xl xl:text-4xl">
           AF
         </h1>
-
-        <div class="flex items-center gap-2 pt-1.5">
+        <div class="flex items-start gap-2">
           
-          <button
-    onclick="fetch(`../../..`).then((r) => r.text()).then((text) => navigator.clipboard.write([new ClipboardItem({ 'text/plain': text })]))"
-    data-slot="button" class="secondary cursor-pointer">
+          <button id="copy-page"
+    onclick="fetch(`https://adrienrougny.github.io/momapy/latest/api_reference/sbgn/af.md`).then((r) => r.text()).then((text) => navigator.clipboard.write([new ClipboardItem({ 'text/plain': text })]))"
+    data-slot="button" class="secondary cursor-pointer sm">
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-copy ">
         <path
@@ -880,32 +789,28 @@
 </button>
           
           
-          <a data-slot="button" id="previous-button"
-            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-secondary text-secondary-foreground hover:bg-secondary/80 extend-touch-target size-8 shadow-none md:size-7"
-            href="../pd/">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              class="tabler-icon tabler-icon-arrow-left">
-              <path d="M5 12l14 0"></path>
-              <path d="M5 12l6 6"></path>
-              <path d="M5 12l6 -6"></path>
-            </svg>
-            <span class="sr-only">Previous</span>
-          </a>
+          <a id="previous-button" class="button secondary icon sm" href="../pd/">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+    class="tabler-icon tabler-icon-arrow-left">
+    <path d="M5 12l14 0"></path>
+    <path d="M5 12l6 6"></path>
+    <path d="M5 12l6 -6"></path>
+</svg>
+    <span class="sr-only">Previous</span>
+</a>
           
           
-          <a data-slot="button" id="next-button"
-            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-secondary text-secondary-foreground hover:bg-secondary/80 extend-touch-target size-8 shadow-none md:size-7"
-            href="../io/sbgnml/">
-            <span class="sr-only">Next</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              class="tabler-icon tabler-icon-arrow-right">
-              <path d="M5 12l14 0"></path>
-              <path d="M13 18l6 -6"></path>
-              <path d="M13 6l6 6"></path>
-            </svg>
-          </a>
+          <a id="next-button" class="button secondary icon sm" href="../io/sbgnml/">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+    class="tabler-icon tabler-icon-arrow-right">
+    <path d="M5 12l14 0"></path>
+    <path d="M13 18l6 -6"></path>
+    <path d="M13 6l6 6"></path>
+</svg>
+    <span class="sr-only">Next</span>
+</a>
           
         </div>
       </div>
@@ -913,6 +818,7 @@
     </div>
     <div class="flex justify-end items-center">
       
+
       
     </div>
   </div>
@@ -2086,7 +1992,7 @@ reference arcs) use a singleton key: <a class="autorefs autorefs-internal" title
               </div>
             </td>
             <td>
-                  <code>&#39;d47afc84-bc0b-4207-b918-459669f56530&#39;</code>
+                  <code>&#39;65fbab86-dcc5-41da-bcfd-1bd2f610cdeb&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -2375,7 +2281,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;fd9d90ed-506b-47ab-9f67-28aee973ccdf&#39;</code>
+                  <code>&#39;5b45caf8-672c-4f0f-b2dd-bf16b0567900&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -2818,7 +2724,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;734057fc-050f-4f58-ab1c-ec0a02248ac7&#39;</code>
+                  <code>&#39;2ec43b67-a1ac-4dd8-ba5b-cf5546d200e5&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -3351,7 +3257,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&lt;momapy.drawing.NoneValueType object at 0x7f84ccf25e80&gt;</code>
+                  <code>&lt;momapy.drawing.NoneValueType object at 0x7f6e967902f0&gt;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -6548,7 +6454,7 @@ through each.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;bc8b0513-0025-4e3a-b0fb-41a94ac0d8cf&#39;</code>
+                  <code>&#39;3456a90a-cd27-4369-a5af-163b2e499525&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -6938,7 +6844,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;0c08567e-ba71-49d2-8800-61bd230be980&#39;</code>
+                  <code>&#39;b4814502-6114-4383-b12d-6afdb7cbdfb9&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -9699,7 +9605,7 @@ through each.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;31143282-71b5-47ed-9208-52706e79ebc6&#39;</code>
+                  <code>&#39;03885686-860d-4173-bbf6-b303e29a8073&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -10068,7 +9974,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;bee5de62-50ae-4b88-8983-f21044acf236&#39;</code>
+                  <code>&#39;6d5d5166-61f1-4bbc-87cc-6a0886015b8d&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -12840,7 +12746,7 @@ through each.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;ed3c196e-4dcc-4be6-aa85-bb4bb3c8478b&#39;</code>
+                  <code>&#39;51eed234-7e45-444d-bf0d-9e1a34148b7a&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -13188,7 +13094,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;3ce832ed-0565-407b-8f9f-a4c76c6d53ee&#39;</code>
+                  <code>&#39;269b148b-3d2c-4d0c-89c6-cd85f95bc5e8&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -15965,7 +15871,7 @@ through each.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;941e2de9-fb69-4e26-a2b2-03b45c03033e&#39;</code>
+                  <code>&#39;3da62704-3af2-47eb-874c-e389b3202dac&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -16408,7 +16314,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;edacf485-0a22-480a-a0a1-b22db80e25ac&#39;</code>
+                  <code>&#39;816b8fe9-0903-40fa-8c64-73123cea9191&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -16941,7 +16847,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&lt;momapy.drawing.NoneValueType object at 0x7f84ccf25e80&gt;</code>
+                  <code>&lt;momapy.drawing.NoneValueType object at 0x7f6e967902f0&gt;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -20303,7 +20209,7 @@ through each.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;cf57c214-07a4-4f38-85ae-b8e078e0e0b8&#39;</code>
+                  <code>&#39;2964d9f8-ade9-4910-987b-7ac61d378529&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -20623,7 +20529,7 @@ through each.</p>
               </div>
             </td>
             <td>
-                  <code>&lt;momapy.drawing.NoneValueType object at 0x7f84ccf25e80&gt;</code>
+                  <code>&lt;momapy.drawing.NoneValueType object at 0x7f6e967902f0&gt;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -22947,7 +22853,7 @@ through each.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;e9504873-e7f2-4169-aed6-6e12b10be8f6&#39;</code>
+                  <code>&#39;943e523f-f219-4863-9619-a0e165ce8d3a&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -23416,7 +23322,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;9ab3b1e5-4a83-40c3-a297-7593a165b8ec&#39;</code>
+                  <code>&#39;499b4271-6854-476c-a560-b642d866327e&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -23736,7 +23642,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&lt;momapy.drawing.NoneValueType object at 0x7f84ccf25e80&gt;</code>
+                  <code>&lt;momapy.drawing.NoneValueType object at 0x7f6e967902f0&gt;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -26050,7 +25956,7 @@ through each.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;47c4ab02-01fb-426a-b1b0-62b87449aaa7&#39;</code>
+                  <code>&#39;0822f87e-7607-4040-97f0-d85dfa58c6bb&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -26328,7 +26234,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;ad98cdbe-e4c2-44d9-86c8-fc3d6b45df76&#39;</code>
+                  <code>&#39;dcfac1d9-e5e5-4e58-8a2a-cc516c183397&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -26596,7 +26502,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;59c8c33b-272a-4678-8d39-531eefc36cea&#39;</code>
+                  <code>&#39;c83384a6-72ce-43d1-aaf6-1204dea5171a&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -26944,7 +26850,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;11f38f12-7ff8-48da-8c85-7dd33ed4c048&#39;</code>
+                  <code>&#39;39116d3f-a9e2-4ae2-ba0d-d8a69b099354&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -29731,7 +29637,7 @@ through each.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;b61e9427-a7ab-4787-9c75-49e3009d1ddb&#39;</code>
+                  <code>&#39;e2cf908d-27fa-4d30-b807-b1f2fa61a719&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -30200,7 +30106,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;9560073b-e64a-44b5-8665-8cb7d5e52bb9&#39;</code>
+                  <code>&#39;f1ad48e3-8aee-481c-a4a2-822dc8b341e8&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -30520,7 +30426,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&lt;momapy.drawing.NoneValueType object at 0x7f84ccf25e80&gt;</code>
+                  <code>&lt;momapy.drawing.NoneValueType object at 0x7f6e967902f0&gt;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -32908,7 +32814,7 @@ through each.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;7d1b0815-2662-4575-a94c-41d11c2a07a3&#39;</code>
+                  <code>&#39;4ea25b90-34a2-419a-b340-e8ad5b0464ac&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -33377,7 +33283,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;aac3d958-eba7-416a-acc8-60cdc93b0d98&#39;</code>
+                  <code>&#39;909faf4e-2392-4c69-a8e9-6257050cba1f&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -33697,7 +33603,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&lt;momapy.drawing.NoneValueType object at 0x7f84ccf25e80&gt;</code>
+                  <code>&lt;momapy.drawing.NoneValueType object at 0x7f6e967902f0&gt;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -36027,7 +35933,7 @@ through each.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;ed045edc-24ed-45b5-ab49-02402c886d2b&#39;</code>
+                  <code>&#39;1d8559f8-f115-45b4-9283-81562c204322&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -36470,7 +36376,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;9b352f2b-87aa-44f8-ada0-483615fba7e9&#39;</code>
+                  <code>&#39;2380cc8c-f110-4f1d-9eaf-6186ef683d0e&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -37003,7 +36909,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&lt;momapy.drawing.NoneValueType object at 0x7f84ccf25e80&gt;</code>
+                  <code>&lt;momapy.drawing.NoneValueType object at 0x7f6e967902f0&gt;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -40190,7 +40096,7 @@ through each.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;41379137-b49c-44a2-939d-63be2357da3b&#39;</code>
+                  <code>&#39;495ea935-4dd9-4b9b-9bb8-f6310c92a932&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -40538,7 +40444,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;7e8c098e-6288-4bb5-9cf2-4b1c26801160&#39;</code>
+                  <code>&#39;7a237ad3-53bb-423c-aca2-55c3193d9523&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -43315,7 +43221,7 @@ through each.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;d4979817-ea4e-4e97-9dd1-19c3d9ecbfee&#39;</code>
+                  <code>&#39;2a452347-3faa-4ce2-a8cc-a416eefed035&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -43758,7 +43664,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;38698a1d-d5cd-4ffa-80ed-3b74c7d75fba&#39;</code>
+                  <code>&#39;cfd554b5-3033-4d4c-a3de-b33ab7f0d4ea&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -44291,7 +44197,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&lt;momapy.drawing.NoneValueType object at 0x7f84ccf25e80&gt;</code>
+                  <code>&lt;momapy.drawing.NoneValueType object at 0x7f6e967902f0&gt;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -47478,7 +47384,7 @@ through each.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;4b6c39d7-c8c8-4e1d-8c14-b4bca92de72d&#39;</code>
+                  <code>&#39;ea910aef-340e-425b-9e2a-f7c05fe89894&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -47826,7 +47732,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;1cf69b34-ca82-47f4-a9a6-f44267eda2e1&#39;</code>
+                  <code>&#39;765b6c20-c9b7-449d-9ad2-9a116e2348d9&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -50587,7 +50493,7 @@ through each.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;708233e6-75eb-4b94-acc6-75c5d1933f1e&#39;</code>
+                  <code>&#39;9265f0c1-8064-4f99-a746-55c85b995a2e&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -50956,7 +50862,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;f334894f-7f6e-4bc0-9adf-b90db4d69175&#39;</code>
+                  <code>&#39;66fd0087-1e3c-4251-a0bf-11f87985ae87&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -53727,7 +53633,7 @@ through each.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;c85611a9-8444-4e62-8adb-dc04b82c095a&#39;</code>
+                  <code>&#39;6b27ee5d-4d90-4a04-a6af-2f51bb16dd07&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -54196,7 +54102,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;cccfd1ba-20c7-471a-979b-b7799283d647&#39;</code>
+                  <code>&#39;9d727929-9093-4db1-9944-25b1f22c0cb7&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -54516,7 +54422,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&lt;momapy.drawing.NoneValueType object at 0x7f84ccf25e80&gt;</code>
+                  <code>&lt;momapy.drawing.NoneValueType object at 0x7f6e967902f0&gt;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -56937,7 +56843,7 @@ through each.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;ec905b19-7711-450d-af46-fafa18875173&#39;</code>
+                  <code>&#39;4f37dc7c-86a2-4bac-b3ad-3b0ab687292f&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -59824,7 +59730,7 @@ through each.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;8638b6e9-135a-4991-997d-3375c397e89e&#39;</code>
+                  <code>&#39;f18e6cee-f717-4e17-ab23-e5128196c544&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -60198,7 +60104,7 @@ returns <code>False</code>.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;96303c1b-0418-4e6f-8e2c-638436965f95&#39;</code>
+                  <code>&#39;85ec08eb-3ed5-46c1-b250-96cfcc223f2d&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -60707,7 +60613,7 @@ rather than reference reachability.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;85832a20-221e-452a-9d2c-997473e9dac3&#39;</code>
+                  <code>&#39;a92a7787-0fad-430f-adfe-e8627a113418&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -61055,7 +60961,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;0727b121-66fa-4107-b4c6-7842496c9923&#39;</code>
+                  <code>&#39;bb85fffa-16ec-486d-ad8b-5f4941183fef&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -63816,7 +63722,7 @@ through each.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;352825f8-bbeb-42ee-97f2-6f8772a67ff8&#39;</code>
+                  <code>&#39;5bb48c5b-c13d-4851-871a-993348a97249&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -64185,7 +64091,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;95945bd1-ec74-42f8-a333-e31fac0f7459&#39;</code>
+                  <code>&#39;6ce41eb8-85de-4a36-be7c-43323da8d76c&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -66946,7 +66852,7 @@ through each.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;61a16ff5-11ba-44ca-a688-9832d09ac218&#39;</code>
+                  <code>&#39;60527ead-132d-4d65-a7ed-e7367f07cf4d&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -67315,7 +67221,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;36f7cbd2-449f-46c2-b1a8-807fe4a6124e&#39;</code>
+                  <code>&#39;21f1991c-d41f-401a-a3c6-dba710f5d907&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -70097,7 +70003,7 @@ through each.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;e5b07110-a953-4fa2-ba42-f66d4d8ff11b&#39;</code>
+                  <code>&#39;853cf2f9-3a6c-4420-956d-757982284ca6&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -70375,7 +70281,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;bc633e06-2357-4e09-9d58-0c700e897092&#39;</code>
+                  <code>&#39;d794547d-9c51-4d13-ab98-bcb08e1a9ae4&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -70744,7 +70650,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;8f0e5e69-8466-453a-8693-125d926454f8&#39;</code>
+                  <code>&#39;0024922a-6551-44cf-8a8f-cc6623c6d2ea&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -73526,7 +73432,7 @@ through each.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;bb058e3f-930c-4c76-b0b7-f74676e456ed&#39;</code>
+                  <code>&#39;aabc38c7-6993-4f59-beaa-09759e116ae2&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -73799,7 +73705,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;19510470-2a8d-49ee-839e-7dd18b972886&#39;</code>
+                  <code>&#39;ec79ab9d-8641-4b5d-ad0b-bd06783d9e02&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -74147,7 +74053,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;fe641b89-263a-4575-825d-e5786c9b272d&#39;</code>
+                  <code>&#39;4b6c3ab8-41a8-4d01-bf7d-e5c0d136aa22&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -76918,7 +76824,7 @@ through each.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;a14a99a0-bdd7-4b9c-b4c3-b14fec552584&#39;</code>
+                  <code>&#39;a3f23443-fa18-4581-beff-30212b5431f2&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -77387,7 +77293,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;0ddc7ec4-ee8d-404c-a4c4-71124f28ec5d&#39;</code>
+                  <code>&#39;a638af92-2ee7-4cfe-aa47-69aeb9b84bc5&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -77707,7 +77613,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&lt;momapy.drawing.NoneValueType object at 0x7f84ccf25e80&gt;</code>
+                  <code>&lt;momapy.drawing.NoneValueType object at 0x7f6e967902f0&gt;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -80048,7 +79954,7 @@ through each.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;c0a93ca7-cc4b-4043-b238-95e5d3025c7b&#39;</code>
+                  <code>&#39;561dd1c2-8ce0-4a8b-a2c8-260f8b749c63&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -80396,7 +80302,7 @@ reached through each, with no identity dedup.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;3031b530-90fa-4ab4-b515-cc1d55d97654&#39;</code>
+                  <code>&#39;a6751a50-6855-4392-90d5-354897914f1f&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -83111,41 +83017,31 @@ through each.</p>
 
 </div>
   </div>
-  
-  <script>
-    document.querySelectorAll('article h2, article h3').forEach((header) => {
-      toc.observer.observe(header);
-    });
-  </script>
 </article>
-                                <div class="mx-auto flex flex-wrap h-16 w-full max-w-2xl items-center gap-2 px-4 md:px-0">
+                                <div id="bottom-navigation" class="mx-auto flex h-16 w-full max-w-2xl items-center justify-between gap-2 px-4 md:px-0">
     
-    <a data-slot="button"
-        class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-secondary text-secondary-foreground hover:bg-secondary/80 h-8 rounded-md gap-1.5 px-3 has-[&gt;svg]:px-2.5 shadow-none"
-        href="../pd/">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-            class="tabler-icon tabler-icon-arrow-left ">
-            <path d="M5 12l14 0"></path>
-            <path d="M5 12l6 6"></path>
-            <path d="M5 12l6 -6"></path>
-        </svg>
-        <span class="max-[500px]:hidden">PD</span>
-    </a>
+    <a class="button secondary" href="../pd/">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+    class="tabler-icon tabler-icon-arrow-left">
+    <path d="M5 12l14 0"></path>
+    <path d="M5 12l6 6"></path>
+    <path d="M5 12l6 -6"></path>
+</svg>
+    <span class="max-[500px]:hidden truncate">PD</span>
+</a>
     
     
-    <a data-slot="button"
-        class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-secondary text-secondary-foreground hover:bg-secondary/80 h-8 rounded-md gap-1.5 px-3 has-[&gt;svg]:px-2.5 ml-auto shadow-none"
-        href="../io/sbgnml/">
-        <span class="max-[500px]:hidden">SBGN-ML</span>
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-            class="tabler-icon tabler-icon-arrow-right ">
-            <path d="M5 12l14 0"></path>
-            <path d="M13 18l6 -6"></path>
-            <path d="M13 6l6 6"></path>
-        </svg>
-    </a>
+    <a class="button secondary" href="../io/sbgnml/">
+    <span class="max-[500px]:hidden truncate">SBGN-ML</span>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+    class="tabler-icon tabler-icon-arrow-right">
+    <path d="M5 12l14 0"></path>
+    <path d="M13 18l6 -6"></path>
+    <path d="M13 6l6 6"></path>
+</svg>
+</a>
     
 </div>
                                 
@@ -83293,425 +83189,319 @@ through each.</p>
         
         
         
-        <a href="#momapy.sbgn.af.Activity"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.Activity');">
+        <a href="#momapy.sbgn.af.Activity" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Activity
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.AndOperator"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.AndOperator');">
+        <a href="#momapy.sbgn.af.AndOperator" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;AndOperator
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.AndOperatorLayout"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.AndOperatorLayout');">
+        <a href="#momapy.sbgn.af.AndOperatorLayout" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;AndOperatorLayout
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.BiologicalActivity"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.BiologicalActivity');">
+        <a href="#momapy.sbgn.af.BiologicalActivity" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;BiologicalActivity
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.BiologicalActivityLayout"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.BiologicalActivityLayout');">
+        <a href="#momapy.sbgn.af.BiologicalActivityLayout" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;BiologicalActivityLayout
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.Compartment"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.Compartment');">
+        <a href="#momapy.sbgn.af.Compartment" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Compartment
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.CompartmentLayout"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.CompartmentLayout');">
+        <a href="#momapy.sbgn.af.CompartmentLayout" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;CompartmentLayout
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.ComplexUnitOfInformation"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.ComplexUnitOfInformation');">
+        <a href="#momapy.sbgn.af.ComplexUnitOfInformation" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;ComplexUnitOfInformation
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.ComplexUnitOfInformationLayout"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.ComplexUnitOfInformationLayout');">
+        <a href="#momapy.sbgn.af.ComplexUnitOfInformationLayout" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;ComplexUnitOfInformationLayout
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.DelayOperator"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.DelayOperator');">
+        <a href="#momapy.sbgn.af.DelayOperator" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;DelayOperator
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.DelayOperatorLayout"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.DelayOperatorLayout');">
+        <a href="#momapy.sbgn.af.DelayOperatorLayout" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;DelayOperatorLayout
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.EquivalenceArcLayout"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.EquivalenceArcLayout');">
+        <a href="#momapy.sbgn.af.EquivalenceArcLayout" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;EquivalenceArcLayout
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.Influence"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.Influence');">
+        <a href="#momapy.sbgn.af.Influence" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Influence
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.LogicArcLayout"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.LogicArcLayout');">
+        <a href="#momapy.sbgn.af.LogicArcLayout" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;LogicArcLayout
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.LogicalOperator"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.LogicalOperator');">
+        <a href="#momapy.sbgn.af.LogicalOperator" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;LogicalOperator
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.LogicalOperatorInput"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.LogicalOperatorInput');">
+        <a href="#momapy.sbgn.af.LogicalOperatorInput" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;LogicalOperatorInput
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.MacromoleculeUnitOfInformation"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.MacromoleculeUnitOfInformation');">
+        <a href="#momapy.sbgn.af.MacromoleculeUnitOfInformation" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;MacromoleculeUnitOfInformation
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.MacromoleculeUnitOfInformationLayout"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.MacromoleculeUnitOfInformationLayout');">
+        <a href="#momapy.sbgn.af.MacromoleculeUnitOfInformationLayout" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;MacromoleculeUnitOfInformationLayout
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.NecessaryStimulation"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.NecessaryStimulation');">
+        <a href="#momapy.sbgn.af.NecessaryStimulation" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;NecessaryStimulation
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.NecessaryStimulationLayout"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.NecessaryStimulationLayout');">
+        <a href="#momapy.sbgn.af.NecessaryStimulationLayout" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;NecessaryStimulationLayout
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.NegativeInfluence"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.NegativeInfluence');">
+        <a href="#momapy.sbgn.af.NegativeInfluence" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;NegativeInfluence
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.NegativeInfluenceLayout"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.NegativeInfluenceLayout');">
+        <a href="#momapy.sbgn.af.NegativeInfluenceLayout" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;NegativeInfluenceLayout
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.NotOperator"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.NotOperator');">
+        <a href="#momapy.sbgn.af.NotOperator" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;NotOperator
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.NotOperatorLayout"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.NotOperatorLayout');">
+        <a href="#momapy.sbgn.af.NotOperatorLayout" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;NotOperatorLayout
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.NucleicAcidFeatureUnitOfInformation"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.NucleicAcidFeatureUnitOfInformation');">
+        <a href="#momapy.sbgn.af.NucleicAcidFeatureUnitOfInformation" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;NucleicAcidFeatureUnitOfInformation
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.NucleicAcidFeatureUnitOfInformationLayout"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.NucleicAcidFeatureUnitOfInformationLayout');">
+        <a href="#momapy.sbgn.af.NucleicAcidFeatureUnitOfInformationLayout" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;NucleicAcidFeatureUnitOfInformationLayout
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.OrOperator"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.OrOperator');">
+        <a href="#momapy.sbgn.af.OrOperator" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;OrOperator
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.OrOperatorLayout"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.OrOperatorLayout');">
+        <a href="#momapy.sbgn.af.OrOperatorLayout" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;OrOperatorLayout
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.PerturbationUnitOfInformation"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.PerturbationUnitOfInformation');">
+        <a href="#momapy.sbgn.af.PerturbationUnitOfInformation" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;PerturbationUnitOfInformation
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.PerturbationUnitOfInformationLayout"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.PerturbationUnitOfInformationLayout');">
+        <a href="#momapy.sbgn.af.PerturbationUnitOfInformationLayout" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;PerturbationUnitOfInformationLayout
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.Phenotype"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.Phenotype');">
+        <a href="#momapy.sbgn.af.Phenotype" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Phenotype
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.PhenotypeLayout"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.PhenotypeLayout');">
+        <a href="#momapy.sbgn.af.PhenotypeLayout" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;PhenotypeLayout
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.PositiveInfluence"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.PositiveInfluence');">
+        <a href="#momapy.sbgn.af.PositiveInfluence" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;PositiveInfluence
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.PositiveInfluenceLayout"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.PositiveInfluenceLayout');">
+        <a href="#momapy.sbgn.af.PositiveInfluenceLayout" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;PositiveInfluenceLayout
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.SBGNAFLayout"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.SBGNAFLayout');">
+        <a href="#momapy.sbgn.af.SBGNAFLayout" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;SBGNAFLayout
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.SBGNAFMap"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.SBGNAFMap');">
+        <a href="#momapy.sbgn.af.SBGNAFMap" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;SBGNAFMap
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.SBGNAFModel"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.SBGNAFModel');">
+        <a href="#momapy.sbgn.af.SBGNAFModel" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;SBGNAFModel
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.SimpleChemicalUnitOfInformation"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.SimpleChemicalUnitOfInformation');">
+        <a href="#momapy.sbgn.af.SimpleChemicalUnitOfInformation" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;SimpleChemicalUnitOfInformation
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.SimpleChemicalUnitOfInformationLayout"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.SimpleChemicalUnitOfInformationLayout');">
+        <a href="#momapy.sbgn.af.SimpleChemicalUnitOfInformationLayout" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;SimpleChemicalUnitOfInformationLayout
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.Submap"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.Submap');">
+        <a href="#momapy.sbgn.af.Submap" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Submap
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.SubmapLayout"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.SubmapLayout');">
+        <a href="#momapy.sbgn.af.SubmapLayout" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;SubmapLayout
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.Tag"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.Tag');">
+        <a href="#momapy.sbgn.af.Tag" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Tag
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.TagLayout"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.TagLayout');">
+        <a href="#momapy.sbgn.af.TagLayout" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;TagLayout
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.TagReference"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.TagReference');">
+        <a href="#momapy.sbgn.af.TagReference" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;TagReference
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.Terminal"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.Terminal');">
+        <a href="#momapy.sbgn.af.Terminal" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Terminal
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.TerminalLayout"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.TerminalLayout');">
+        <a href="#momapy.sbgn.af.TerminalLayout" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;TerminalLayout
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.TerminalReference"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.TerminalReference');">
+        <a href="#momapy.sbgn.af.TerminalReference" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;TerminalReference
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.UnitOfInformation"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.UnitOfInformation');">
+        <a href="#momapy.sbgn.af.UnitOfInformation" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;UnitOfInformation
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.UnitOfInformationLayout"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.UnitOfInformationLayout');">
+        <a href="#momapy.sbgn.af.UnitOfInformationLayout" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;UnitOfInformationLayout
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.UnknownInfluence"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.UnknownInfluence');">
+        <a href="#momapy.sbgn.af.UnknownInfluence" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;UnknownInfluence
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.UnknownInfluenceLayout"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.UnknownInfluenceLayout');">
+        <a href="#momapy.sbgn.af.UnknownInfluenceLayout" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;UnknownInfluenceLayout
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.UnspecifiedEntityUnitOfInformation"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.UnspecifiedEntityUnitOfInformation');">
+        <a href="#momapy.sbgn.af.UnspecifiedEntityUnitOfInformation" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;UnspecifiedEntityUnitOfInformation
         </a>
         
 
         
-        <a href="#momapy.sbgn.af.UnspecifiedEntityUnitOfInformationLayout"
-            class="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground text-[0.8rem] no-underline transition-colors data-[depth=3]:pl-4 data-[depth=4]:pl-6"
-            data-active="false" data-depth="2" onClick="deferSetActiveTocLink('#momapy.sbgn.af.UnspecifiedEntityUnitOfInformationLayout');">
+        <a href="#momapy.sbgn.af.UnspecifiedEntityUnitOfInformationLayout" data-active="false" data-depth="2">
             <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;UnspecifiedEntityUnitOfInformationLayout
         </a>
         
@@ -83728,7 +83518,6 @@ through each.</p>
                                 
                                 
                             </div>
-
                         </div>
                     </div>
                 </div>
