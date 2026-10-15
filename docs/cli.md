@@ -406,7 +406,7 @@ Preset names can be passed to `momapy style -p` or to `momapy render`/`momapy ex
 momapy list attributes momapy.sbgn.pd:MacromoleculeLayout
 ```
 
-Lists every attribute that can be targeted in a stylesheet for the given class. Pass `-P` / `--presentation-only` to restrict the output to visual presentation attributes (fill, stroke, font, etc.).
+Lists every attribute that can be targeted in a stylesheet for the given class. Pass `--presentation-only` to restrict the output to visual presentation attributes (fill, stroke, font, etc.).
 
 ```bash
 momapy list attributes momapy.sbgn.pd:MacromoleculeLayout --presentation-only
