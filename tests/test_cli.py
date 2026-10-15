@@ -203,8 +203,7 @@ class TestCLIExportCommand:
         assert "<sbgn" in captured.out
 
     def _export_pipe(self):
-        stdout = mock.Mock()
-        stdout.buffer = io.BytesIO()
+        stdout = io.TextIOWrapper(io.BytesIO())
         with (
             mock.patch("sys.argv", ["momapy", "export", self.SBGN_MAP_PATH, "-P"]),
             mock.patch("sys.stdout", stdout),
