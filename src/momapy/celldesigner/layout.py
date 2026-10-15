@@ -546,6 +546,7 @@ class DegradedLayout(_MultiNodeMixin, CellDesignerNode):
 
     width: float = 30.0
     height: float = 30.0
+    fill: NoneValueType | Color | Gradient | None = Color.from_hex("#FFCCCC")
 
     def _make_subunit_shape(
         self, position: Point, width: float, height: float

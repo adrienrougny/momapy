@@ -2447,9 +2447,14 @@ def make_celldesigner_degraded_alias(
         )
     )
     usual.append(make_celldesigner_element("singleLine", attributes={"width": "1.0"}))
+    fill = getattr(degraded_layout, "fill", None)
+    if isinstance(fill, Color):
+        paint_color = color_to_cd_hex(fill)
+    else:
+        paint_color = "ffffcccc"
     usual.append(
         make_celldesigner_element(
-            "paint", attributes={"color": "ffccffcc", "scheme": "Color"}
+            "paint", attributes={"color": paint_color, "scheme": "Color"}
         )
     )
     alias.append(usual)
@@ -2469,7 +2474,7 @@ def make_celldesigner_degraded_alias(
     brief.append(make_celldesigner_element("singleLine", attributes={"width": "1.0"}))
     brief.append(
         make_celldesigner_element(
-            "paint", attributes={"color": "ffccffcc", "scheme": "Color"}
+            "paint", attributes={"color": paint_color, "scheme": "Color"}
         )
     )
     alias.append(brief)
