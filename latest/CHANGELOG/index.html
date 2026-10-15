@@ -469,6 +469,8 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <h2 id="unreleased">[Unreleased]</h2>
 <h3 id="added">Added</h3>
 <ul>
+<li>Drop the -P short form of --presentation-only <em>(cli)</em> <strong>BREAKING</strong></li>
+<li>Add -W to choose the writer, make -P pickle both ends of the pipe <em>(cli)</em></li>
 <li>Read pickles only on request, write text to stdout by default <em>(io)</em> <strong>BREAKING</strong></li>
 </ul>
 <h3 id="cicd">CI/CD</h3>
@@ -494,6 +496,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 </ul>
 <h3 id="testing">Testing</h3>
 <ul>
+<li>Use a real text stream as stdout in the export pipe tests for Python 3.14 <em>(cli)</em></li>
 <li>Cover SBML detection of newline-split and prefixed root tags <em>(sbml.io)</em></li>
 </ul>
 <h2 id="0151-2026-10-08">[0.15.1] - 2026-10-08</h2>

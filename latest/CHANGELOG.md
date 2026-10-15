@@ -9,6 +9,8 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 
 ### Added
 
+- Drop the -P short form of --presentation-only *(cli)* **BREAKING**
+- Add -W to choose the writer, make -P pickle both ends of the pipe *(cli)*
 - Read pickles only on request, write text to stdout by default *(io)* **BREAKING**
 
 ### CI/CD
@@ -34,6 +36,7 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 
 ### Testing
 
+- Use a real text stream as stdout in the export pipe tests for Python 3.14 *(cli)*
 - Cover SBML detection of newline-split and prefixed root tags *(sbml.io)*
 ## [0.15.1] - 2026-10-08
 
