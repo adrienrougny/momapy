@@ -466,14 +466,23 @@
 <p>All notable changes to <span class="momapy-brand"><span class="momapy-brand-moma">Moma</span><span class="momapy-brand-py">Py</span></span> will be documented in this file.</p>
 <p>The format is based on <a href="https://keepachangelog.com/">Keep a Changelog</a>,
 and this project adheres to <a href="https://www.conventionalcommits.org/">Conventional Commits</a>.</p>
-<h2 id="unreleased">[Unreleased]</h2>
+<h2 id="0161-2026-10-20">[0.16.1] - 2026-10-20</h2>
+<h3 id="cicd">CI/CD</h3>
+<ul>
+<li>Key the tox cache on the exact Python version</li>
+</ul>
+<h3 id="fixed">Fixed</h3>
+<ul>
+<li>Read and write structural states with no value <em>(celldesigner.io)</em></li>
+</ul>
+<h2 id="0160-2026-10-15">[0.16.0] - 2026-10-15</h2>
 <h3 id="added">Added</h3>
 <ul>
 <li>Drop the -P short form of --presentation-only <em>(cli)</em> <strong>BREAKING</strong></li>
 <li>Add -W to choose the writer, make -P pickle both ends of the pipe <em>(cli)</em></li>
 <li>Read pickles only on request, write text to stdout by default <em>(io)</em> <strong>BREAKING</strong></li>
 </ul>
-<h3 id="cicd">CI/CD</h3>
+<h3 id="cicd_1">CI/CD</h3>
 <ul>
 <li>Run one job per OS and Python version, cache uv and tox <em>(tests)</em></li>
 </ul>
@@ -481,7 +490,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <ul>
 <li>Update the reactant and product ids in the reader docstring <em>(celldesigner.io)</em></li>
 </ul>
-<h3 id="fixed">Fixed</h3>
+<h3 id="fixed_1">Fixed</h3>
 <ul>
 <li>Write the fill of degraded species instead of a hardcoded green <em>(celldesigner.io)</em></li>
 <li>Read and write palmitoylation with CellDesigner's palmytoylated spelling <em>(celldesigner.io)</em></li>
@@ -500,7 +509,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Cover SBML detection of newline-split and prefixed root tags <em>(sbml.io)</em></li>
 </ul>
 <h2 id="0151-2026-10-08">[0.15.1] - 2026-10-08</h2>
-<h3 id="fixed_1">Fixed</h3>
+<h3 id="fixed_2">Fixed</h3>
 <ul>
 <li>Write unspecified entity subunits and generic AF units of information <em>(sbgn.io.sbgnml)</em></li>
 </ul>
@@ -510,7 +519,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Added SVG stroke-linejoin and stroke-linecap <em>(drawing)</em></li>
 <li>Added SVG-like linear and radial gradients with CSS gradient functions <em>(drawing)</em></li>
 </ul>
-<h3 id="cicd_1">CI/CD</h3>
+<h3 id="cicd_2">CI/CD</h3>
 <ul>
 <li>Install mkdocs-shadcn in the docs deploy workflows <em>(docs)</em></li>
 </ul>
@@ -519,7 +528,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Add a how-to-cite section with a BibTeX entry <em>(about)</em></li>
 <li>Move the docs to the shadcn theme with <span class="momapy-brand"><span class="momapy-brand-moma">Moma</span><span class="momapy-brand-py">Py</span></span> branding and framed code</li>
 </ul>
-<h3 id="fixed_2">Fixed</h3>
+<h3 id="fixed_3">Fixed</h3>
 <ul>
 <li>Place labels from their label bbox when present <em>(sbgn.io.sbgnml)</em></li>
 <li>Compute TextLayout bbox without intermediate rounding <em>(core)</em></li>
@@ -545,7 +554,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <ul>
 <li>Representative naming, public table, key-shape fixes <em>(mapping)</em> <strong>BREAKING</strong></li>
 </ul>
-<h3 id="fixed_3">Fixed</h3>
+<h3 id="fixed_4">Fixed</h3>
 <ul>
 <li>Keep model-keyed annotations when returning a model <em>(io.pickle)</em></li>
 </ul>
@@ -717,7 +726,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Drop stale result.exceptions reference</li>
 <li>Reframe I/O make_* as internal helpers, not public contract</li>
 </ul>
-<h3 id="fixed_4">Fixed</h3>
+<h3 id="fixed_5">Fixed</h3>
 <ul>
 <li>Detect file format independently of the locale encoding <em>(io)</em></li>
 <li>Pin ruff to the 0.14 line for the lint gate <em>(ci)</em></li>
@@ -841,7 +850,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <ul>
 <li>Regenerate API_REFERENCE.md and fix stale meta docstrings</li>
 </ul>
-<h3 id="fixed_5">Fixed</h3>
+<h3 id="fixed_6">Fixed</h3>
 <ul>
 <li>Correct auxiliary unit sizing and rendering defaults <em>(sbgn)</em></li>
 <li>Serialize AF units of information with entity child <em>(sbgn.io.sbgnml)</em></li>
@@ -856,7 +865,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <ul>
 <li>Resolve residue angle via mapping, not layout-id parsing <em>(celldesigner.writer)</em></li>
 </ul>
-<h3 id="fixed_6">Fixed</h3>
+<h3 id="fixed_7">Fixed</h3>
 <ul>
 <li>Pass module name string to LogicalOperator ForwardRef <em>(sbgn.model)</em></li>
 <li>Key modification/structural-state layout ids on alias, not species <em>(celldesigner.reader)</em></li>
@@ -873,7 +882,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Identity-keyed multidict for xml_id/source_id model element mappings <em>(io)</em></li>
 <li>Identity-keyed inverse for LayoutModelMapping <em>(core.mapping)</em></li>
 </ul>
-<h3 id="fixed_7">Fixed</h3>
+<h3 id="fixed_8">Fixed</h3>
 <ul>
 <li>Source subunit alias ids from model walk, not mapping lookup <em>(celldesigner.writer)</em></li>
 </ul>
@@ -900,7 +909,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Add API reference landing page <em>(api)</em></li>
 <li>Align API reference with public re-export facades <em>(api)</em></li>
 </ul>
-<h3 id="fixed_8">Fixed</h3>
+<h3 id="fixed_9">Fixed</h3>
 <ul>
 <li>Resolve modulation alias layouts from arc, not model identity <em>(celldesigner.writer)</em></li>
 <li>Exclude compartments from tidy's label-fit step <em>(celldesigner.utils)</em></li>
@@ -932,7 +941,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Document ReaderResult fields and surjection dicts in SKILL.md <em>(skills)</em></li>
 </ul>
 <h2 id="0103-2026-04-23">[0.10.3] - 2026-04-23</h2>
-<h3 id="cicd_2">CI/CD</h3>
+<h3 id="cicd_3">CI/CD</h3>
 <ul>
 <li>Use mike for versioned documentation deployment <em>(docs)</em></li>
 <li>Install <span class="momapy-brand"><span class="momapy-brand-moma">Moma</span><span class="momapy-brand-py">Py</span></span> and its dependencies before building docs <em>(docs)</em></li>
@@ -943,7 +952,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Fix table rendering in sbgn pd/af and celldesigner module docstrings</li>
 <li>Fix and expand CLI reference, index, and about pages</li>
 </ul>
-<h3 id="fixed_9">Fixed</h3>
+<h3 id="fixed_10">Fixed</h3>
 <ul>
 <li>Add missing type annotations to resolve griffe warnings <em>(typing)</em></li>
 </ul>
@@ -1039,7 +1048,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Replace commented-out example with runnable one <em>(plugins.core)</em></li>
 <li>Mark CellDesigner as read/write <em>(readme)</em></li>
 </ul>
-<h3 id="fixed_10">Fixed</h3>
+<h3 id="fixed_11">Fixed</h3>
 <ul>
 <li>Read source files as UTF-8 in super discipline test <em>(tests)</em></li>
 <li>Harden coordinate frames against degenerate geometry <em>(celldesigner.io)</em></li>
@@ -1092,7 +1101,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <ul>
 <li>Added codebase specification</li>
 </ul>
-<h3 id="fixed_11">Fixed</h3>
+<h3 id="fixed_12">Fixed</h3>
 <ul>
 <li>Populate source_id_to_model_element for models that aren't ModelElements <em>(io)</em></li>
 <li>Repair is_submodel in SBGNAFModel and CellDesignerModel <em>(model)</em></li>
@@ -1118,7 +1127,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <ul>
 <li>Replace set_arcs_to_orthogonal with straighten_arcs <em>(celldesigner utils)</em></li>
 </ul>
-<h3 id="fixed_12">Fixed</h3>
+<h3 id="fixed_13">Fixed</h3>
 <ul>
 <li>Initialize logic_arc before layout block in logic gate reader <em>(celldesigner io)</em></li>
 </ul>
@@ -1163,7 +1172,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Update ID assignment patterns for CellDesigner</li>
 <li>Add ID assignment patterns to CLAUDE.md</li>
 </ul>
-<h3 id="fixed_13">Fixed</h3>
+<h3 id="fixed_14">Fixed</h3>
 <ul>
 <li>Handle missing notes on complex subunit species <em>(celldesigner io)</em></li>
 <li>Catch all exceptions in pickle check_file methods <em>(io)</em></li>
@@ -1233,7 +1242,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Improved for map vs map builder <em>(sbgn)</em></li>
 <li>Simplified the top example <em>(<span class="momapy-brand"><span class="momapy-brand-moma">Moma</span><span class="momapy-brand-py">Py</span></span>)</em></li>
 </ul>
-<h3 id="fixed_14">Fixed</h3>
+<h3 id="fixed_15">Fixed</h3>
 <ul>
 <li>Use correct coordinate frame bases in writer inverse transforms <em>(celldesigner io)</em></li>
 <li>Derive reaction link participants from layout arcs <em>(celldesigner io)</em></li>
@@ -1276,7 +1285,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Added a demo on map comparison</li>
 <li>Added colinear case when reading reactions <em>(celldesigner)</em></li>
 </ul>
-<h3 id="cicd_3">CI/CD</h3>
+<h3 id="cicd_4">CI/CD</h3>
 <ul>
 <li>Bumped action versions</li>
 </ul>
@@ -1292,7 +1301,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <ul>
 <li>Moved demo to new paths and name</li>
 </ul>
-<h3 id="fixed_15">Fixed</h3>
+<h3 id="fixed_16">Fixed</h3>
 <ul>
 <li>Replaced with correct apt deps <em>(binder)</em></li>
 <li>Removed escaping brackets <em>(binder)</em></li>
@@ -1334,7 +1343,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Replaced Bezier approximations with direct elliptical arc calculations <em>(geometry)</em></li>
 <li>Removed unnecessary helper functions <em>(geometry)</em></li>
 </ul>
-<h3 id="fixed_16">Fixed</h3>
+<h3 id="fixed_17">Fixed</h3>
 <ul>
 <li>Set modifications to own_angle rather than angle <em>(celldesigner)</em></li>
 </ul>
@@ -1355,7 +1364,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Added singleton mapping for anchor layout element <em>(layout model mapping)</em></li>
 <li>Removed collection builders by mutable collections <em>(builder)</em></li>
 </ul>
-<h3 id="cicd_4">CI/CD</h3>
+<h3 id="cicd_5">CI/CD</h3>
 <ul>
 <li>Removed commit and made CHANGELOG.md directly from docs.yml <em>(changelog)</em></li>
 </ul>
@@ -1373,7 +1382,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Complete refactor, separated parsing/model/layout <em>(sbgnml)</em></li>
 <li>Made subpackage and divided into modules <em>(core)</em></li>
 </ul>
-<h3 id="fixed_17">Fixed</h3>
+<h3 id="fixed_18">Fixed</h3>
 <ul>
 <li>Active borders are now layout elements (fix #3)</li>
 <li>Absence of modification is now treated as a modification with state='empty' <em>(celldesigner)</em></li>
@@ -1402,11 +1411,11 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Added support for uoi for compartments and submap terminals in af</li>
 <li>Added support for cardinality (a la newt)</li>
 </ul>
-<h3 id="cicd_5">CI/CD</h3>
+<h3 id="cicd_6">CI/CD</h3>
 <ul>
 <li>Changed regex for version; made release conditional to testing; made docs independant of release</li>
 </ul>
-<h3 id="fixed_18">Fixed</h3>
+<h3 id="fixed_19">Fixed</h3>
 <ul>
 <li>Fixed label position for compartments; fixed rerouting equivalence arcs <em>(tidy)</em></li>
 <li>Activity is now a dataclass</li>
@@ -1432,7 +1441,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Removed linenums for code snippets</li>
 <li>Update example with new io and render_map api</li>
 </ul>
-<h3 id="fixed_19">Fixed</h3>
+<h3 id="fixed_20">Fixed</h3>
 <ul>
 <li>Changed stoichiometry type from int to float</li>
 </ul>
@@ -1447,7 +1456,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Changed order of sections</li>
 <li>Added symlink to CHANGELOG.md from root to docs/</li>
 </ul>
-<h3 id="fixed_20">Fixed</h3>
+<h3 id="fixed_21">Fixed</h3>
 <ul>
 <li>Bug in point to fortranarray and in handling shapely polygons</li>
 <li>Bug in invert of scaling</li>
@@ -1472,11 +1481,11 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Added precommit linting (@conventional)</li>
 <li>Added renderer and format autodetection <em>(rendering)</em></li>
 </ul>
-<h3 id="cicd_6">CI/CD</h3>
+<h3 id="cicd_7">CI/CD</h3>
 <ul>
 <li>Added automated changelog with git-cliff</li>
 </ul>
-<h3 id="fixed_21">Fixed</h3>
+<h3 id="fixed_22">Fixed</h3>
 <ul>
 <li>Distinguish scenario min and all for rendering images</li>
 </ul>
@@ -1516,7 +1525,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Changed 'formats' attributes to 'supported_formats'; added ValueError for unsupported formats</li>
 </ul>
 <h2 id="028-2026-01-27">[0.2.8] - 2026-01-27</h2>
-<h3 id="fixed_22">Fixed</h3>
+<h3 id="fixed_23">Fixed</h3>
 <ul>
 <li>Fixed python version to 3.13 for packaging</li>
 </ul>
@@ -1589,7 +1598,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Made true release conditional to TestPyPi release's success</li>
 </ul>
 <h2 id="020-2026-01-06">[0.2.0] - 2026-01-06</h2>
-<h3 id="fixed_23">Fixed</h3>
+<h3 id="fixed_24">Fixed</h3>
 <ul>
 <li>Fixed bug in checking files: added try in case the file is binary</li>
 <li>Fixed bug where super was called in FrozenSurjectionDict init</li>
@@ -1676,7 +1685,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Updated packages</li>
 </ul>
 <h2 id="013-2025-08-28">[0.1.3] - 2025-08-28</h2>
-<h3 id="fixed_24">Fixed</h3>
+<h3 id="fixed_25">Fixed</h3>
 <ul>
 <li>Fixed link to doc</li>
 </ul>
@@ -1711,7 +1720,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
 <li>Refactored code and fixed in set_arcs_to_borders; added tidy function</li>
 <li>Refactored rendering; render multiple maps</li>
 </ul>
-<h3 id="fixed_25">Fixed</h3>
+<h3 id="fixed_26">Fixed</h3>
 <ul>
 <li>Fixed typo</li>
 <li>Fixed merge</li>
@@ -2905,8 +2914,24 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
         
         
         
-        <a href="#unreleased" data-active="false" data-depth="2">
-            [Unreleased]
+        <a href="#0161-2026-10-20" data-active="false" data-depth="2">
+            [0.16.1] - 2026-10-20
+        </a>
+        
+        
+        <a href="#cicd" data-active="false" data-depth="3">
+            CI/CD
+        </a>
+        
+        <a href="#fixed" data-active="false" data-depth="3">
+            Fixed
+        </a>
+        
+        
+
+        
+        <a href="#0160-2026-10-15" data-active="false" data-depth="2">
+            [0.16.0] - 2026-10-15
         </a>
         
         
@@ -2914,7 +2939,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
             Added
         </a>
         
-        <a href="#cicd" data-active="false" data-depth="3">
+        <a href="#cicd_1" data-active="false" data-depth="3">
             CI/CD
         </a>
         
@@ -2922,7 +2947,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
             Documentation
         </a>
         
-        <a href="#fixed" data-active="false" data-depth="3">
+        <a href="#fixed_1" data-active="false" data-depth="3">
             Fixed
         </a>
         
@@ -2938,7 +2963,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
         </a>
         
         
-        <a href="#fixed_1" data-active="false" data-depth="3">
+        <a href="#fixed_2" data-active="false" data-depth="3">
             Fixed
         </a>
         
@@ -2954,7 +2979,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
             Added
         </a>
         
-        <a href="#cicd_1" data-active="false" data-depth="3">
+        <a href="#cicd_2" data-active="false" data-depth="3">
             CI/CD
         </a>
         
@@ -2962,7 +2987,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
             Documentation
         </a>
         
-        <a href="#fixed_2" data-active="false" data-depth="3">
+        <a href="#fixed_3" data-active="false" data-depth="3">
             Fixed
         </a>
         
@@ -2986,7 +3011,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
             Changed
         </a>
         
-        <a href="#fixed_3" data-active="false" data-depth="3">
+        <a href="#fixed_4" data-active="false" data-depth="3">
             Fixed
         </a>
         
@@ -3014,7 +3039,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
             Documentation
         </a>
         
-        <a href="#fixed_4" data-active="false" data-depth="3">
+        <a href="#fixed_5" data-active="false" data-depth="3">
             Fixed
         </a>
         
@@ -3046,7 +3071,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
             Documentation
         </a>
         
-        <a href="#fixed_5" data-active="false" data-depth="3">
+        <a href="#fixed_6" data-active="false" data-depth="3">
             Fixed
         </a>
         
@@ -3066,7 +3091,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
             Changed
         </a>
         
-        <a href="#fixed_6" data-active="false" data-depth="3">
+        <a href="#fixed_7" data-active="false" data-depth="3">
             Fixed
         </a>
         
@@ -3086,7 +3111,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
             Changed
         </a>
         
-        <a href="#fixed_7" data-active="false" data-depth="3">
+        <a href="#fixed_8" data-active="false" data-depth="3">
             Fixed
         </a>
         
@@ -3110,7 +3135,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
             Documentation
         </a>
         
-        <a href="#fixed_8" data-active="false" data-depth="3">
+        <a href="#fixed_9" data-active="false" data-depth="3">
             Fixed
         </a>
         
@@ -3150,7 +3175,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
         </a>
         
         
-        <a href="#cicd_2" data-active="false" data-depth="3">
+        <a href="#cicd_3" data-active="false" data-depth="3">
             CI/CD
         </a>
         
@@ -3158,7 +3183,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
             Documentation
         </a>
         
-        <a href="#fixed_9" data-active="false" data-depth="3">
+        <a href="#fixed_10" data-active="false" data-depth="3">
             Fixed
         </a>
         
@@ -3214,7 +3239,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
             Documentation
         </a>
         
-        <a href="#fixed_10" data-active="false" data-depth="3">
+        <a href="#fixed_11" data-active="false" data-depth="3">
             Fixed
         </a>
         
@@ -3262,7 +3287,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
             Documentation
         </a>
         
-        <a href="#fixed_11" data-active="false" data-depth="3">
+        <a href="#fixed_12" data-active="false" data-depth="3">
             Fixed
         </a>
         
@@ -3286,7 +3311,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
             Changed
         </a>
         
-        <a href="#fixed_12" data-active="false" data-depth="3">
+        <a href="#fixed_13" data-active="false" data-depth="3">
             Fixed
         </a>
         
@@ -3310,7 +3335,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
             Documentation
         </a>
         
-        <a href="#fixed_13" data-active="false" data-depth="3">
+        <a href="#fixed_14" data-active="false" data-depth="3">
             Fixed
         </a>
         
@@ -3338,7 +3363,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
             Documentation
         </a>
         
-        <a href="#fixed_14" data-active="false" data-depth="3">
+        <a href="#fixed_15" data-active="false" data-depth="3">
             Fixed
         </a>
         
@@ -3362,7 +3387,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
             Added
         </a>
         
-        <a href="#cicd_3" data-active="false" data-depth="3">
+        <a href="#cicd_4" data-active="false" data-depth="3">
             CI/CD
         </a>
         
@@ -3374,7 +3399,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
             Documentation
         </a>
         
-        <a href="#fixed_15" data-active="false" data-depth="3">
+        <a href="#fixed_16" data-active="false" data-depth="3">
             Fixed
         </a>
         
@@ -3402,7 +3427,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
             Changed
         </a>
         
-        <a href="#fixed_16" data-active="false" data-depth="3">
+        <a href="#fixed_17" data-active="false" data-depth="3">
             Fixed
         </a>
         
@@ -3426,7 +3451,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
             Added
         </a>
         
-        <a href="#cicd_4" data-active="false" data-depth="3">
+        <a href="#cicd_5" data-active="false" data-depth="3">
             CI/CD
         </a>
         
@@ -3434,7 +3459,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
             Changed
         </a>
         
-        <a href="#fixed_17" data-active="false" data-depth="3">
+        <a href="#fixed_18" data-active="false" data-depth="3">
             Fixed
         </a>
         
@@ -3458,11 +3483,11 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
             Added
         </a>
         
-        <a href="#cicd_5" data-active="false" data-depth="3">
+        <a href="#cicd_6" data-active="false" data-depth="3">
             CI/CD
         </a>
         
-        <a href="#fixed_18" data-active="false" data-depth="3">
+        <a href="#fixed_19" data-active="false" data-depth="3">
             Fixed
         </a>
         
@@ -3486,7 +3511,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
             Documentation
         </a>
         
-        <a href="#fixed_19" data-active="false" data-depth="3">
+        <a href="#fixed_20" data-active="false" data-depth="3">
             Fixed
         </a>
         
@@ -3506,7 +3531,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
             Documentation
         </a>
         
-        <a href="#fixed_20" data-active="false" data-depth="3">
+        <a href="#fixed_21" data-active="false" data-depth="3">
             Fixed
         </a>
         
@@ -3542,11 +3567,11 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
             Added
         </a>
         
-        <a href="#cicd_6" data-active="false" data-depth="3">
+        <a href="#cicd_7" data-active="false" data-depth="3">
             CI/CD
         </a>
         
-        <a href="#fixed_21" data-active="false" data-depth="3">
+        <a href="#fixed_22" data-active="false" data-depth="3">
             Fixed
         </a>
         
@@ -3586,7 +3611,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
         </a>
         
         
-        <a href="#fixed_22" data-active="false" data-depth="3">
+        <a href="#fixed_23" data-active="false" data-depth="3">
             Fixed
         </a>
         
@@ -3690,7 +3715,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
         </a>
         
         
-        <a href="#fixed_23" data-active="false" data-depth="3">
+        <a href="#fixed_24" data-active="false" data-depth="3">
             Fixed
         </a>
         
@@ -3706,7 +3731,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
         </a>
         
         
-        <a href="#fixed_24" data-active="false" data-depth="3">
+        <a href="#fixed_25" data-active="false" data-depth="3">
             Fixed
         </a>
         
@@ -3746,7 +3771,7 @@ and this project adheres to <a href="https://www.conventionalcommits.org/">Conve
             Changed
         </a>
         
-        <a href="#fixed_25" data-active="false" data-depth="3">
+        <a href="#fixed_26" data-active="false" data-depth="3">
             Fixed
         </a>
         

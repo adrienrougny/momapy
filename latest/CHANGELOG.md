@@ -5,7 +5,16 @@ All notable changes to momapy will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Conventional Commits](https://www.conventionalcommits.org/).
 
-## [Unreleased]
+## [0.16.1] - 2026-10-20
+
+### CI/CD
+
+- Key the tox cache on the exact Python version
+
+### Fixed
+
+- Read and write structural states with no value *(celldesigner.io)*
+## [0.16.0] - 2026-10-15
 
 ### Added
 
