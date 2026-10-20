@@ -352,6 +352,8 @@ def make_species_structural_state(
     layout_element = new_builder_object(StructuralStateLayout)
     layout_element.position = super_layout_element.own_angle(90)
     text = cd_species_structural_state.get("structuralState")
+    if text is None:
+        return layout_element
     text_layout = TextLayout(
         text=text,
         font_size=DEFAULT_MODIFICATION_FONT_SIZE,

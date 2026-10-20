@@ -2221,7 +2221,9 @@ def make_celldesigner_species_state(
     if has_struct:
         ss_list = make_celldesigner_element("listOfStructuralStates")
         for ss in species.structural_states:
-            if ss.value is not None:
+            if ss.value is None:
+                ss_list.append(make_celldesigner_element("structuralState"))
+            else:
                 ss_list.append(
                     make_celldesigner_element(
                         "structuralState",

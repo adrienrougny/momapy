@@ -391,7 +391,7 @@ Purpose: base classes for CellDesigner layout and model.
 Purpose: CellDesigner model classes.
 
 - **Regions**: `Region(CellDesignerModelElement)` (`name`, `active=False`) → `ModificationSite`, `CodingRegion`, `RegulatoryRegion`, `TranscriptionStartingSiteL`, `TranscriptionStartingSiteR`, `ProteinBindingDomain`.
-- **Modifications**: `ModificationResidue` (`name`, `order`); `ModificationState(Enum)` — 13 values (PHOSPHORYLATED, ACETYLATED, UBIQUITINATED, …); `Modification`; `StructuralState` (`value`).
+- **Modifications**: `ModificationResidue` (`name`, `order`); `ModificationState(Enum)` — 13 values (PHOSPHORYLATED, ACETYLATED, UBIQUITINATED, …); `Modification`; `StructuralState` (`value`, `order`).
 - **Templates**: `SpeciesTemplate(CellDesignerModelElement)` (`name`) → `ProteinTemplate` (`modification_residues`) → `GenericProteinTemplate`, `TruncatedProteinTemplate`, `ReceptorTemplate`, `IonChannelTemplate`; `GeneTemplate` (`regions`), `RNATemplate` (`regions`), `AntisenseRNATemplate` (`regions`).
 - **Compartment / species**: `Compartment(SBMLCompartment, CellDesignerModelElement)`; `Species(SBMLSpecies, CellDesignerModelElement)` (`hypothetical`, `active`, `homomultimer`); `Protein` (`template`, `modifications`, `structural_states`) → `GenericProtein`, `TruncatedProtein`, `Receptor`, `IonChannel`; `Gene`, `RNA`, `AntisenseRNA` (each with `template`, `modifications`); `Phenotype`, `Ion`, `SimpleMolecule`, `Drug`, `Unknown`; `Complex` (`structural_states`, `subunits`). The degraded glyph is layout-only (`DegradedLayout`/`DegradedActiveLayout`, no model class); it is encoded on `Reaction` via `has_external_source`/`has_external_sink`.
 - **Reaction participants**: `Reactant(SpeciesReference, CellDesignerModelElement)` (`base`), `Product(SpeciesReference, CellDesignerModelElement)` (`base`).
@@ -457,7 +457,7 @@ Functions (accept `CellDesignerMap | Builder`, return same):
 - `make_region(reading_context, cd_region, model_element_cls, super_cd_element, order)`
 - `make_species(reading_context, cd_species, model_element_cls, name, homomultimer, hypothetical, active)`
 - `make_species_modification(reading_context, modification_state, cd_modification_residue_id)`
-- `make_species_structural_state(reading_context, cd_species_structural_state)`
+- `make_species_structural_state(reading_context, cd_species_structural_state, order=None)`
 - `make_reaction(reading_context, cd_reaction, model_element_cls)`
 - `make_participant(reading_context, model_element_cls, cd_participant, cd_reaction)` — one `Reactant`/`Product` per referred species model element and reaction side, with `stoichiometry` = number of references when there are several; `get_alias_model_element(reading_context, cd_participant)`
 - `make_modifier(reading_context, model_element_cls, source_model_element, metaid)`

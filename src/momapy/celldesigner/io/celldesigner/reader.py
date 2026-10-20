@@ -42,6 +42,8 @@ Element-specific patterns:
   ``f"{speciesAlias/@id}_{structuralState/@structuralState}_layout"``.
   Keyed on the alias for the same reason as Modification.
   Spaces in the value are replaced with ``_``.
+  When the value is missing, ``structural_state_{order}`` is used in place
+  of the value in both ids.
 - **Reactant / Product**: model ``id_`` = ``speciesReference/@metaid`` of
   the first entry of the group of entries of one reaction side referring to
   the same species (or ``f"{reaction/@id}_{speciesReference/@species}"``
@@ -830,9 +832,15 @@ class CellDesignerReader(Reader):
                                 empty_modification_layout_element,
                             )
                         )
+            number_of_structural_states_without_value = 0
             for cd_species_structural_state in get_species_structural_states(
                 cd_species
             ):
+                if cd_species_structural_state.get("structuralState") is None:
+                    number_of_structural_states_without_value += 1
+                    order = number_of_structural_states_without_value
+                else:
+                    order = None
                 (
                     structural_state_model_element,
                     structural_state_layout_element,
@@ -842,6 +850,7 @@ class CellDesignerReader(Reader):
                     super_cd_element=cd_species_alias,
                     super_model_element=model_element,
                     super_layout_element=layout_element,
+                    order=order,
                 )
                 if (
                     structural_state_model_element is not None
@@ -1004,15 +1013,18 @@ class CellDesignerReader(Reader):
         super_cd_element: lxml.objectify.ObjectifiedElement,
         super_model_element: typing.Any,
         super_layout_element: typing.Any,
+        order: int | None = None,
     ) -> tuple[typing.Any, typing.Any]:
         cd_species_id = super_cd_element.get("species")
-        cd_structural_state_value = cd_species_structural_state.get(
-            "structuralState"
-        ).replace(" ", "_")
-        cd_structural_state_id = f"{cd_species_id}_{cd_structural_state_value}"
+        cd_structural_state_value = cd_species_structural_state.get("structuralState")
+        if cd_structural_state_value is None:
+            id_part = f"structural_state_{order}"
+        else:
+            id_part = cd_structural_state_value.replace(" ", "_")
+        cd_structural_state_id = f"{cd_species_id}_{id_part}"
         if reading_context.model is not None:
             model_element = _reading_model.make_species_structural_state(
-                reading_context, cd_species_structural_state
+                reading_context, cd_species_structural_state, order=order
             )
             model_element.id_ = cd_structural_state_id
             model_element = object_from_builder(model_element)
@@ -1027,9 +1039,7 @@ class CellDesignerReader(Reader):
             # model species id, so it stays unique when one species appears
             # under several aliases — consistent with the parent species
             # layout and the modification layout above.
-            layout_element.id_ = (
-                f"{super_layout_element.id_}_{cd_structural_state_value}_layout"
-            )
+            layout_element.id_ = f"{super_layout_element.id_}_{id_part}_layout"
             layout_element = object_from_builder(layout_element)
             super_layout_element.layout_elements.append(layout_element)
         else:

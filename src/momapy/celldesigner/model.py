@@ -282,6 +282,12 @@ class StructuralState(CellDesignerModelElement):
         default=None,
         metadata={"description": "The value of the structural state"},
     )
+    order: int | None = dataclasses.field(
+        default=None,
+        metadata={
+            "description": "The order of the structural state. This is used to distinguish between two or more structural states with no value (i.e., set to `None`)"
+        },
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
